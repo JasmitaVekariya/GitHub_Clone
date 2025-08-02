@@ -14,13 +14,14 @@ yargs(hideBin(process.argv)).command('init',"Initialise a new repository",{},ini
                                     describe: 'File to add',
                                     type: 'string'
                                 });
-                            },addRepo)
-                            .command('commit <message>',"commit a repository",(yargs)=>{
-                                yargs.positional('message',{
+                            },
+                            (argv)=>{ addRepo(argv.file); }) // This will call the addRepo function with the file argument
+                            .command('commit <message>', "commit a repository", (yargs) => {
+                                yargs.positional('message', {
                                     describe: 'commit message',
                                     type: 'string'
                                 });
-                            },commitRepo)
+                            }, (argv) => commitRepo(argv.message)) // This will call the commitRepo function with the message argument
                             .command('pull',"pull a repository",{},pullRepo)
                             .command('push',"push a repository",{},pushRepo)
                             .command('revert <commit_id>',"revert a command",(yargs)=>{
@@ -28,7 +29,7 @@ yargs(hideBin(process.argv)).command('init',"Initialise a new repository",{},ini
                                     describe: 'commit id to revert to',
                                     type: 'string'
                                 });
-                            },revertRepo)
+                            }, (argv) => revertRepo(argv))
                             .demandCommand(1,"You must provide a command").help().argv; 
 //arg Which come from terminal is fetched by process.argv and hidebin is used to hide the first two arguments which are not required
 // command is used to define a command with its description when help runs
