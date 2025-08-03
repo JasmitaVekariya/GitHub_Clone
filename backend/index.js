@@ -29,7 +29,7 @@ yargs(hideBin(process.argv)).command('init',"Initialise a new repository",{},ini
                                     describe: 'commit id to revert to',
                                     type: 'string'
                                 });
-                            }, (argv) => revertRepo(argv))
+                            }, (argv) => revertRepo(argv.commit_id))
                             .demandCommand(1,"You must provide a command").help().argv; 
 //arg Which come from terminal is fetched by process.argv and hidebin is used to hide the first two arguments which are not required
 // command is used to define a command with its description when help runs
