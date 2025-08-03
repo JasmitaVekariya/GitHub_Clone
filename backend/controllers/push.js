@@ -2,7 +2,6 @@ const fs = require('fs').promises;
 const path = require('path');
 const {s3, S3_BUCKET} = require('../config/aws-config.js'); 
 
-
 async function pushRepo() {
     const repoPath = path.resolve(process.cwd(), '.github_clone');
     const commitspath = path.join(repoPath, 'commits');
