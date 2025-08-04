@@ -5,6 +5,7 @@ const dotenv = require("dotenv");
 const bodyParser = require("body-parser");
 const http = require("http");
 const { Server } = require("socket.io");
+const mainRouter = require("./routes/main.router.js"); 
 
 const yargs = require("yargs");
 const { hideBin } = require("yargs/helpers");
@@ -67,24 +68,24 @@ function startServer() {
   const app = express();
   const PORT = process.env.PORT || 3000;
 
+
+  app.use("/", mainRouter); 
+
+
   app.use(cors({ origin: "*" }));
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(express.json());
 
-  const mongoURL = process.env.MONGO_URL;
+  const mongoURI = process.env.MONGO_URI;
 
   mongoose
-    .connect(mongoURL)
+    .connect(mongoURI)
     .then(() => {
       console.log("Connected to MongoDB");
     })
     .catch((err) => {
       console.error("Error connecting to MongoDB:", err);
-    });
-
-    app.get("/", (req, res) => {
-      res.send("Welcome to the GitHub Clone API");
     });
 
     const user = "test";
