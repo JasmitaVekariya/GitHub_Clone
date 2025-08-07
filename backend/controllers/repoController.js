@@ -9,13 +9,14 @@ const Issue = require("../models/issuesModel.js");
 
 async function craeteRepository(req,res)
 {
-    try{
-        const {owner,name,issue,content,description,visibility} = new Repository(req.body);
+    const {owner,name,issue,content,description,visibility} = new Repository(req.body);
         const user = await User.findById(owner);
+    try{
+        
         if(!mongoose.Types.ObjectId.isValid(user)) {
             return res.status(404).send("User not found");
         }
-        if(!name || !issue || !content || !description || !visibility) {
+        if(!name ) {
             return res.status(400).send("All fields are required");
         }
         const repository = new Repository({
