@@ -41,6 +41,16 @@ async function craeteRepository(req,res)
         res.status(500).send("Internal Server Error");
     }
 }
+// {
+//     "owner": "68941bcd59ec7b27a417803b",
+//     "name":"archirepo",
+//     "issues":[],
+//     "content":[],
+//     "description":"testing repo",
+//     "visibility":true
+    
+    
+// }
 async function getAllRepository(req,res)
 {
     try{
