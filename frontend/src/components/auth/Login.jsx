@@ -19,14 +19,14 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const { setCurrentUser } = useAuth();
+  const { CurrentUser , setCurrentUser } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
     try {
       setLoading(true);
-      const res = await axios.post("http://localhost:3002/login", {
+      const res = await axios.post("http://localhost:3000/login", {
         email: email,
         password: password,
       });
@@ -56,7 +56,7 @@ const Login = () => {
           <Box sx={{ padding: 1 }}>
             <PageHeader>
               <PageHeader.TitleArea variant="large">
-                <PageHeader.Title>Sign In</PageHeader.Title>
+                <PageHeader.Title>Log In</PageHeader.Title>
               </PageHeader.TitleArea>
             </PageHeader>
           </Box>

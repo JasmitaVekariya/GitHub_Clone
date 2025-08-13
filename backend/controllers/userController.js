@@ -50,7 +50,7 @@ const signup = async (req, res) => {
       process.env.JWT_SECRET_KEY,
       { expiresIn: "240h" }
     );
-    res.json(token);
+    res.json({token , userId: result.insertedId});
   } catch (error) {
     console.error("Error during signup:", error);
     res.status(500).json({ message: "Internal server error" });
