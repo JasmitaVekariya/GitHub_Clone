@@ -151,7 +151,8 @@ const Dashboard = () => {
   }
 
   return (
-    
+    <>
+      <Navbar />
     <div style={styles.appWrapper}>
       <section id="dashboard" style={styles.dashboard}>
         <aside style={styles.sidebar}>
@@ -197,7 +198,7 @@ const Dashboard = () => {
         </aside>
       </section>
     </div>
-  
+    </>
   );
 };
 
