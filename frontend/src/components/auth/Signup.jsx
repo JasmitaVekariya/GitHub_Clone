@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import axios from "axios";//backend connection with resurce
 import { useAuth } from "../../authContext";
 
 import { PageHeader } from "@primer/react";
@@ -34,7 +34,7 @@ const Signup = () => {
       setCurrentUser(res.data.userId);
       setLoading(false);
 
-      window.location.href = "/";
+      window.location.href = '/';
     } catch (err) {
       console.error(err);
       alert("Signup Failed!");

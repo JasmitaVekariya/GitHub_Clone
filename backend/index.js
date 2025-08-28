@@ -69,13 +69,16 @@ function startServer() {
   const PORT = process.env.PORT || 3000;
 
 
-  app.use("/", mainRouter); 
+  // app.use(cors({ origin: "*" }));
 
-
-  app.use(cors({ origin: "*" }));
+  app.use(cors({
+    origin: "http://localhost:5173", // your React app URL
+    credentials: true
+  }));
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(express.json());
+  app.use("/", mainRouter); 
 
   const mongoURI = process.env.MONGO_URI;
 
@@ -93,7 +96,7 @@ function startServer() {
     const httpServer = http.createServer(app);
     const io = new Server(httpServer, {
       cors: {
-        origin: "*",
+        origin: "http://localhost:5173",
         methods: ["GET", "POST"],
       },
     });
@@ -101,7 +104,7 @@ function startServer() {
     io.on("connection", (socket) => {
         socket.on("joinRoom", (userID) => {
             user = userID;
-            console.log(`User ${user} has joined the room`);
+            console.log(`User ${userID} has joined the room`);
             socket.join(userID);
         })
     });
