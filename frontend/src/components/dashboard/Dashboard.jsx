@@ -1,5 +1,76 @@
 import React, { useState, useEffect } from "react";
 
+const styles = {
+  appWrapper: {
+    backgroundColor: "#0d1117", // full screen black
+    minHeight: "100vh",         // full viewport height
+    width: "100%",
+    margin: 0,
+    padding: 0,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    fontFamily:
+      '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"',
+    color: "#c9d1d9",
+  },
+  dashboard: {
+    display: "grid",
+    gridTemplateColumns: "1fr 2fr 1fr",
+    gap: "20px",
+    padding: "20px",
+    width: "80%",
+    maxWidth: "1200px",
+    background: "#0d1117", // keep dashboard same as body
+  },
+  card: {
+    background: "#161b22",
+    border: "1px solid #30363d",
+    borderRadius: "6px",
+    padding: "12px",
+    margin: "10px 0",
+  },
+  cardTitle: {
+    margin: 0,
+    color: "#58a6ff",
+    fontSize: "16px",
+  },
+  cardDesc: {
+    margin: "5px 0 0",
+    color: "#8b949e",
+    fontSize: "14px",
+  },
+  heading: {
+    borderBottom: "1px solid #30363d",
+    paddingBottom: "6px",
+    marginBottom: "10px",
+  },
+  searchBox: {
+    width: "100%",
+    padding: "8px",
+    borderRadius: "6px",
+    border: "1px solid #30363d",
+    background: "#0d1117",
+    color: "#c9d1d9",
+    fontSize: "14px",
+  },
+  sidebar: {
+    background: "#161b22",
+    border: "1px solid #30363d",
+    borderRadius: "6px",
+    padding: "15px",
+  },
+  error: {
+    textAlign: "center",
+    padding: "20px",
+    color: "#f85149",
+  },
+  loading: {
+    textAlign: "center",
+    padding: "20px",
+  },
+};
+
 const Dashboard = () => {
   const [repositories, setRepositories] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -61,89 +132,69 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div style={{ padding: "20px", textAlign: "center" }}>
-        <h2>Loading dashboard...</h2>
+      <div style={styles.appWrapper}>
+        <div style={styles.loading}>
+          <h2>Loading dashboard...</h2>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div style={{ padding: "20px", textAlign: "center", color: "red" }}>
-        <h2>Error: {error}</h2>
+      <div style={styles.appWrapper}>
+        <div style={styles.error}>
+          <h2>Error: {error}</h2>
+        </div>
       </div>
     );
   }
 
   return (
-    <div style={{ padding: "20px", maxWidth: "1200px", margin: "0 auto" }}>
-      <h1 style={{ textAlign: "center", marginBottom: "30px" }}>Dashboard</h1>
-      
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr 1fr", gap: "20px" }}>
-        <aside style={{ background: "#f5f5f5", padding: "20px", borderRadius: "8px" }}>
-          <h3>Suggested Repositories</h3>
-          {suggestedRepositories.length > 0 ? (
-            suggestedRepositories.map((repo) => (
-              <div key={repo._id} style={{ marginBottom: "15px", padding: "10px", background: "white", borderRadius: "5px" }}>
-                <h4 style={{ margin: "0 0 5px 0" }}>{repo.name}</h4>
-                <p style={{ margin: "0", fontSize: "14px", color: "#666" }}>{repo.description}</p>
-              </div>
-            ))
-          ) : (
-            <p>No suggested repositories available</p>
-          )}
+    <div style={styles.appWrapper}>
+      <section id="dashboard" style={styles.dashboard}>
+        <aside style={styles.sidebar}>
+          <h3 style={styles.heading}>Suggested Repositories</h3>
+          {suggestedRepositories.map((repo) => (
+            <div style={styles.card} key={repo._id}>
+              <h4 style={styles.cardTitle}>{repo.name}</h4>
+              <p style={styles.cardDesc}>{repo.description}</p>
+            </div>
+          ))}
         </aside>
-
-        <main style={{ background: "#f5f5f5", padding: "20px", borderRadius: "8px" }}>
-          <h2>Your Repositories</h2>
-          <div style={{ marginBottom: "20px" }}>
+        <main>
+          <h2 style={styles.heading}>Your Repositories</h2>
+          <div id="search">
             <input
               type="text"
               value={searchQuery}
               placeholder="Search repositories..."
               onChange={(e) => setSearchQuery(e.target.value)}
-              style={{ 
-                width: "100%", 
-                padding: "10px", 
-                borderRadius: "5px", 
-                border: "1px solid #ddd",
-                fontSize: "16px"
-              }}
+              style={styles.searchBox}
             />
           </div>
-          
-          {searchResults.length > 0 ? (
-            searchResults.map((repo) => (
-              <div key={repo._id} style={{ marginBottom: "15px", padding: "15px", background: "white", borderRadius: "5px", border: "1px solid #eee" }}>
-                <h4 style={{ margin: "0 0 10px 0", color: "#333" }}>{repo.name}</h4>
-                <p style={{ margin: "0", fontSize: "14px", color: "#666" }}>{repo.description}</p>
-              </div>
-            ))
-          ) : (
-            <div style={{ textAlign: "center", padding: "40px" }}>
-              <p>{searchQuery ? "No repositories found matching your search." : "No repositories available."}</p>
+          {searchResults.map((repo) => (
+            <div style={styles.card} key={repo._id}>
+              <h4 style={styles.cardTitle}>{repo.name}</h4>
+              <p style={styles.cardDesc}>{repo.description}</p>
             </div>
-          )}
+          ))}
         </main>
-
-        <aside style={{ background: "#f5f5f5", padding: "20px", borderRadius: "8px" }}>
-          <h3>Upcoming Events</h3>
-          <ul style={{ listStyle: "none", padding: "0" }}>
-            <li style={{ marginBottom: "15px", padding: "10px", background: "white", borderRadius: "5px" }}>
-              <p style={{ margin: "0", fontWeight: "bold" }}>Tech Conference</p>
-              <p style={{ margin: "5px 0 0 0", fontSize: "14px", color: "#666" }}>Dec 15</p>
+        <aside style={styles.sidebar}>
+          <h3 style={styles.heading}>Upcoming Events</h3>
+          <ul>
+            <li>
+              <p>Tech Conference - Dec 15</p>
             </li>
-            <li style={{ marginBottom: "15px", padding: "10px", background: "white", borderRadius: "5px" }}>
-              <p style={{ margin: "0", fontWeight: "bold" }}>Developer Meetup</p>
-              <p style={{ margin: "5px 0 0 0", fontSize: "14px", color: "#666" }}>Dec 25</p>
+            <li>
+              <p>Developer Meetup - Dec 25</p>
             </li>
-            <li style={{ marginBottom: "15px", padding: "10px", background: "white", borderRadius: "5px" }}>
-              <p style={{ margin: "0", fontWeight: "bold" }}>React Summit</p>
-              <p style={{ margin: "5px 0 0 0", fontSize: "14px", color: "#666" }}>Jan 5</p>
+            <li>
+              <p>React Summit - Jan 5</p>
             </li>
           </ul>
         </aside>
-      </div>
+      </section>
     </div>
   );
 };
