@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const {Schema} = mongoose;
 
 const userSchema = new Schema({
+    Timestamp:true,
     username:{
         type: String,
         required: true,
@@ -41,7 +42,9 @@ const userSchema = new Schema({
         type: Date,
         default: Date.now
     }
-});
+    
+}
+);
 
 const User = mongoose.model("User", userSchema);
 

@@ -26,6 +26,7 @@ const RepositorySchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "Issue",
     }],
+    Timestamp:true
 
 });
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "../Navbar";
+
 const styles = {
   appWrapper: {
     backgroundColor: "#0d1117", // full screen black
