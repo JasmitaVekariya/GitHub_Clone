@@ -1,30 +1,61 @@
-nav {
+/* navbar.css */
+.navbar {
+  position: fixed;              /* Make navbar fixed at the top */
+  top: 0;
+  left: 0;
+  width: 100%;                  /* Full width */
+  z-index: 1000;
+  
   display: flex;
   justify-content: space-between;
-  padding-bottom: 10px;
-  border-bottom: 2px solid white;
+  align-items: center;
+  
+  padding: 12px 24px;
+  background-color: #161b22;    /* GitHub dark theme */
+  border-bottom: 1px solid #30363d;
+  box-sizing: border-box;
 }
 
-nav img {
-  height: 50px;
-  border-radius: 100%;
+.navbar a {
+  text-decoration: none;
 }
-nav div {
+
+.navbar img {
+  height: 40px;
+  width: 40px;
+  border-radius: 50%;
+}
+
+.navbar .nav-logo {
   display: flex;
+  align-items: center;
 }
 
-nav h3 {
-  margin-left: 15px;
-  color: white;
+.navbar .nav-logo h3 {
+  margin-left: 12px;
+  color: #fff;
+  font-size: 18px;
 }
 
-nav p {
-  margin-left: 50px;
-  font-weight: bold;
-  color: white;
+.navbar .nav-links {
+  display: flex;
+  align-items: center;
 }
 
-nav h3:hover,
-nav p:hover {
+.navbar .nav-links p {
+  margin-left: 24px;
+  font-weight: 500;
+  color: #c9d1d9;
+  cursor: pointer;
+}
+
+.navbar .nav-links p:hover,
+.navbar .nav-logo h3:hover {
   text-decoration: underline;
+  color: #58a6ff;
+}
+.navbar .nav-user {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
 }

@@ -1,13 +1,12 @@
 const express = require("express");
-const issueController = require("../controllers/issueController.js");
+const issueController = require("../controllers/issueController");
 
 const issueRouter = express.Router();
-issueRouter.use(express.json());
 
 issueRouter.post("/issue/create", issueController.createIssue);
-issueRouter.get("/issue/all/:repoID", issueController.getAllIssues); // Fix here
-issueRouter.get("/issue/:id", issueController.getIssueByID);
-issueRouter.put("/issue/update/:id", issueController.updateIssueByID);
-issueRouter.delete("/issue/delete/:id", issueController.deleteIssueByID);
+issueRouter.put("/issue/update/:id", issueController.updateIssueById);
+issueRouter.delete("/issue/delete/:id", issueController.deleteIssueById);
+issueRouter.get("/issue/all", issueController.getAllIssues);
+issueRouter.get("/issue/:id", issueController.getIssueById);
 
 module.exports = issueRouter;

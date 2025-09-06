@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../Navbar";
 
 const styles = {
   appWrapper: {
-    backgroundColor: "#0d1117", // full screen black
-    minHeight: "100vh",         // full viewport height
+    backgroundColor: "#0d1117",
+    minHeight: "100vh",
     width: "100%",
     margin: 0,
     padding: 0,
@@ -22,7 +23,7 @@ const styles = {
     padding: "20px",
     width: "80%",
     maxWidth: "1200px",
-    background: "#0d1117", // keep dashboard same as body
+    background: "#0d1117",
   },
   card: {
     background: "#161b22",
@@ -30,6 +31,11 @@ const styles = {
     borderRadius: "6px",
     padding: "12px",
     margin: "10px 0",
+    cursor: "pointer",
+    transition: "background 0.2s",
+  },
+  cardHover: {
+    background: "#1f2731",
   },
   cardTitle: {
     margin: 0,
@@ -70,6 +76,11 @@ const styles = {
     textAlign: "center",
     padding: "20px",
   },
+  noResults: {
+    textAlign: "center",
+    color: "#8b949e",
+    padding: "10px",
+  },
 };
 
 const Dashboard = () => {
@@ -79,6 +90,7 @@ const Dashboard = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const userId = localStorage.getItem("userId");
@@ -93,7 +105,7 @@ const Dashboard = () => {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        setRepositories(data.repositories || []);
+        setRepositories(data.repositories ?? data ?? []);
       } catch (err) {
         console.error("Error while fetching repositories: ", err);
         setError("Failed to load repositories");
@@ -109,7 +121,7 @@ const Dashboard = () => {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        setSuggestedRepositories(data || []);
+        setSuggestedRepositories(data ?? []);
       } catch (err) {
         console.error("Error while fetching suggested repositories: ", err);
         setError("Failed to load suggested repositories");
@@ -125,7 +137,7 @@ const Dashboard = () => {
       setSearchResults(repositories);
     } else {
       const filteredRepo = repositories.filter((repo) =>
-        repo.name.toLowerCase().includes(searchQuery.toLowerCase())
+        repo?.name?.toLowerCase().includes(searchQuery.toLowerCase())
       );
       setSearchResults(filteredRepo);
     }
@@ -151,20 +163,39 @@ const Dashboard = () => {
     );
   }
 
-  return (
-    <>
-      <Navbar />
-    <div style={styles.appWrapper}>
+return (
+  <>
+    {/* Navbar stays completely independent */}
+    <Navbar />
+
+    {/* Page content wrapper */}
+    <div
+  style={{
+    ...styles.appWrapper,
+    display: "block",
+    justifyContent: "unset",
+    alignItems: "unset",
+    paddingTop: "80px", // 🔥 Add this line
+  }}
+>
+
       <section id="dashboard" style={styles.dashboard}>
+        {/* Suggested Repos */}
         <aside style={styles.sidebar}>
           <h3 style={styles.heading}>Suggested Repositories</h3>
-          {suggestedRepositories.map((repo) => (
-            <div style={styles.card} key={repo._id}>
-              <h4 style={styles.cardTitle}>{repo.name}</h4>
-              <p style={styles.cardDesc}>{repo.description}</p>
-            </div>
-          ))}
+          {suggestedRepositories.length > 0 ? (
+            suggestedRepositories.map((repo) => (
+              <div style={styles.card} key={repo._id}>
+                <h4 style={styles.cardTitle}>{repo?.name}</h4>
+                <p style={styles.cardDesc}>{repo?.description}</p>
+              </div>
+            ))
+          ) : (
+            <p style={styles.noResults}>No suggestions available.</p>
+          )}
         </aside>
+
+        {/* User Repos */}
         <main>
           <h2 style={styles.heading}>Your Repositories</h2>
           <div id="search">
@@ -176,13 +207,26 @@ const Dashboard = () => {
               style={styles.searchBox}
             />
           </div>
-          {searchResults.map((repo) => (
-            <div style={styles.card} key={repo._id}>
-              <h4 style={styles.cardTitle}>{repo.name}</h4>
-              <p style={styles.cardDesc}>{repo.description}</p>
-            </div>
-          ))}
+
+          {searchResults.length > 0 ? (
+            searchResults.map((repo) => (
+              <div
+                style={styles.card}
+                key={repo._id}
+                onClick={() => navigate(`/repository/${repo._id}`)}
+              >
+                <h4 style={styles.cardTitle}>{repo?.name}</h4>
+                <p style={styles.cardDesc}>
+                  {repo?.description || "No description provided"}
+                </p>
+              </div>
+            ))
+          ) : (
+            <p style={styles.noResults}>No repositories found.</p>
+          )}
         </main>
+
+        {/* Events */}
         <aside style={styles.sidebar}>
           <h3 style={styles.heading}>Upcoming Events</h3>
           <ul>
@@ -199,8 +243,8 @@ const Dashboard = () => {
         </aside>
       </section>
     </div>
-    </>
-  );
+  </>
+);
 };
 
 export default Dashboard;

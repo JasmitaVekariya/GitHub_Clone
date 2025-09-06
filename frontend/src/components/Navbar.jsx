@@ -4,9 +4,9 @@ import "./navbar.css";
 
 const Navbar = () => {
   return (
-    <nav>
+    <nav className="navbar">
       <Link to="/">
-        <div>
+        <div className="nav-logo">
           <img
             src="https://www.github.com/images/modules/logos_page/GitHub-Mark.png"
             alt="GitHub Logo"
@@ -14,8 +14,8 @@ const Navbar = () => {
           <h3>GitHub</h3>
         </div>
       </Link>
-      <div>
-        <Link to="/create">
+      <div className="nav-links">
+        <Link to="/repository/create">
           <p>Create a Repository</p>
         </Link>
         <Link to="/profile">

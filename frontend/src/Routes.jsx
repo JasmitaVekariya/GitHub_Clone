@@ -1,14 +1,21 @@
 import React, { useEffect } from "react";
-import {useNavigate, useRoutes} from 'react-router-dom'
+import { useNavigate, useRoutes, useParams } from "react-router-dom";
 
 // Pages List
 import Dashboard from "./components/dashboard/Dashboard";
 import Profile from "./components/user/Profile";
 import Login from "./components/auth/Login";
 import Signup from "./components/auth/Signup";
-
+import CreateRepo from "./components/repo/CreateRepo";
+import RepositoryDetails from "./components/repo/RepoDetails";
+import UpdateRepository from "./components/repo/UpdateRepo";
+ import CreateIssue from "./components/issue/CreateIssue";
 // Auth Context
 import { useAuth } from "./authContext";
+function CreateIssueWrapper() {
+  const { id } = useParams();
+  return <CreateIssue repositoryId={id} />;
+}
 
 const ProjectRoutes = ()=>{
     const {currentUser, setCurrentUser} = useAuth();
@@ -47,9 +54,21 @@ const ProjectRoutes = ()=>{
         {
             path:"/profile",
             element:<Profile/>
+        },
+        {
+            path:"/repository/create",
+            element:<CreateRepo/>
+        },
+        {
+            path:"/repository/:id",
+            element:<RepositoryDetails/>
+        },
+        { path: "/repository/update/:id", element: <UpdateRepository /> },
+        {
+            path:"/repository/:id/issue/create" ,element:<CreateIssueWrapper />
         }
-    ]);
 
+    ]);
     return element;
 }
 
