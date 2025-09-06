@@ -24,8 +24,7 @@ const RepositorySchema = new Schema({
     },
     issues: [{
         type: Schema.Types.ObjectId,
-        ref: "Issue",
-    }]
+        ref: "Issue",}]
 
 });
 

@@ -19,8 +19,7 @@ const issuesSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "Repository",
         required: true,
-    },
-  
+    }
 });
 
 const Issue = mongoose.model("Issue", issuesSchema);
