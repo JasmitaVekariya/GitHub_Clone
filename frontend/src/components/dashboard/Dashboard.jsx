@@ -2,84 +2,105 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../Navbar";
 
+const palette = {
+  bg: "#0a0e14",
+  card: "#141c26",
+  border: "#30363d",
+  accent: "#58a6ff",
+  textPrimary: "#c9d1d9",
+  textSecondary: "#768390",
+};
+
 const styles = {
   appWrapper: {
-    backgroundColor: "#0d1117",
+    backgroundColor: palette.bg,
     minHeight: "100vh",
     width: "100%",
     margin: 0,
     padding: 0,
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
     fontFamily:
       '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"',
-    color: "#c9d1d9",
+    color: palette.textPrimary,
   },
   dashboard: {
     display: "grid",
-    gridTemplateColumns: "1fr 2fr 1fr",
+    gridTemplateColumns: "1.3fr 2fr 1.3fr",
     gap: "20px",
-    padding: "20px",
-    width: "80%",
-    maxWidth: "1200px",
-    background: "#0d1117",
+    padding: "40px 20px 80px",
+    width: "90%",
+    maxWidth: "1400px",
+    margin: "0 auto",
+  },
+  sidebar: {
+    background: palette.card,
+    border: `1px solid ${palette.border}`,
+    borderRadius: "12px",
+    padding: "24px 20px",
+    boxShadow: "0 2px 12px rgb(20 23 26 / 0.5)",
+    display: "flex",
+    flexDirection: "column",
   },
   card: {
-    background: "#161b22",
-    border: "1px solid #30363d",
-    borderRadius: "6px",
-    padding: "12px",
-    margin: "10px 0",
+    background: palette.card,
+    borderRadius: "12px",
+    padding: "18px 20px",
+    marginBottom: "14px",
     cursor: "pointer",
-    transition: "background 0.2s",
+    boxShadow: "0 2px 10px rgb(20 23 26 / 0.6)",
+    transition: "background-color 0.3s ease, box-shadow 0.3s ease",
+    display: "flex",
+    flexDirection: "column",
   },
   cardHover: {
-    background: "#1f2731",
+    background: "#1b2330",
+    boxShadow: "0 4px 20px rgb(56 139 253 / 0.4)",
   },
   cardTitle: {
     margin: 0,
-    color: "#58a6ff",
-    fontSize: "16px",
+    color: palette.accent,
+    fontSize: "1rem",
+    fontWeight: "600",
   },
   cardDesc: {
-    margin: "5px 0 0",
-    color: "#8b949e",
-    fontSize: "14px",
+    margin: "6px 0 0",
+    color: palette.textSecondary,
+    fontSize: "0.85rem",
+    lineHeight: "1.3",
+    minHeight: "48px",
   },
   heading: {
-    borderBottom: "1px solid #30363d",
-    paddingBottom: "6px",
-    marginBottom: "10px",
+    borderBottom: `1px solid ${palette.border}`,
+    paddingBottom: "8px",
+    marginBottom: "20px",
+    fontSize: "1.25rem",
+    fontWeight: "600",
   },
   searchBox: {
     width: "100%",
-    padding: "8px",
-    borderRadius: "6px",
-    border: "1px solid #30363d",
+    padding: "10px 16px",
+    borderRadius: "8px",
+    border: `1px solid ${palette.border}`,
     background: "#0d1117",
-    color: "#c9d1d9",
+    color: palette.textPrimary,
     fontSize: "14px",
-  },
-  sidebar: {
-    background: "#161b22",
-    border: "1px solid #30363d",
-    borderRadius: "6px",
-    padding: "15px",
-  },
-  error: {
-    textAlign: "center",
-    padding: "20px",
-    color: "#f85149",
-  },
-  loading: {
-    textAlign: "center",
-    padding: "20px",
+    marginBottom: "20px",
+    outline: "none",
+    transition: "border-color 0.3s ease",
   },
   noResults: {
     textAlign: "center",
-    color: "#8b949e",
-    padding: "10px",
+    color: palette.textSecondary,
+    padding: "20px",
+  },
+  loading: {
+    textAlign: "center",
+    padding: "40px",
+    fontSize: "1.2rem",
+  },
+  error: {
+    textAlign: "center",
+    padding: "40px",
+    color: "#f85149",
   },
 };
 
@@ -107,7 +128,6 @@ const Dashboard = () => {
         const data = await response.json();
         setRepositories(data.repositories ?? data ?? []);
       } catch (err) {
-        console.error("Error while fetching repositories: ", err);
         setError("Failed to load repositories");
       } finally {
         setLoading(false);
@@ -123,7 +143,6 @@ const Dashboard = () => {
         const data = await response.json();
         setSuggestedRepositories(data ?? []);
       } catch (err) {
-        console.error("Error while fetching suggested repositories: ", err);
         setError("Failed to load suggested repositories");
       }
     };
@@ -163,88 +182,102 @@ const Dashboard = () => {
     );
   }
 
-return (
-  <>
-    {/* Navbar stays completely independent */}
-    <Navbar />
+  // Helper for hover effect on cards
+  const handleMouseEnter = (e) => {
+    e.currentTarget.style.background = styles.cardHover.background;
+    e.currentTarget.style.boxShadow = styles.cardHover.boxShadow;
+  };
 
-    {/* Page content wrapper */}
-    <div
-  style={{
-    ...styles.appWrapper,
-    display: "block",
-    justifyContent: "unset",
-    alignItems: "unset",
-    paddingTop: "80px", // 🔥 Add this line
-  }}
->
+  const handleMouseLeave = (e) => {
+    e.currentTarget.style.background = palette.card;
+    e.currentTarget.style.boxShadow = styles.card.boxShadow;
+  };
 
-      <section id="dashboard" style={styles.dashboard}>
-        {/* Suggested Repos */}
-        <aside style={styles.sidebar}>
-          <h3 style={styles.heading}>Suggested Repositories</h3>
-          {suggestedRepositories.length > 0 ? (
-            suggestedRepositories.map((repo) => (
-              <div style={styles.card} key={repo._id}>
-                <h4 style={styles.cardTitle}>{repo?.name}</h4>
-                <p style={styles.cardDesc}>{repo?.description}</p>
-              </div>
-            ))
-          ) : (
-            <p style={styles.noResults}>No suggestions available.</p>
-          )}
-        </aside>
+  return (
+    <>
+      <Navbar />
+      <div style={{ ...styles.appWrapper, paddingTop: "80px" }}>
+        <section id="dashboard" style={styles.dashboard}>
+          {/* Suggested Repositories */}
+          <aside style={styles.sidebar}>
+            <h3 style={styles.heading}>Suggested Repositories</h3>
+            {suggestedRepositories.length > 0 ? (
+              suggestedRepositories.map((repo) => (
+                <div
+                  style={styles.card}
+                  key={repo._id}
+                  onMouseEnter={handleMouseEnter}
+                  onMouseLeave={handleMouseLeave}
+                >
+                  <h4 style={styles.cardTitle}>{repo?.name}</h4>
+                  <p style={styles.cardDesc}>
+                    {repo?.description || "No description provided"}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <p style={styles.noResults}>No suggestions available.</p>
+            )}
+          </aside>
 
-        {/* User Repos */}
-        <main>
-          <h2 style={styles.heading}>Your Repositories</h2>
-          <div id="search">
+          {/* User Repositories */}
+          <main style={styles.sidebar}>
+            <h2 style={styles.heading}>Your Repositories</h2>
             <input
               type="text"
               value={searchQuery}
               placeholder="Search repositories..."
               onChange={(e) => setSearchQuery(e.target.value)}
               style={styles.searchBox}
+              onFocus={(e) => (e.target.style.borderColor = palette.accent)}
+              onBlur={(e) => (e.target.style.borderColor = palette.border)}
             />
-          </div>
+            {searchResults.length > 0 ? (
+              searchResults.map((repo) => (
+                <div
+                  style={styles.card}
+                  key={repo._id}
+                  onClick={() => navigate(`/repository/${repo._id}`)}
+                  onMouseEnter={handleMouseEnter}
+                  onMouseLeave={handleMouseLeave}
+                >
+                  <h4 style={styles.cardTitle}>{repo?.name}</h4>
+                  <p style={styles.cardDesc}>
+                    {repo?.description || "No description provided"}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <p style={styles.noResults}>No repositories found.</p>
+            )}
+          </main>
 
-          {searchResults.length > 0 ? (
-            searchResults.map((repo) => (
-              <div
-                style={styles.card}
-                key={repo._id}
-                onClick={() => navigate(`/repository/${repo._id}`)}
-              >
-                <h4 style={styles.cardTitle}>{repo?.name}</h4>
-                <p style={styles.cardDesc}>
-                  {repo?.description || "No description provided"}
-                </p>
-              </div>
-            ))
-          ) : (
-            <p style={styles.noResults}>No repositories found.</p>
-          )}
-        </main>
-
-        {/* Events */}
-        <aside style={styles.sidebar}>
-          <h3 style={styles.heading}>Upcoming Events</h3>
-          <ul>
-            <li>
-              <p>Tech Conference - Dec 15</p>
-            </li>
-            <li>
-              <p>Developer Meetup - Dec 25</p>
-            </li>
-            <li>
-              <p>React Summit - Jan 5</p>
-            </li>
-          </ul>
-        </aside>
-      </section>
-    </div>
-  </>
-);
+          {/* Upcoming Events */}
+          <aside style={styles.sidebar}>
+            <h3 style={styles.heading}>Upcoming Events</h3>
+            <div
+              style={styles.card}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+            >
+              <h4 style={styles.cardTitle}>Community Standup</h4>
+              <p style={styles.cardDesc}>Mon, Oct 26, 2024 - Virtual Event</p>
+            </div>
+            <div
+              style={styles.card}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+            >
+              <h4 style={styles.cardTitle}>Open Source Sprint</h4>
+              <p style={styles.cardDesc}>
+                Wed, Oct 28, 2024 - Codebase Contribution
+              </p>
+            </div>
+          </aside>
+        </section>
+      </div>
+    </>
+  );
 };
 
 export default Dashboard;

@@ -1,21 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../Navbar";
-import { UnderlineNav } from "@primer/react";
-import { BookIcon, RepoIcon } from "@primer/octicons-react";
-import { useAuth } from "../../authContext";
 import HeatMapProfile from "./HeatMap";
-
+import "./Profile.css";
+import { useAuth } from "../../authContext";
+import { UnderlineNav } from "@primer/react"; // example import, adjust as needed
+import { BookIcon, RepoIcon } from "@primer/octicons-react";
 const Profile = () => {
   const navigate = useNavigate();
-  const [userDetails, setUserDetails] = useState({ username: "username" });
+  const [userDetails, setUserDetails] = useState({ username: "Username" });
+  const [repositories, setRepositories] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const { setCurrentUser } = useAuth();
 
   useEffect(() => {
-    const fetchUserDetails = async () => {
-      const userId = localStorage.getItem("userId");
+    const userId = localStorage.getItem("userId");
 
+    const fetchUserDetails = async () => {
       if (userId) {
         try {
           const response = await axios.get(
@@ -27,74 +30,136 @@ const Profile = () => {
         }
       }
     };
+
+    const fetchRepositories = async () => {
+      if (userId) {
+        try {
+          setLoading(true);
+          const response = await fetch(
+            `http://localhost:3000/repo/user/${userId}`
+          );
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const data = await response.json();
+          setRepositories(data.repositories || data || []);
+        } catch (err) {
+          console.error("Error while fetching repositories: ", err);
+          setError("Failed to load repositories");
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
     fetchUserDetails();
+    fetchRepositories();
   }, []);
-return (
- <>
-  {/* Navbar stays static and independent */}
-  <Navbar />
 
-  {/* Page content wrapper */}
-  <div className="page-content">
-    <UnderlineNav aria-label="Repository">
-      <UnderlineNav.Item
-        aria-current="page"
-        icon={BookIcon}
-        sx={{
-          backgroundColor: "transparent",
-          color: "white",
-          "&:hover": { textDecoration: "underline", color: "white" },
-        }}
-      >
-        Overview
-      </UnderlineNav.Item>
+  return (
+    <>
+      <Navbar />
+    <div className="underline-nav">
+  <UnderlineNav aria-label="Repository">
+  
+        <UnderlineNav.Item
+          aria-current="page"
+          icon={BookIcon}
+          sx={{
+            backgroundColor: "transparent",
+            color: "white",
+            "&:hover": {
+              textDecoration: "underline",
+              color: "white",
+            },
+          }}
+        >
+          Overview
+        </UnderlineNav.Item>
 
-      <UnderlineNav.Item
-        onClick={() => navigate("/repo")}
-        icon={RepoIcon}
-        sx={{
-          backgroundColor: "transparent",
-          color: "whitesmoke",
-          "&:hover": { textDecoration: "underline", color: "white" },
-        }}
-      >
-        Starred Repositories
-      </UnderlineNav.Item>
-    </UnderlineNav>
+        <UnderlineNav.Item
+          onClick={() => navigate("/repo")}
+          icon={RepoIcon}
+          sx={{
+            backgroundColor: "transparent",
+            color: "whitesmoke",
+            "&:hover": {
+              textDecoration: "underline",
+              color: "white",
+            },
+          }}
+        >
+          Starred Repositories
+        </UnderlineNav.Item>
+      
+  </UnderlineNav>
+</div>  
 
-    <button
-      onClick={() => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("userId");
-        setCurrentUser(null);
-        window.location.href = "/auth";
-      }}
-      style={{ position: "fixed", bottom: "50px", right: "50px" }}
-      id="logout"
-    >
-      Logout
-    </button>
-
-    <div className="profile-page-wrapper">
-      <div className="user-profile-section">
-        <div className="profile-image"></div>
-        <div className="name">
-          <h3>{userDetails.username}</h3>
+      <div className="profile-container">
+        
+        {/* LEFT SIDEBAR */}
+        <div className="profile-sidebar">
+          <div className="profile-image">
+            <img src="https://avatars.githubusercontent.com/u/583231?v=4" alt="Profile" />
+          </div>
+          <h2 className="username">{userDetails.username}</h2>
+          <button className="edit-profile-btn">Edit Profile</button>
         </div>
-        <button className="follow-btn">Follow</button>
-        <div className="follower">
-          <p>10 Follower</p>
-          <p>3 Following</p>
-        </div>
-      </div>
 
-      <div className="heat-map-section">
-        <HeatMapProfile />
+        {/* RIGHT SECTION */}
+        <div className="profile-main">
+          {/* USER REPOS */}
+          <div className="popular-repos">
+            <h3>User Repositories</h3>
+
+            {loading && <p>Loading repositories...</p>}
+            {error && <p className="error-message">{error}</p>}
+
+            <div className="repos-grid">
+              {repositories.length > 0 ? (
+                repositories.map((repo) => (
+                  <div
+                    className="repo-card"
+                    key={repo._id}
+                    onClick={() => navigate(`/repository/${repo._id}`)}
+                  >
+                    <h4 className="repo-title">{repo.name}</h4>
+                    <p className="repo-description">
+                      {repo.description || "No description provided"}
+                    </p>
+                    <span className="repo-language">
+                      {repo.language || "Unknown"}
+                    </span>
+                  </div>
+                ))
+              ) : (
+                !loading && <p>No repositories found.</p>
+              )}
+            </div>
+          </div>
+
+          {/* HEATMAP */}
+          <div className="heatmap-wrapper">
+            <h3>Contribution activity</h3>
+            <HeatMapProfile />
+          </div>
+        </div>
+
+        {/* LOGOUT BUTTON */}
+        <button
+          onClick={() => {
+            localStorage.removeItem("token");
+            localStorage.removeItem("userId");
+            setCurrentUser(null);
+            window.location.href = "/auth";
+          }}
+          className="logout-btn"
+        >
+          Logout
+        </button>
       </div>
-    </div>
-  </div>
-</>
-)
+    </>
+  );
 };
 
 export default Profile;

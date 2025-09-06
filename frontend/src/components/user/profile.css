@@ -1,0 +1,207 @@
+/* Container layout */
+.profile-container {
+  display: flex;
+  padding: 40px 40px 80px 40px;
+  padding-top: 0px;
+  background-color: #0d1117;
+  color: #c9d1d9;
+  min-height: 100vh;
+  position: relative;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji";
+
+  /* Align items at the start vertically for better alignment */
+  align-items: flex-start;
+}
+/* UnderlineNav container styling */
+.underline-nav {
+    margin-top: 120px;
+  margin-bottom: 30px; /* space below nav */
+  border-bottom: 1px solid #30363d; /* subtle border for separation */
+  padding-left: 20px; /* align with sidebar/main content padding */
+}
+
+/* Override Primer's UnderlineNav styles for your theme */
+.underline-nav [role="tablist"] {
+  display: flex;
+  gap: 24px; /* spacing between nav items */
+  border-bottom: none; /* remove default underline, we handle it */
+  padding-bottom: 8px;
+}
+
+.underline-nav [role="tab"] {
+  color: #c9d1d9;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 10px 0;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.underline-nav [role="tab"]:hover {
+  color: #58a6ff;
+  text-decoration: underline;
+}
+
+.underline-nav [role="tab"][aria-selected="true"] {
+  color: #58a6ff;
+  border-bottom-color: #58a6ff; /* active underline */
+  font-weight: 700;
+}
+
+/* Make sure icons align nicely with text */
+.underline-nav svg {
+  vertical-align: middle;
+  margin-right: 6px;
+  fill: currentColor;
+  height: 16px;
+  width: 16px;
+}
+
+/* Responsive tweak: stack nav vertically on smaller screens */
+@media (max-width: 600px) {
+  .underline-nav [role="tablist"] {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+/* Sidebar (Left) */
+.profile-sidebar {
+  width: 280px;
+  height: fit-content;
+  margin-right: 80px; /* slightly bigger gap */
+  text-align: center;
+  margin-top: 100px; /* remove top margin for better vertical alignment */
+  background: #151920;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 12px rgba(18, 21, 24, 0.5);
+
+  /* Make sure sidebar stays sticky on scroll (optional) */
+  position: sticky;
+  top: 100px;
+}
+.profile-image img {
+  width: 220px;
+  height: 220px;
+  border-radius: 50%; /* makes it circle */
+  object-fit: cover;  /* ensures image covers the container nicely */
+  border: 2px solid #30363d;
+  display: block; /* removes inline spacing issues */
+}
+
+/* Main Content (Right) */
+.profile-main {
+  flex: 1;
+  margin-top: 0; /* align top with sidebar */
+ max-width: 1000px;
+}
+
+/* Repositories Section */
+.popular-repos h3 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+.edit-profile-btn:hover {
+  border-color: #212732;
+  background-color: #333842;
+  transition: background-color 0.3s ease;
+}
+/* FIXED 2 columns for repo cards */
+.repos-grid {
+  display: grid;
+   grid-template-columns: repeat(2, minmax(350px, 1fr)); /* wider cards */
+  gap: 20px;
+}
+
+/* Repo card style unchanged */
+.repo-card {
+  background-color: #161b22;
+  padding: 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgb(20 23 26 / 0.6);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.repo-card:hover {
+  background-color: #21262d;
+  box-shadow: 0 4px 20px rgba(38, 53, 73, 0.5);
+}
+
+.repo-title {
+  color: #58a6ff;
+  font-weight: 600;
+  font-size: 1.15rem;
+  margin-bottom: 8px;
+}
+
+.repo-description {
+  color: #8b949e;
+  font-size: 0.95rem;
+  margin-bottom: 20px;
+  min-height: 48px; /* keep consistent height */
+}
+
+.repo-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.repo-language {
+  font-size: 0.8rem;
+  color: #58a6ff;
+  background-color: #0e2235;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.repo-stars {
+  font-size: 0.8rem;
+  color: #8b949e;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+
+/* Heatmap Section */
+.heatmap-wrapper {
+  margin-top: 60px;
+  max-width: 900px;
+  color: #c9d1d9;
+}
+
+.error-message {
+  color: #f85149;
+}
+
+/* Logout Button */
+.logout-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background-color:#3a4251 ;  /* professional navy blue */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(53, 62, 76, 0.7);
+  transition: background-color 0.3s ease;
+  z-index: 999;
+}
+
+.logout-btn:hover {
+  background-color: #212732; /* darker blue on hover */
+}
