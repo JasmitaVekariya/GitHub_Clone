@@ -25,8 +25,7 @@ const RepositorySchema = new Schema({
     issues: [{
         type: Schema.Types.ObjectId,
         ref: "Issue",
-    }],
-    Timestamp:true
+    }]
 
 });
 

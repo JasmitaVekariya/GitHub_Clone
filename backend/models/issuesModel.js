@@ -20,7 +20,7 @@ const issuesSchema = new Schema({
         ref: "Repository",
         required: true,
     },
-    Timestamp:true
+  
 });
 
 const Issue = mongoose.model("Issue", issuesSchema);
