@@ -3,7 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../Navbar";
 
 const IssueList = () => {
-  const { id: repositoryId } = useParams(); // fetch repo ID from URL
+const { id: repositoryId } = useParams(); // this is fine
+ // fetch repo ID from URL
   const navigate = useNavigate();
 
   const [issues, setIssues] = useState([]);

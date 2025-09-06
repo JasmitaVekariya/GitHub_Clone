@@ -71,7 +71,7 @@ const ProjectRoutes = ()=>{
         },
         {
         path: "/repository/:id/issues",
-        element: <IssueList />
+  element: <IssueList />
         },
 {              path:"/issue/update/:id" ,
      element:<UpdateIssue />
