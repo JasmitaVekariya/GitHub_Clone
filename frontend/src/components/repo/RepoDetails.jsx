@@ -132,7 +132,9 @@ const RepositoryDetails = () => {
           >
             Create New Issue
           </button>
-        
+        <button onClick={() => navigate(`/repository/${id}/issues`)}>View Issues</button>
+           
+
         </div>
       </div>
     </>

@@ -9,7 +9,9 @@ import Signup from "./components/auth/Signup";
 import CreateRepo from "./components/repo/CreateRepo";
 import RepositoryDetails from "./components/repo/RepoDetails";
 import UpdateRepository from "./components/repo/UpdateRepo";
- import CreateIssue from "./components/issue/CreateIssue";
+import CreateIssue from "./components/issue/CreateIssue";
+ import IssueList from "./components/issue/issueList";
+import UpdateIssue from "./components/issue/UpdateIssue";
 // Auth Context
 import { useAuth } from "./authContext";
 function CreateIssueWrapper() {
@@ -66,7 +68,15 @@ const ProjectRoutes = ()=>{
         { path: "/repository/update/:id", element: <UpdateRepository /> },
         {
             path:"/repository/:id/issue/create" ,element:<CreateIssueWrapper />
-        }
+        },
+        {
+        path: "/repository/:id/issues",
+        element: <IssueList />
+        },
+{              path:"/issue/update/:id" ,
+     element:<UpdateIssue />
+    } 
+
 
     ]);
     return element;
