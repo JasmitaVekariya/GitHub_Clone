@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const {Schema} = mongoose;
 
 const userSchema = new Schema({
-    Timestamp:true,
+   
     username:{
         type: String,
         required: true,
