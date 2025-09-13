@@ -66,7 +66,13 @@ const styles = {
     color: palette.textSecondary,
     fontSize: "0.85rem",
     lineHeight: "1.3",
-    minHeight: "48px",
+    minHeight: "36px",
+  },
+  ownerText: {
+    fontSize: "0.75rem",
+    color: palette.textSecondary,
+    marginTop: "6px",
+    fontStyle: "italic",
   },
   heading: {
     borderBottom: `1px solid ${palette.border}`,
@@ -141,7 +147,14 @@ const Dashboard = () => {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        setSuggestedRepositories(data ?? []);
+
+        // ✅ Filter: only public repos, not owned by current user
+        const filteredRepos = (data ?? []).filter(
+          (repo) =>
+            String(repo.ownerId) !== String(userId) && repo.visibility === true
+        );
+
+        setSuggestedRepositories(filteredRepos);
       } catch (err) {
         setError("Failed to load suggested repositories");
       }
@@ -182,7 +195,7 @@ const Dashboard = () => {
     );
   }
 
-  // Helper for hover effect on cards
+  // Hover helpers
   const handleMouseEnter = (e) => {
     e.currentTarget.style.background = styles.cardHover.background;
     e.currentTarget.style.boxShadow = styles.cardHover.boxShadow;
@@ -206,12 +219,16 @@ const Dashboard = () => {
                 <div
                   style={styles.card}
                   key={repo._id}
+                  onClick={() => navigate(`/repository/${repo._id}`)}
                   onMouseEnter={handleMouseEnter}
                   onMouseLeave={handleMouseLeave}
                 >
                   <h4 style={styles.cardTitle}>{repo?.name}</h4>
                   <p style={styles.cardDesc}>
                     {repo?.description || "No description provided"}
+                  </p>
+                  <p style={styles.ownerText}>
+                    👤 Owner: {repo?.owner?.username || "Unknown"}
                   </p>
                 </div>
               ))
@@ -244,6 +261,9 @@ const Dashboard = () => {
                   <h4 style={styles.cardTitle}>{repo?.name}</h4>
                   <p style={styles.cardDesc}>
                     {repo?.description || "No description provided"}
+                  </p>
+                  <p style={styles.ownerText}>
+                    👤 Owner: {repo?.owner?.username || "You"}
                   </p>
                 </div>
               ))

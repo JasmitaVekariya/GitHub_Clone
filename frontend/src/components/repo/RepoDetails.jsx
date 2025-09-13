@@ -1,7 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../Navbar";
-import { FaUserCircle, FaStar, FaCodeBranch, FaEye, FaSyncAlt, FaPlusCircle, FaBook } from "react-icons/fa";
+import {
+  FaUserCircle,
+  FaStar,
+  FaCodeBranch,
+  FaEye,
+  FaSyncAlt,
+  FaPlusCircle,
+  FaBook,
+  FaLock,
+  FaGlobe,
+} from "react-icons/fa";
+import axios from "axios";
+
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 const RepositoryDetails = () => {
   const { id } = useParams();
@@ -9,16 +22,31 @@ const RepositoryDetails = () => {
   const [repo, setRepo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isStarred, setIsStarred] = useState(false);
+
+  const userId = localStorage.getItem("userId");
+  const token = localStorage.getItem("token");
+  const authHeader = token ? { Authorization: `Bearer ${token}` } : {};
+
+  const api = axios.create({
+    baseURL: API_BASE,
+    headers: { "Content-Type": "application/json", ...authHeader },
+  });
 
   useEffect(() => {
     const fetchRepo = async () => {
       try {
-        const response = await fetch(`http://localhost:3000/repo/${id}`);
-        if (!response.ok) {
-          throw new Error("Failed to fetch repository");
-        }
-        const data = await response.json();
-        setRepo(data);
+        const response = await api.get(`/repo/${id}`);
+        if (!response.data) throw new Error("No repo data");
+
+        setRepo(response.data);
+
+        // Check if current user has starred it
+        const userRes = await api.get(`/userProfile/${userId}`);
+        const starred = (userRes.data.startRepos || []).some(
+          (r) => r.toString() === id
+        );
+        setIsStarred(starred);
       } catch (err) {
         console.error("Error fetching repo details:", err);
         setError("Failed to load repository details");
@@ -28,7 +56,17 @@ const RepositoryDetails = () => {
     };
 
     fetchRepo();
-  }, [id]);
+  }, [id, userId]);
+
+  const toggleStar = async () => {
+    try {
+      const res = await api.post("/star", { userId, repoId: id });
+      setIsStarred(res.data.isStarred);
+      setRepo((prev) => ({ ...prev, stars: res.data.stars }));
+    } catch (err) {
+      console.error("Error toggling star:", err);
+    }
+  };
 
   if (loading) return <div style={styles.loading}>Loading repository...</div>;
   if (error) return <div style={styles.error}>{error}</div>;
@@ -49,6 +87,21 @@ const RepositoryDetails = () => {
             </div>
           </div>
 
+          {/* Visibility Badge */}
+          <div style={styles.visibilityBadge}>
+            {repo?.isPublic || repo?.visibility === true ? (
+              <>
+                <FaGlobe size={14} color="#58a6ff" />
+                <span>Public</span>
+              </>
+            ) : (
+              <>
+                <FaLock size={14} color="#f85149" />
+                <span>Private</span>
+              </>
+            )}
+          </div>
+
           {/* Description */}
           <p style={styles.desc}>
             {repo?.description || "No description available"}
@@ -64,28 +117,42 @@ const RepositoryDetails = () => {
 
           {/* Stats Row */}
           <div style={styles.statsRow}>
-            <div style={styles.statItem}>
-              <FaStar /> <span>{repo?.stars || 100}</span>
+            <div
+              style={styles.statItem}
+              onClick={toggleStar}
+              className="cursor-pointer"
+            >
+              <FaStar color={isStarred ? "gold" : "#c9d1d9"} />
+              <span>{repo?.stars || 0}</span>
             </div>
             <div style={styles.statItem}>
-              <FaCodeBranch /> <span>{repo?.forks || 50}</span>
+              <FaCodeBranch /> <span>{repo?.forks || 0}</span>
             </div>
             <div style={styles.statItem}>
-              <FaEye /> <span>{repo?.views || 20}</span>
+              <FaEye /> <span>{repo?.views || 0}</span>
             </div>
           </div>
 
           {/* Actions Row */}
           <div style={styles.actionRow}>
-            <div style={styles.actionItem} onClick={() => navigate(`/repository/update/${repo._id}`)}>
+            <div
+              style={styles.actionItem}
+              onClick={() => navigate(`/repository/update/${repo._id}`)}
+            >
               <FaSyncAlt size={16} style={styles.icon} />
               Update Repository
             </div>
-            <div style={styles.actionItem} onClick={() => navigate(`/repository/${id}/issue/create`)}>
+            <div
+              style={styles.actionItem}
+              onClick={() => navigate(`/repository/${id}/issue/create`)}
+            >
               <FaPlusCircle size={16} style={styles.icon} />
               Create New Issue
             </div>
-            <div style={styles.actionItem} onClick={() => navigate(`/repository/${id}/issues`)}>
+            <div
+              style={styles.actionItem}
+              onClick={() => navigate(`/repository/${id}/issues`)}
+            >
               <FaBook size={16} style={styles.icon} />
               View Issues
             </div>
@@ -98,7 +165,7 @@ const RepositoryDetails = () => {
 
 const styles = {
   wrapper: {
-    paddingTop: "200px",
+    paddingTop: "0px",
     backgroundColor: "#0d1117",
     height: "100%",
     minHeight: "200vh",
@@ -135,6 +202,15 @@ const styles = {
     display: "flex",
     alignItems: "center",
     fontSize: "14px",
+    color: "#c9d1d9",
+  },
+  visibilityBadge: {
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+    fontSize: "14px",
+    fontWeight: 600,
+    marginBottom: "12px",
     color: "#c9d1d9",
   },
   desc: {
@@ -174,8 +250,6 @@ const styles = {
     gap: 6,
     color: "#c9d1d9",
     fontWeight: 500,
-    // backgroundColor: "#0d1117",
-    // border: "1px solid #30363d",
     borderRadius: "6px",
     padding: "10px 14px",
     cursor: "pointer",

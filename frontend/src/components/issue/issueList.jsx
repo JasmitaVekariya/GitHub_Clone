@@ -68,10 +68,16 @@ const IssueList = () => {
         {/* Sub-header */}
         <div style={styles.header}>
           <div style={styles.breadcrumb}>
-            <span style={styles.repoName}>{repoName}</span>
-            <span style={styles.separator}>›</span>
-            <span>Issues</span>
-          </div>
+  <span
+    style={{ ...styles.repoName, cursor: "pointer", textDecoration: "underline", opacity: 0.9 }}
+    onClick={() => navigate(`/repository/${repositoryId}`)}
+  >
+    {repoName}
+  </span>
+  <span style={styles.separator}>›</span>
+  <span>Issues</span>
+</div>
+
           <button
             style={styles.newIssueBtn}
             onClick={() => navigate(`/repository/${repositoryId}/issue/create`)}
@@ -155,8 +161,13 @@ const styles = {
     fontWeight: 600,
   },
   repoName: {
-    color: "#58a6ff",
-  },
+  color: "#58a6ff",
+  cursor: "pointer",
+  textDecoration: "underline",
+  opacity: 0.9,
+  transition: "opacity 0.2s ease",
+},
+
   separator: {
     margin: "0 6px",
     color: "#8b949e",

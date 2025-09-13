@@ -22,14 +22,20 @@ const userSchema = new Schema({
         default: [],
         ref: "Repository"
     }],
-    follwedUsers: [{
-        type: Schema.Types.ObjectId,
-        ref: "User"
-    }],
-    startRepos: [{
-        type: Schema.Types.ObjectId,
-        ref: "Repository"
-    }],
+    // follwedUsers: [{
+    //     type: Schema.Types.ObjectId,
+    //     ref: "User"
+    // }],
+    following: [{ type: Schema.Types.ObjectId, ref: "User", default: [] }],
+
+  followers: [{ type: Schema.Types.ObjectId, ref: "User", default: [] }],
+     starredRepos: [  
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Repository",
+      default: [],
+    },
+  ],
     profilePicture: {
         type: String,
         default: "https://example.com/default-profile-picture.png"
