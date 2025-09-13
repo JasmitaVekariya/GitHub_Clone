@@ -2,10 +2,11 @@ const fs = require("fs").promises;
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 
-async function commitRepo(msg) {
+async function commitRepo(repoName, msg) {
   const repoPath = path.resolve(process.cwd(), ".github_clone");
-  const stagingPath = path.join(repoPath, "staging");
-  const commitsPath = path.join(repoPath, "commits");
+  const repofolder = path.join(repoPath , repoName);
+  const stagingPath = path.join(repofolder, "staging");
+  const commitsPath = path.join(repofolder, "commits");
 
   try{
     const commitId = uuidv4(); // Generate a unique commit ID
