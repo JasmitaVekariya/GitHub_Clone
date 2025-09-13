@@ -288,7 +288,6 @@ const deleteUserProfile = async (req, res) => {
   }
   
 };
-// Toggle star
 const toggleStarRepo = async (req, res) => {
   try {
     const { userId, repoId } = req.body;
@@ -314,10 +313,6 @@ const toggleStarRepo = async (req, res) => {
         { _id: new ObjectId(userId) },
         { $pull: { starredRepos: repoId } }
       );
-      await reposCollection.updateOne(
-        { _id: new ObjectId(repoId) },
-        { $inc: { stars: -1 } }
-      );
       isStarred = false;
     } else {
       // add repo to starredRepos
@@ -325,12 +320,19 @@ const toggleStarRepo = async (req, res) => {
         { _id: new ObjectId(userId) },
         { $addToSet: { starredRepos: repoId } }
       );
-      await reposCollection.updateOne(
-        { _id: new ObjectId(repoId) },
-        { $inc: { stars: 1 } }
-      );
       isStarred = true;
     }
+
+    // ✅ Recalculate stars count from users collection
+    const starCount = await usersCollection.countDocuments({
+      starredRepos: repoId,
+    });
+
+    // ✅ Update repository with exact count
+    await reposCollection.updateOne(
+      { _id: new ObjectId(repoId) },
+      { $set: { stars: starCount } }
+    );
 
     // Get updated repo
     const repo = await reposCollection.findOne({ _id: new ObjectId(repoId) });
@@ -345,6 +347,7 @@ const toggleStarRepo = async (req, res) => {
     res.status(500).json({ message: "Error toggling star", error: err.message });
   }
 };
+
 
 // Get starred repos
 const getStarredRepos = async (req, res) => {
@@ -363,7 +366,8 @@ const getStarredRepos = async (req, res) => {
     const user = await usersCollection.findOne({ _id: new ObjectId(id) });
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    const starredReposIds = user.startRepos || [];
+   const starredReposIds = user.starredRepos || [];
+
 
     // fetch repo documents
     const starredRepos = await reposCollection

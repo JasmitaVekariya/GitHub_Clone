@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { FiSearch, FiUser } from "react-icons/fi"; // ✅ Import icons
 import Navbar from "../Navbar";
 
 const palette = {
@@ -72,6 +73,9 @@ const styles = {
     fontSize: "0.75rem",
     color: palette.textSecondary,
     marginTop: "6px",
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
     fontStyle: "italic",
   },
   heading: {
@@ -81,17 +85,27 @@ const styles = {
     fontSize: "1.25rem",
     fontWeight: "600",
   },
+  searchWrapper: {
+    position: "relative",
+    marginBottom: "20px",
+  },
   searchBox: {
     width: "100%",
-    padding: "10px 16px",
+    padding: "10px 16px 10px 40px", // left padding for icon
     borderRadius: "8px",
     border: `1px solid ${palette.border}`,
     background: "#0d1117",
     color: palette.textPrimary,
     fontSize: "14px",
-    marginBottom: "20px",
     outline: "none",
     transition: "border-color 0.3s ease",
+  },
+  searchIcon: {
+    position: "absolute",
+    top: "50%",
+    left: "12px",
+    transform: "translateY(-50%)",
+    color: palette.textSecondary,
   },
   noResults: {
     textAlign: "center",
@@ -112,9 +126,8 @@ const styles = {
 
 const Dashboard = () => {
   const [repositories, setRepositories] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
   const [suggestedRepositories, setSuggestedRepositories] = useState([]);
-  const [searchResults, setSearchResults] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
@@ -122,15 +135,12 @@ const Dashboard = () => {
   useEffect(() => {
     const userId = localStorage.getItem("userId");
 
+    // Fetch user's own repos
     const fetchRepositories = async () => {
       try {
         setLoading(true);
-        const response = await fetch(
-          `http://localhost:3000/repo/user/${userId}`
-        );
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        const response = await fetch(`http://localhost:3000/repo/user/${userId}`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
         setRepositories(data.repositories ?? data ?? []);
       } catch (err) {
@@ -140,19 +150,21 @@ const Dashboard = () => {
       }
     };
 
+    // Fetch suggested repos
     const fetchSuggestedRepositories = async () => {
       try {
         const response = await fetch(`http://localhost:3000/repo/all`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
 
-        // ✅ Filter: only public repos, not owned by current user
-        const filteredRepos = (data ?? []).filter(
-          (repo) =>
-            String(repo.ownerId) !== String(userId) && repo.visibility === true
-        );
+        const filteredRepos = (data ?? []).filter((repo) => {
+          const ownerId = repo.ownerId || (repo.owner && repo.owner._id);
+          return (
+            ownerId &&
+            String(ownerId) !== String(userId) &&
+            repo.visibility === true
+          );
+        });
 
         setSuggestedRepositories(filteredRepos);
       } catch (err) {
@@ -164,16 +176,13 @@ const Dashboard = () => {
     fetchSuggestedRepositories();
   }, []);
 
-  useEffect(() => {
-    if (searchQuery === "") {
-      setSearchResults(repositories);
-    } else {
-      const filteredRepo = repositories.filter((repo) =>
-        repo?.name?.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-      setSearchResults(filteredRepo);
-    }
-  }, [searchQuery, repositories]);
+  // Filter repos only when searching
+  const filteredUserRepos =
+    searchQuery.length > 0
+      ? repositories.filter((repo) =>
+          repo?.name?.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      : [];
 
   if (loading) {
     return (
@@ -228,7 +237,7 @@ const Dashboard = () => {
                     {repo?.description || "No description provided"}
                   </p>
                   <p style={styles.ownerText}>
-                    👤 Owner: {repo?.owner?.username || "Unknown"}
+                    <FiUser /> {repo?.owner?.username || "Unknown"}
                   </p>
                 </div>
               ))
@@ -237,38 +246,47 @@ const Dashboard = () => {
             )}
           </aside>
 
-          {/* User Repositories */}
+          {/* User Repositories with Search */}
           <main style={styles.sidebar}>
             <h2 style={styles.heading}>Your Repositories</h2>
-            <input
-              type="text"
-              value={searchQuery}
-              placeholder="Search repositories..."
-              onChange={(e) => setSearchQuery(e.target.value)}
-              style={styles.searchBox}
-              onFocus={(e) => (e.target.style.borderColor = palette.accent)}
-              onBlur={(e) => (e.target.style.borderColor = palette.border)}
-            />
-            {searchResults.length > 0 ? (
-              searchResults.map((repo) => (
-                <div
-                  style={styles.card}
-                  key={repo._id}
-                  onClick={() => navigate(`/repository/${repo._id}`)}
-                  onMouseEnter={handleMouseEnter}
-                  onMouseLeave={handleMouseLeave}
-                >
-                  <h4 style={styles.cardTitle}>{repo?.name}</h4>
-                  <p style={styles.cardDesc}>
-                    {repo?.description || "No description provided"}
-                  </p>
-                  <p style={styles.ownerText}>
-                    👤 Owner: {repo?.owner?.username || "You"}
-                  </p>
-                </div>
-              ))
+            <div style={styles.searchWrapper}>
+              <FiSearch style={styles.searchIcon} />
+              <input
+                type="text"
+                value={searchQuery}
+                placeholder="Search repositories..."
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={styles.searchBox}
+                onFocus={(e) => (e.target.style.borderColor = palette.accent)}
+                onBlur={(e) => (e.target.style.borderColor = palette.border)}
+              />
+            </div>
+            {searchQuery.length > 0 ? (
+              filteredUserRepos.length > 0 ? (
+                filteredUserRepos.map((repo) => (
+                  <div
+                    style={styles.card}
+                    key={repo._id}
+                    onClick={() => navigate(`/repository/${repo._id}`)}
+                    onMouseEnter={handleMouseEnter}
+                    onMouseLeave={handleMouseLeave}
+                  >
+                    <h4 style={styles.cardTitle}>{repo?.name}</h4>
+                    <p style={styles.cardDesc}>
+                      {repo?.description || "No description provided"}
+                    </p>
+                    <p style={styles.ownerText}>
+                      <FiUser /> {repo?.owner?.username || "You"}
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <p style={styles.noResults}>No repositories found.</p>
+              )
             ) : (
-              <p style={styles.noResults}>No repositories found.</p>
+              <p style={styles.noResults}>
+                <FiSearch /> Start typing to search your repositories.
+              </p>
             )}
           </main>
 

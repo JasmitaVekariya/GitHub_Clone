@@ -4,6 +4,7 @@ import Navbar from "../Navbar";
 import {
   FaUserCircle,
   FaStar,
+  FaRegStar,
   FaCodeBranch,
   FaEye,
   FaSyncAlt,
@@ -41,9 +42,9 @@ const RepositoryDetails = () => {
 
         setRepo(response.data);
 
-        // Check if current user has starred it
+        // ✅ check starredRepos instead of startRepos
         const userRes = await api.get(`/userProfile/${userId}`);
-        const starred = (userRes.data.startRepos || []).some(
+        const starred = (userRes.data.starredRepos || []).some(
           (r) => r.toString() === id
         );
         setIsStarred(starred);
@@ -122,7 +123,11 @@ const RepositoryDetails = () => {
               onClick={toggleStar}
               className="cursor-pointer"
             >
-              <FaStar color={isStarred ? "gold" : "#c9d1d9"} />
+              {isStarred ? (
+                <FaStar color="#58a6ff" />
+              ) : (
+                <FaRegStar color="#8b949e" />
+              )}
               <span>{repo?.stars || 0}</span>
             </div>
             <div style={styles.statItem}>
@@ -236,6 +241,7 @@ const styles = {
     gap: 6,
     fontSize: "14px",
     color: "#c9d1d9",
+    cursor: "pointer",
   },
   actionRow: {
     display: "flex",

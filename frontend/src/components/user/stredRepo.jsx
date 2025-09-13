@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../Navbar";
+import { UnderlineNav } from "@primer/react";
+import { BookIcon, RepoIcon } from "@primer/octicons-react";
 
 const StarredRepos = () => {
   const [repos, setRepos] = useState([]);
@@ -9,24 +11,22 @@ const StarredRepos = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-  const fetchStarredRepos = async () => {
-    try {
-      const response = await fetch(`http://localhost:3000/${userId}/starred`);
-      if (!response.ok) throw new Error("Failed to fetch starred repos");
+    const fetchStarredRepos = async () => {
+      try {
+        const response = await fetch(`http://localhost:3000/${userId}/starred`);
+        if (!response.ok) throw new Error("Failed to fetch starred repos");
 
-      const data = await response.json();
+        const data = await response.json();
+        setRepos(data.starredRepos || []);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      // ✅ Extract array from response
-      setRepos(data.starredRepos || []);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  fetchStarredRepos();
-}, [userId]);
+    fetchStarredRepos();
+  }, [userId]);
 
   return (
     <>
@@ -34,7 +34,7 @@ const StarredRepos = () => {
       <div className="underline-nav">
         <UnderlineNav aria-label="Repository">
           <UnderlineNav.Item
-            aria-current="page"
+            onClick={() => navigate("/profile")}
             icon={BookIcon}
             sx={{
               backgroundColor: "transparent",
@@ -45,6 +45,7 @@ const StarredRepos = () => {
             Overview
           </UnderlineNav.Item>
           <UnderlineNav.Item
+            aria-current="page"
             onClick={() => navigate("/profile/starred")}
             icon={RepoIcon}
             sx={{
@@ -57,6 +58,7 @@ const StarredRepos = () => {
           </UnderlineNav.Item>
         </UnderlineNav>
       </div>
+
       <div className="repos-grid">
         {loading ? (
           <p>Loading starred repositories...</p>
