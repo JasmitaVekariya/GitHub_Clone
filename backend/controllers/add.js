@@ -1,9 +1,10 @@
 const fs = require("fs").promises;
 const path = require("path");
 
-async function addRepo(filepath) {
+async function addRepo(repoName, filepath) {
   const repoPath = path.resolve(process.cwd(), ".github_clone");
-  const stagingPath = path.join(repoPath, "staging");
+  const repofolder = path.join(repoPath , repoName);
+  const stagingPath = path.join(repofolder, "staging");
   
   try {
     // Ensure the staging directory exists

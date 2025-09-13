@@ -21,43 +21,84 @@ dotenv.config();
 
 yargs(hideBin(process.argv))
   .command("start", "Start a new server", {}, startServer) // This will call the startServer function when the 'start' command is used
-  .command("init", "Initialise a new repository", {}, initRepo)
+  .command("init <repo>", "Initialise a new repository", (yargs) => {
+    yargs.positional("repo", {
+      describe: "Repo name",
+      type: "string",
+    });
+  }, 
+  (argv) => {
+    initRepo(argv.repo);
+  }
+  )
   .command(
-    "add <file>",
+    "add <repo> <file>",
     "Add a new repository",
     (yargs) => {
+      yargs.positional("repo", {
+        describe: "repo name",
+        type: "string",
+      });
       yargs.positional("file", {
         describe: "File to add",
         type: "string",
       });
     },
     (argv) => {
-      addRepo(argv.file);
+      addRepo(argv.repo, argv.file);
     }
   ) // This will call the addRepo function with the file argument
   .command(
-    "commit <message>",
+    "commit <repo> <message>",
     "commit a repository",
     (yargs) => {
+      yargs.positional("repo", {
+        describe: "repo name",
+        type: "string",
+      });
       yargs.positional("message", {
         describe: "commit message",
         type: "string",
       });
     },
-    (argv) => commitRepo(argv.message)
+    (argv) => commitRepo(argv.repo, argv.message)
   ) // This will call the commitRepo function with the message argument
-  .command("pull", "pull a repository", {}, pullRepo)
-  .command("push", "push a repository", {}, pushRepo)
   .command(
-    "revert <commit_id>",
+    "pull <repo>", 
+    "pull a repository", 
+    (yargs) => {
+      yargs.positional("repo", {
+        describe: "repo name",
+        type: "string",
+      });
+    },
+    (argv) => pullRepo(argv.repo) 
+  )
+  .command(
+    "push <repo>", 
+    "push a repository", 
+    (yargs) => {
+      yargs.positional("repo", {
+        describe: "repo name",
+        type: "string",
+      });
+    },
+    (argv) => pushRepo(argv.repo) 
+  )
+  .command(
+    "revert <repo> <commit_id>",
     "revert a command",
     (yargs) => {
+      yargs.positional("repo", {
+        describe: "repo name",
+        type: "string",
+      });
       yargs.positional("commit_id", {
         describe: "commit id to revert to",
         type: "string",
       });
     },
-    (argv) => revertRepo(argv.commit_id)
+    (argv) => revertRepo(argv.repo, argv.commit_id)
   )
   .demandCommand(1, "You must provide a command")
   .help().argv;
