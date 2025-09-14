@@ -1,302 +1,98 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../Navbar";
 
-const styles = {
-  container: {
-    backgroundColor: "#0d1117",
-    minHeight: "100vh",
-    color: "#c9d1d9",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    padding: "20px",
-    fontFamily:
-      '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',
-  },
-  form: {
-    background: "#161b22",
-    border: "1px solid #30363d",
-    borderRadius: "6px",
-    padding: "20px",
-    maxWidth: "500px",
-    width: "100%",
-  },
-  input: {
-    width: "100%",
-    margin: "10px 0",
-    padding: "8px",
-    borderRadius: "6px",
-    border: "1px solid #30363d",
-    background: "#0d1117",
-    color: "#c9d1d9",
-  },
-  button: {
-    marginTop: "15px",
-    padding: "8px 16px",
-    borderRadius: "6px",
-    border: "none",
-    background: "#238636",
-    color: "white",
-    fontSize: "14px",
-    cursor: "pointer",
-  },
-  preview: {
-    width: "100px",
-    height: "100px",
-    borderRadius: "50%",
-    objectFit: "cover",
-    marginBottom: "10px",
-  },
-};
-
-const UpdateUserProfile = () => {
-  const { id } = useParams();
+const UpdateProfile = () => {
+  const { id } = useParams(); // userId from route params
   const navigate = useNavigate();
-  const userId = id || localStorage.getItem("userId");
 
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    bio: "",
-    profilePicture: "",
-  });
+  const [bio, setBio] = useState("");
+  const [profilePicture, setProfilePicture] = useState("");
+  const [message, setMessage] = useState("");
 
+  // Load existing user profile
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await fetch(`http://localhost:3000/user/userProfile/${userId}`);
-        if (!res.ok) throw new Error("Failed to load user");
-        const data = await res.json();
-        setFormData({
-          email: data.email || "",
-          password: "",
-          bio: data.bio || "",
-          profilePicture: data.profilePicture || "",
-        });
+        const res = await axios.get(`http://localhost:3000/userProfile/${id}`);
+        setBio(res.data.bio || "");
+        setProfilePicture(res.data.profilePicture || "");
       } catch (err) {
-        console.error(err);
+        console.error("Error fetching profile:", err);
       }
     };
-    if (userId) fetchUser();
-  }, [userId]);
-
-  const handleChange = (e) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
-
-  // Convert uploaded image to base64 string for now
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setFormData((prev) => ({ ...prev, profilePicture: reader.result }));
-    };
-    reader.readAsDataURL(file);
-  };
+    fetchUser();
+  }, [id]);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await fetch(`http://localhost:3000/user/update/${userId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      if (!res.ok) throw new Error("Failed to update user");
-      navigate("/profile");
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  e.preventDefault();
+  try {
+    await axios.put(`http://localhost:3000/updateuser/${id}`, {
+      bio,
+      profilePicture,
+    });
+
+    setMessage("Profile updated successfully ✅");
+    setTimeout(() => navigate(`/profile/${id}`), 1200);
+  } catch (err) {
+    console.error("Error updating user:", err);
+    setMessage("Failed to update profile ❌");
+  }
+};
+
 
   return (
-    <>
+    <div>
       <Navbar />
-      <div style={styles.container}>
-        <form style={styles.form} onSubmit={handleSubmit}>
-          <h2>Edit Profile</h2>
-
-          {/* Profile Picture Preview */}
-          {formData.profilePicture && (
-            <img
-              src={formData.profilePicture}
-              alt="Profile Preview"
-              style={styles.preview}
+      <div className="max-w-md mx-auto mt-8 p-6 bg-white shadow-lg rounded-lg">
+        <h2 className="text-xl font-bold mb-4">Update Profile</h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-gray-700">Bio</label>
+            <textarea
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+              className="w-full border rounded-lg p-2"
+              placeholder="Write something about yourself..."
             />
+          </div>
+
+          <div>
+            <label className="block text-gray-700">Profile Picture URL</label>
+            <input
+              type="text"
+              value={profilePicture}
+              onChange={(e) => setProfilePicture(e.target.value)}
+              className="w-full border rounded-lg p-2"
+              placeholder="Enter image URL"
+            />
+          </div>
+
+          {profilePicture && (
+            <div className="flex justify-center">
+              <img
+                src={profilePicture}
+                alt="Profile Preview"
+                className="w-24 h-24 rounded-full object-cover"
+              />
+            </div>
           )}
 
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            style={styles.input}
-          />
-
-          <input
-            style={styles.input}
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="Update Email"
-          />
-          <input
-            style={styles.input}
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            placeholder="Update Password"
-          />
-          <textarea
-            style={styles.input}
-            name="bio"
-            value={formData.bio}
-            onChange={handleChange}
-            placeholder="Update Bio"
-          />
-          <button type="submit" style={styles.button}>
-            Save Changes
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
+          >
+            Update Profile
           </button>
         </form>
+
+        {message && (
+          <p className="mt-4 text-center text-sm text-gray-600">{message}</p>
+        )}
       </div>
-    </>
+    </div>
   );
 };
 
-export default UpdateUserProfile;
-
-// import React, { useState, useEffect } from "react";
-// import { useParams, useNavigate } from "react-router-dom";
-// import Navbar from "../Navbar";
-
-// const styles = {
-//   container: {
-//     backgroundColor: "#0d1117",
-//     minHeight: "100vh",
-//     color: "#c9d1d9",
-//     display: "flex",
-//     flexDirection: "column",
-//     alignItems: "center",
-//     padding: "20px",
-//     fontFamily:
-//       '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',
-//   },
-//   form: {
-//     background: "#161b22",
-//     border: "1px solid #30363d",
-//     borderRadius: "6px",
-//     padding: "20px",
-//     maxWidth: "500px",
-//     width: "100%",
-//   },
-//   input: {
-//     width: "100%",
-//     margin: "10px 0",
-//     padding: "8px",
-//     borderRadius: "6px",
-//     border: "1px solid #30363d",
-//     background: "#0d1117",
-//     color: "#c9d1d9",
-//   },
-//   button: {
-//     marginTop: "15px",
-//     padding: "8px 16px",
-//     borderRadius: "6px",
-//     border: "none",
-//     background: "#238636",
-//     color: "white",
-//     fontSize: "14px",
-//     cursor: "pointer",
-//   },
-// };
-
-// const UpdateUserProfile = () => {
-//   const { id } = useParams();
-//   const navigate = useNavigate();
-//   const userId = id || localStorage.getItem("userId");
-
-//   const [formData, setFormData] = useState({
-//     email: "",
-//     password: "",
-//     bio: "",
-//   });
-
-//   useEffect(() => {
-//     const fetchUser = async () => {
-//       try {
-//         const res = await fetch(`http://localhost:3000/user/userProfile/${userId}`);
-//         if (!res.ok) throw new Error("Failed to load user");
-//         const data = await res.json();
-//         setFormData({
-//           email: data.email || "",
-//           password: "",
-//           bio: data.bio || "",
-//         });
-//       } catch (err) {
-//         console.error(err);
-//       }
-//     };
-//     if (userId) fetchUser();
-//   }, [userId]);
-
-//   const handleChange = (e) => {
-//     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-//   };
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     try {
-//       const res = await fetch(`http://localhost:3000/user/update/${userId}`, {
-//         method: "PUT",
-//         headers: { "Content-Type": "application/json" },
-//         body: JSON.stringify(formData),
-//       });
-//       if (!res.ok) throw new Error("Failed to update user");
-//       navigate("/profile");
-//     } catch (err) {
-//       console.error(err);
-//     }
-//   };
-
-//   return (
-//     <>
-//       <Navbar />
-//       <div style={styles.container}>
-//         <form style={styles.form} onSubmit={handleSubmit}>
-//           <h2>Edit Profile</h2>
-//           <input
-//             style={styles.input}
-//             type="email"
-//             name="email"
-//             value={formData.email}
-//             onChange={handleChange}
-//             placeholder="Update Email"
-//           />
-//           <input
-//             style={styles.input}
-//             type="password"
-//             name="password"
-//             value={formData.password}
-//             onChange={handleChange}
-//             placeholder="Update Password"
-//           />
-//           <textarea
-//             style={styles.input}
-//             name="bio"
-//             value={formData.bio}
-//             onChange={handleChange}
-//             placeholder="Update Bio"
-//           />
-//           <button type="submit" style={styles.button}>
-//             Save Changes
-//           </button>
-//         </form>
-//       </div>
-//     </>
-//   );
-// };
-
-// export default UpdateUserProfile;
+export default UpdateProfile;

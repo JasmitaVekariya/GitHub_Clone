@@ -140,13 +140,16 @@ const RepositoryDetails = () => {
 
           {/* Actions Row */}
           <div style={styles.actionRow}>
-            <div
-              style={styles.actionItem}
-              onClick={() => navigate(`/repository/update/${repo._id}`)}
-            >
-              <FaSyncAlt size={16} style={styles.icon} />
-              Update Repository
-            </div>
+            {/* ✅ Update button only for repo owner */}
+            {repo?.owner?._id?.toString() === userId && (
+              <div
+                style={styles.actionItem}
+                onClick={() => navigate(`/repository/update/${repo._id}`)}
+              >
+                <FaSyncAlt size={16} style={styles.icon} />
+                Update Repository
+              </div>
+            )}
             <div
               style={styles.actionItem}
               onClick={() => navigate(`/repository/${id}/issue/create`)}

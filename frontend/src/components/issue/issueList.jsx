@@ -173,7 +173,7 @@ const styles = {
     color: "#8b949e",
   },
   newIssueBtn: {
-    backgroundColor: "#2ea043",
+    backgroundColor: "#2e5da0ff",
     color: "#fff",
     border: "none",
     borderRadius: "6px",

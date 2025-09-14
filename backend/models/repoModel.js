@@ -22,7 +22,7 @@ const RepositorySchema = new Schema({
     },
     content: [{
         type: String,
-    },],
+    }],
     visibility:{
         type: Boolean,
     },

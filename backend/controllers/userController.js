@@ -161,24 +161,17 @@ const getUserProfile = async (req, res) => {
 // };
 const updateUserProfile = async (req, res) => {
   const currentID = req.params.id;
-  const { email, password, bio, profilePicture } = req.body;
+  const { bio, profilePicture } = req.body; // only accept bio and profilePicture
 
   try {
     await connectClient();
     const db = client.db("githubclone");
     const usersCollection = db.collection("users");
 
-    let updateFields = { email, bio };
-
-    if (profilePicture) {
-      updateFields.profilePicture = profilePicture;
-    }
-
-    if (password) {
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt);
-      updateFields.password = hashedPassword;
-    }
+    // Prepare fields to update
+    const updateFields = {};
+    if (bio !== undefined) updateFields.bio = bio;
+    if (profilePicture) updateFields.profilePicture = profilePicture;
 
     const result = await usersCollection.findOneAndUpdate(
       { _id: new ObjectId(currentID) },
@@ -190,12 +183,13 @@ const updateUserProfile = async (req, res) => {
       return res.status(404).json({ message: "User not found!" });
     }
 
-    res.send(result.value);
+    res.json(result.value);
   } catch (err) {
     console.error("Error during updating : ", err.message);
     res.status(500).send("Server error!");
   }
 };
+
 
 const followUser = async (req, res) => {
   const { currentUserId, targetUserId } = req.body;
