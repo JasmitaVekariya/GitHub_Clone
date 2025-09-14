@@ -1,24 +1,36 @@
-const fs = require("fs").promises; //file system 
+const fs = require("fs").promises; // file system 
 const path = require("path");
 
+async function initRepo(user, repoName) {
+  // Root directory for .github_clone
+  const rootPath = path.resolve(process.cwd(), ".github_clone");  
 
-async function initRepo(repoName) {
-  const repoPath = path.resolve(process.cwd(), '.github_clone'); // Get the current working directory and append .myrepo
-  const repofolder = path.join(repoPath , repoName);
-  const commitsPath = path.join(repofolder,"commits");
+  // User folder inside .github_clone
+  const userFolder = path.join(rootPath, user);
 
-  try{
-    await fs.mkdir(repoPath,{recursive: true });
-    await fs.mkdir(repofolder,{recursive: true });
-    await fs.mkdir(commitsPath,{recursive: true });
+  // Repo folder inside user's folder
+  const repoFolder = path.join(userFolder, repoName);
+
+  // Commits folder inside repo
+  const commitsPath = path.join(repoFolder, "commits");
+
+  try {
+    // Make sure all required folders exist
+    await fs.mkdir(rootPath, { recursive: true });
+    await fs.mkdir(userFolder, { recursive: true });
+    await fs.mkdir(repoFolder, { recursive: true });
+    await fs.mkdir(commitsPath, { recursive: true });
+
+    // Create a config.json for this repo
     await fs.writeFile(
-      path.join(repoPath,"config.json"),
-      JSON.stringify({bucket : process.env.S3_Bucket})
-  );
-  console.log("repo created");
-  }catch(err){
-    console.error("Error Initialsing repository ",err);
+      path.join(repoFolder, "config.json"),
+      JSON.stringify({ bucket: process.env.S3_Bucket }, null, 2)
+    );
+
+    console.log(`Repo '${repoName}' created for user '${user}'`);
+  } catch (err) {
+    console.error("Error Initialising repository", err);
   }
 }
 
-module.exports = {initRepo};
+module.exports = { initRepo };

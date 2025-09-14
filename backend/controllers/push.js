@@ -1,10 +1,12 @@
-const fs = require('fs').promises;
-const path = require('path');
-const { s3, S3_BUCKET } = require('../config/aws-config.js');
+const fs = require("fs").promises;
+const path = require("path");
+const { s3, S3_BUCKET } = require("../config/aws-config.js");
 
-async function pushRepo(repoName) {
-  const repoPath = path.resolve(process.cwd(), '.github_clone', repoName);
-  const commitsPath = path.join(repoPath, 'commits');
+async function pushRepo(user, repoName) {
+  const rootPath = path.resolve(process.cwd(), ".github_clone");
+  const userFolder = path.join(rootPath, user);
+  const repoPath = path.join(userFolder, repoName);
+  const commitsPath = path.join(repoPath, "commits");
 
   try {
     const commitDirs = await fs.readdir(commitsPath);
@@ -17,20 +19,22 @@ async function pushRepo(repoName) {
         const filePath = path.join(commitPath, file);
         const fileContent = await fs.readFile(filePath);
 
-        // 🔑 Change: Include repoName in the S3 Key
+        // S3 Key with user + repo included
         const params = {
           Bucket: S3_BUCKET,
-          Key: `${repoName}/commits/${commitDir}/${file}`, 
+          Key: `${user}/${repoName}/commits/${commitDir}/${file}`,
           Body: fileContent,
         };
 
         await s3.upload(params).promise();
       }
 
-      console.log(`Pushed commit ${commitDir} of repo ${repoName} to S3 bucket ${S3_BUCKET}`);
+      console.log(
+        `Pushed commit ${commitDir} of repo '${repoName}' for user '${user}' to S3 bucket ${S3_BUCKET}`
+      );
     }
   } catch (error) {
-    console.error('Error pushing repository:', error);
+    console.error("Error pushing repository:", error);
   }
 }
 

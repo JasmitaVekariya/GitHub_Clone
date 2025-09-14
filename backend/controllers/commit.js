@@ -2,9 +2,10 @@ const fs = require("fs").promises;
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 
-async function commitRepo(repoName, msg) {
+async function commitRepo(user, repoName, msg) {
   const repoPath = path.resolve(process.cwd(), ".github_clone");
-  const repofolder = path.join(repoPath , repoName);
+  const userFolder = path.join(repoPath , user)
+  const repofolder = path.join(userFolder , repoName);
   const stagingPath = path.join(repofolder, "staging");
   const commitsPath = path.join(repofolder, "commits");
 
