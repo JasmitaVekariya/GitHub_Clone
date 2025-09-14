@@ -5,7 +5,7 @@ const Issue = require("../models/issuesModel.js");
 
 // Create a new repository
 async function createRepository(req, res) {
-    const { owner, name, issue, content, description, visibility } = req.body;
+    const { owner, name, content, description, visibility } = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(owner)) {
         return res.status(400).send("Invalid owner ID");
@@ -24,10 +24,9 @@ async function createRepository(req, res) {
         const repository = new Repository({
             owner: user._id,
             name,
-            issue,
-            content,
-            description,
-            visibility,
+            content: content ? [content] : [],
+            description: description || "",
+            visibility: typeof visibility === "boolean" ? visibility : true,
         });
 
         const result = await repository.save();
@@ -40,10 +39,12 @@ async function createRepository(req, res) {
             repositoryID: result._id,
         });
     } catch (error) {
-        console.error("Error creating repository:", error);
+        console.error("Error creating repository:", error.message);
+        console.error(error.stack);
         res.status(500).send("Internal Server Error");
     }
 }
+
 
 // Get all repositories
 async function getAllRepository(req, res) {
@@ -129,9 +130,10 @@ async function fetchRepositoriesForCurrentUser(req, res) {
 }
 
 // Update repository by ID
+// Update repository by ID
 async function updateRepositoryByID(req, res) {
     const { id } = req.params;
-    const { content, description } = req.body;
+    const { name, content, description, visibility } = req.body; // ✅ include visibility
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).send("Invalid repository ID format");
@@ -146,12 +148,21 @@ async function updateRepositoryByID(req, res) {
             return res.status(404).send("Repository not found");
         }
 
-        if (content) {
-            repository.content.push(content);
+        // ✅ Update fields if provided
+        if (name) {
+            repository.name = name;
         }
 
         if (description) {
             repository.description = description;
+        }
+
+        if (typeof visibility === "boolean") {
+            repository.visibility = visibility;
+        }
+
+        if (content) {
+            repository.content.push(content);
         }
 
         const updatedRepository = await repository.save();

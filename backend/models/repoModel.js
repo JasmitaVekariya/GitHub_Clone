@@ -16,9 +16,13 @@ const RepositorySchema = new Schema({
         ref: "User",
         required: true,
     },
+    stars: {
+      type: Number,
+      default: 0,
+    },
     content: [{
         type: String,
-    },],
+    }],
     visibility:{
         type: Boolean,
     },

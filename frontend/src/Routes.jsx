@@ -12,6 +12,8 @@ import UpdateRepository from "./components/repo/UpdateRepo";
 import CreateIssue from "./components/issue/CreateIssue";
  import IssueList from "./components/issue/issueList";
 import UpdateIssue from "./components/issue/UpdateIssue";
+import UpdateProfile from "./components/user/UpdateProfile";
+import StarredRepos from "./components/user/stredRepo";
 // Auth Context
 import { useAuth } from "./authContext";
 function CreateIssueWrapper() {
@@ -57,6 +59,8 @@ const ProjectRoutes = ()=>{
             path:"/profile",
             element:<Profile/>
         },
+       {path:"/user/update/:id", element:<UpdateProfile />},
+
         {
             path:"/repository/create",
             element:<CreateRepo/>
@@ -75,7 +79,8 @@ const ProjectRoutes = ()=>{
         },
 {              path:"/issue/update/:id" ,
      element:<UpdateIssue />
-    } 
+    } ,
+    {path:"/profile/starred", element:<StarredRepos />}
 
 
     ]);

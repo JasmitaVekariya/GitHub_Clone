@@ -1,192 +1,103 @@
 /* Page background */
 .repo-page {
   min-height: 100vh;
-  background: linear-gradient(145deg, #050810, #0a101a);
+  background-color: #0d1117;
   color: #c9d1d9;
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding: 120px 20px 30px; /* Added more top padding for margin */
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  user-select: none;
+  padding: 100px 20px 20px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
 }
 
-/* Main container with subtle glow and increased width */
+/* Main container */
 .repo-box {
   width: 100%;
-  max-width: 520px; /* Increased width */
-  background: rgba(20, 25, 35, 0.75);
-  border-radius: 16px;
-  padding: 32px 28px 40px;
-  box-shadow:
-    0 0 10px rgba(56, 139, 253, 0.25),
-    inset 0 0 12px rgba(58, 81, 128, 0.4);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(58, 81, 128, 0.5);
+  max-width: 720px; /* increased width */
+  background: linear-gradient(145deg, #161b22, #1c2128);
+  border-radius: 8px;
+  padding: 28px;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
   color: #f0f6fc;
-  position: relative;
-}
-
-/* Glow highlight on container */
-.repo-box::before {
-  content: '';
-  position: absolute;
-  top: -5px;
-  left: 20px;
-  right: 20px;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, #58a6ff, transparent);
-  border-radius: 4px;
-  filter: drop-shadow(0 0 4px #58a6ff);
 }
 
 /* Title */
 .repo-title {
-  font-size: 1.8rem;
+  font-size: 22px;
   font-weight: 700;
+  color: #f0f6fc;
   margin-bottom: 20px;
-  color: #e1e8ff;
-  letter-spacing: 0.02em;
-  border-bottom: 1px solid rgba(80, 95, 130, 0.6);
-  padding-bottom: 12px;
-}
-
-/* Subtitles */
-.repo-subtitle {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin-bottom: 16px;
-  border-bottom: 1px solid rgba(80, 95, 130, 0.5);
-  padding-bottom: 6px;
-  color: #b6c2e2;
-  text-shadow: 0 0 2px rgba(88, 166, 255, 0.7);
-}
-
-/* Form layout */
-.repo-form {
   display: flex;
-  flex-direction: column;
-  gap: 24px;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid #30363d;
+  padding-bottom: 10px;
 }
 
 /* Labels */
 .repo-label {
+  font-size: 14px;
   font-weight: 600;
   margin-bottom: 6px;
-  color: #a0adca;
-  user-select: text;
-  letter-spacing: 0.02em;
+  color: #9ca3af;
+  display: block;
 }
 
-/* Input, textarea, select styles */
+/* Input fields */
 .repo-input,
 .repo-textarea,
 .repo-select {
   width: 100%;
-  padding: 14px 16px;
-  background: rgba(11, 15, 23, 0.75);
-  border: 1.5px solid rgba(56, 139, 253, 0.4);
-  border-radius: 10px;
-  color: #e0e9ff;
-  font-size: 1rem;
-  font-weight: 500;
+  padding: 12px;
+  margin-bottom: 18px;
+  background-color: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  color: #f0f6fc;
+  font-size: 14px;
   outline: none;
-  backdrop-filter: blur(8px);
-  box-shadow: inset 0 0 6px rgba(56, 139, 253, 0.15);
-  transition: border-color 0.25s ease, box-shadow 0.25s ease;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  user-select: text;
-  letter-spacing: 0.02em;
 }
 
-/* Textarea taller */
 .repo-textarea {
-  min-height: 72px;
+  height: 100px;
   resize: vertical;
 }
 
-/* Focus style: subtle blue glow */
-.repo-input:focus,
-.repo-textarea:focus,
-.repo-select:focus {
-  border-color: #58a6ff;
-  box-shadow:
-    0 0 5px 1px rgba(56, 139, 253, 0.5),
-    inset 0 0 6px 1px rgba(88, 166, 255, 0.3);
-  background: rgba(13, 18, 28, 0.85);
-  transition: all 0.25s ease;
-}
-
-/* Select dropdown arrow */
-.repo-select {
-  appearance: none;
-  background-image:
-    linear-gradient(45deg, transparent 50%, #58a6ff 50%),
-    linear-gradient(135deg, #58a6ff 50%, transparent 50%),
-    linear-gradient(to right, #202d49, #202d49);
-  background-position:
-    calc(100% - 20px) calc(1em + 2px),
-    calc(100% - 15px) calc(1em + 2px),
-    100% 0;
-  background-size: 5px 5px, 5px 5px, 1px 1.5em;
-  background-repeat: no-repeat;
-  cursor: pointer;
-}
-
-/* Button with simple blue background */
+/* Button */
 .repo-button {
-  background-color: #424b5b;
+  background-color: #3b82f6;
   color: #fff;
-  font-weight: 700;
+  font-weight: 600;
   border: none;
-  border-radius: 10px;
-  padding: 14px;
+  border-radius: 6px;
+  padding: 12px 18px;
   cursor: pointer;
-  font-size: 1.05rem;
-  letter-spacing: 0.02em;
-  box-shadow: none;
-  transition: background-color 0.3s ease;
-  user-select: none;
+  font-size: 15px;
 }
 
-/* Button hover: subtle darken */
 .repo-button:hover {
-  background-color: #333a47;
-  box-shadow: none;
+  background-color: #2563eb;
 }
 
-/* Button active: even darker */
-.repo-button:active {
-  background-color: #0f1f3c;
-  box-shadow: none;
-  transition: none;
+/* Checkbox */
+.repo-checkbox {
+  margin-right: 8px;
 }
 
-/* Message box styles */
+/* Messages */
 .repo-message {
   margin-top: 18px;
   padding: 12px 16px;
-  border-radius: 10px;
-  font-size: 1rem;
+  border-radius: 6px;
+  font-size: 14px;
   text-align: center;
-  letter-spacing: 0.02em;
-  user-select: none;
   font-weight: 600;
-  text-shadow: 0 0 1px rgba(0, 0, 0, 0.5);
 }
 
-/* Success message with subtle green */
 .repo-message.success {
-  background-color: rgba(35, 134, 54, 0.25);
-  border: 1.5px solid #238636;
   color: #3fb950;
-  box-shadow: 0 0 6px #3fb950aa;
 }
 
-/* Error message with subtle red */
 .repo-message.error {
-  background-color: rgba(248, 81, 73, 0.25);
-  border: 1.5px solid #da3633;
   color: #f85149;
-  box-shadow: 0 0 6px #f85149aa;
 }
