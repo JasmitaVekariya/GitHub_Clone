@@ -2,6 +2,9 @@ const mongoose = require("mongoose");
 const Repository = require("../models/repoModel.js");
 const User = require("../models/userModel.js");
 const Issue = require("../models/issuesModel.js");
+const { initRepo } = require("./init.js");
+const { renameRepoFolder } = require("./updateRepo.js");
+const { deleteRepoFolder } = require("./deleteRepo.js");
 
 // Create a new repository
 async function createRepository(req, res) {
@@ -30,6 +33,8 @@ async function createRepository(req, res) {
         });
 
         const result = await repository.save();
+
+        await initRepo(user.username, name);
 
         user.repositories.push(result._id);
         await user.save();
@@ -130,7 +135,6 @@ async function fetchRepositoriesForCurrentUser(req, res) {
 }
 
 // Update repository by ID
-// Update repository by ID
 async function updateRepositoryByID(req, res) {
     const { id } = req.params;
     const { name, content, description, visibility } = req.body; // ✅ include visibility
@@ -149,9 +153,9 @@ async function updateRepositoryByID(req, res) {
         }
 
         // ✅ Update fields if provided
-        if (name) {
-            repository.name = name;
-        }
+        if (name && name !== repository.name) {
+            await renameRepoFolder(repository.owner.username, repository.name, name);
+          }          
 
         if (description) {
             repository.description = description;
@@ -191,6 +195,8 @@ async function deleteRepositoryByID(req, res) {
         if (!repository) {
             return res.status(404).send("Repository not found");
         }
+
+        await deleteRepoFolder(repository.owner.username, repository.name);
 
         res.status(200).json({
             message: "Repository deleted successfully",

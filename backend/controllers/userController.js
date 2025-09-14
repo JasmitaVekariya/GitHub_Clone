@@ -45,6 +45,10 @@ const signup = async (req, res) => {
     };
 
     const result = await usersCollection.insertOne(newUser);
+
+    const { userInit } = require("../controllers/userInit.js");
+    await userInit(username);
+
     const token = jwt.sign(
       { id: result.insertedId },
       process.env.JWT_SECRET_KEY,
@@ -159,33 +163,79 @@ const getUserProfile = async (req, res) => {
 //     res.status(500).send("Server error!");
 //   }
 // };
+
+
+
+// const updateUserProfile = async (req, res) => {
+//   const currentID = req.params.id;
+//   const { bio, profilePicture } = req.body; // only accept bio and profilePicture
+
+//   try {
+//     await connectClient();
+//     const db = client.db("githubclone");
+//     const usersCollection = db.collection("users");
+
+//     // Prepare fields to update
+//     const updateFields = {};
+//     if (bio !== undefined) updateFields.bio = bio;
+//     if (profilePicture) updateFields.profilePicture = profilePicture;
+
+//     const result = await usersCollection.findOneAndUpdate(
+//       { _id: new ObjectId(currentID) },
+//       { $set: updateFields },
+//       { returnDocument: "after" }
+//     );
+
+//     if (!result.value) {
+//       return res.status(404).json({ message: "User not found!" });
+//     }
+
+//     res.json(result.value);
+//   } catch (err) {
+//     console.error("Error during updating : ", err.message);
+//     res.status(500).send("Server error!");
+//   }
+// };
+
+
+const { updateUserFolder } = require("../controllers/updateUser.js");
+
 const updateUserProfile = async (req, res) => {
   const currentID = req.params.id;
-  const { bio, profilePicture } = req.body; // only accept bio and profilePicture
+  const { bio, profilePicture, username } = req.body; // include username
 
   try {
     await connectClient();
     const db = client.db("githubclone");
     const usersCollection = db.collection("users");
 
+    // Find current user first (to get old username)
+    const existingUser = await usersCollection.findOne({ _id: new ObjectId(currentID) });
+    if (!existingUser) {
+      return res.status(404).json({ message: "User not found!" });
+    }
+
     // Prepare fields to update
     const updateFields = {};
     if (bio !== undefined) updateFields.bio = bio;
     if (profilePicture) updateFields.profilePicture = profilePicture;
+    if (username) updateFields.username = username;
 
+    // Update DB
     const result = await usersCollection.findOneAndUpdate(
       { _id: new ObjectId(currentID) },
       { $set: updateFields },
       { returnDocument: "after" }
     );
 
-    if (!result.value) {
-      return res.status(404).json({ message: "User not found!" });
+    // If username changed, rename local + S3 folders
+    if (username && username !== existingUser.username) {
+      await updateUserFolder(existingUser.username, username);
     }
 
     res.json(result.value);
   } catch (err) {
-    console.error("Error during updating : ", err.message);
+    console.error("Error during updating:", err.message);
     res.status(500).send("Server error!");
   }
 };
@@ -255,6 +305,37 @@ const followUser = async (req, res) => {
   }
 };
 
+// const deleteUserProfile = async (req, res) => {
+//   const userId = req.params.id;
+
+//   if (!ObjectId.isValid(userId)) {
+//     return res.status(400).json({ message: "Invalid user ID format" });
+//   }
+
+//   try {
+//     await connectClient();
+//     const db = client.db("githubclone");
+//     const usersCollection = db.collection("users");
+
+//     const result = await usersCollection.deleteOne({
+//       _id: new ObjectId(userId),
+//     });
+
+//     if (result.deletedCount === 0) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
+
+//     res.json({ message: "User deleted successfully" });
+//   } catch (error) {
+//     console.error("Error deleting user:", error);
+//     res.status(500).json({ message: "Internal server error" });
+//   }
+  
+// };
+
+
+const { deleteUserFolder } = require("../controllers/deleteUser.js");
+
 const deleteUserProfile = async (req, res) => {
   const userId = req.params.id;
 
@@ -267,6 +348,12 @@ const deleteUserProfile = async (req, res) => {
     const db = client.db("githubclone");
     const usersCollection = db.collection("users");
 
+    // Find user first to get username
+    const existingUser = await usersCollection.findOne({ _id: new ObjectId(userId) });
+    if (!existingUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
     const result = await usersCollection.deleteOne({
       _id: new ObjectId(userId),
     });
@@ -275,13 +362,16 @@ const deleteUserProfile = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
+    // ✅ Delete user folder (local + AWS)
+    await deleteUserFolder(existingUser.username);
+
     res.json({ message: "User deleted successfully" });
   } catch (error) {
     console.error("Error deleting user:", error);
     res.status(500).json({ message: "Internal server error" });
   }
-  
 };
+
 const toggleStarRepo = async (req, res) => {
   try {
     const { userId, repoId } = req.body;
