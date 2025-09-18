@@ -14,6 +14,9 @@ import CreateIssue from "./components/issue/CreateIssue";
 import UpdateIssue from "./components/issue/UpdateIssue";
 import UpdateProfile from "./components/user/UpdateProfile";
 import StarredRepos from "./components/user/stredRepo";
+
+import FileUploadCommit from "./components/repo/filesAdding";
+
 // Auth Context
 import { useAuth } from "./authContext";
 function CreateIssueWrapper() {
@@ -69,6 +72,17 @@ const ProjectRoutes = ()=>{
             path:"/repository/:id",
             element:<RepositoryDetails/>
         },
+
+
+
+        {
+            path:"/repository/",
+            element:<FileUploadCommit/>
+        },
+
+
+
+        
         { path: "/repository/update/:id", element: <UpdateRepository /> },
         {
             path:"/repository/:id/issue/create" ,element:<CreateIssueWrapper />
