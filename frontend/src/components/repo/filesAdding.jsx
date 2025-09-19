@@ -1,15 +1,14 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-const FileUploadCommit = ({ repoId }) => {
+const FileUploadCommit = ({ user, repo }) => {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [commitFiles, setCommitFiles] = useState([]);
+  const [commitMsg, setCommitMsg] = useState("");
   const [uploading, setUploading] = useState(false);
 
-  const token = localStorage.getItem("token");
   const api = axios.create({
     baseURL: "http://localhost:3000",
-    headers: { Authorization: `Bearer ${token}` },
   });
 
   // Step 1: select files
@@ -23,20 +22,35 @@ const FileUploadCommit = ({ repoId }) => {
     setSelectedFiles([]);
   };
 
-  // Step 3: push files to server
-  const handlePush = async () => {
-    if (!commitFiles.length) return;
-    const formData = new FormData();
-    commitFiles.forEach((file) => formData.append("files", file));
-    formData.append("repoId", repoId);
+  // Step 3: Commit + Push
+  const handleCommitAndPush = async () => {
+    if (!commitFiles.length || !commitMsg) {
+      alert("Please add files and enter a commit message");
+      return;
+    }
 
     try {
       setUploading(true);
-      const res = await api.post("/repo/upload", formData, {
+
+      // 1. Upload actual files into staging
+      const formData = new FormData();
+      commitFiles.forEach((file) => {
+        formData.append("files", file);
+      });
+
+      await api.post(`/repo/${user}/${repo}/add`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      alert("Files pushed successfully!");
+
+      // 2. Commit staged files
+      await api.post(`/repo/${user}/${repo}/commit`, { message: commitMsg });
+
+      // 3. Push to S3
+      await api.post(`/repo/${user}/${repo}/push`);
+
+      alert("Files committed and pushed successfully!");
       setCommitFiles([]);
+      setCommitMsg("");
     } catch (err) {
       console.error(err);
       alert("Failed to push files");
@@ -74,8 +88,14 @@ const FileUploadCommit = ({ repoId }) => {
                 <li key={idx}>{f.name}</li>
               ))}
             </ul>
-            <button onClick={handlePush} disabled={uploading}>
-              {uploading ? "Pushing..." : "Push to Repo"}
+            <textarea
+              placeholder="Enter commit message"
+              value={commitMsg}
+              onChange={(e) => setCommitMsg(e.target.value)}
+              style={{ width: "100%", height: "60px", marginTop: "10px" }}
+            />
+            <button onClick={handleCommitAndPush} disabled={uploading}>
+              {uploading ? "Pushing..." : "Commit & Push"}
             </button>
           </div>
         )}

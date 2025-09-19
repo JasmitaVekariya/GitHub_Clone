@@ -3,42 +3,50 @@ const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 
 async function commitRepo(user, repoName, msg) {
+  if (!user || !repoName) {
+    console.error("Commit failed: user or repoName is undefined");
+    return;
+  }
+
   const repoPath = path.resolve(process.cwd(), ".github_clone");
-  const userFolder = path.join(repoPath , user)
-  const repofolder = path.join(userFolder , repoName);
+  const userFolder = path.join(repoPath, user);
+  const repofolder = path.join(userFolder, repoName);
   const stagingPath = path.join(repofolder, "staging");
   const commitsPath = path.join(repofolder, "commits");
 
-  try{
-    const commitId = uuidv4(); // Generate a unique commit ID
+  try {
+    const commitId = uuidv4();
     const commitDir = path.join(commitsPath, commitId);
 
     await fs.mkdir(commitDir, { recursive: true });
 
-    // Read all files from the staging area
+    // Ensure staging exists
     const files = await fs.readdir(stagingPath);
 
     for (const file of files) {
-      await fs.copyFile(
-        path.join(stagingPath, file),
-        path.join(commitDir, file)
-      );
+      const src = path.join(stagingPath, file);
+      const dest = path.join(commitDir, file);
+      await fs.copyFile(src, dest);
+      await fs.unlink(src); // clear staging after commit
     }
 
-    await fs.writeFile(path.join(commitDir, "commit.json"), JSON.stringify({
+    const commitMeta = {
       id: commitId,
       message: msg,
-      timestamp: new Date().toISOString()
-    }));
+      timestamp: new Date().toISOString(),
+    };
 
-    console.log(`Commit successful with ID: ${commitId} and message: "${msg}"`);
+    await fs.writeFile(
+      path.join(commitDir, "commit.json"),
+      JSON.stringify(commitMeta, null, 2)
+    );
 
-  }catch (error) {
+    console.log(
+      `Commit successful for ${user}/${repoName} with ID: ${commitId} and message: "${msg}"`
+    );
+  } catch (error) {
     console.error("Error committing changes:", error);
-    return;
   }
-
 }
 
 module.exports = { commitRepo };
-

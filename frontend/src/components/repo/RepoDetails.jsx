@@ -14,6 +14,7 @@ import {
   FaGlobe,
 } from "react-icons/fa";
 import axios from "axios";
+import FileUploadCommit from "./filesAdding";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -165,6 +166,14 @@ const RepositoryDetails = () => {
               View Issues
             </div>
           </div>
+
+          {/* File Upload & Commit Section */}
+          {repo && repo.owner && (
+            <div style={{ marginTop: "30px" }}>
+              <h3 style={{ color: "#58a6ff" }}>Manage Files</h3>
+              <FileUploadCommit user={repo.owner.username} repo={repo.name} />
+            </div>
+          )}
         </div>
       </div>
     </>

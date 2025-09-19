@@ -4,22 +4,24 @@ const { s3, S3_BUCKET } = require("../config/aws-config.js");
 
 async function pushRepo(user, repoName) {
   const rootPath = path.resolve(process.cwd(), ".github_clone");
-  const userFolder = path.join(rootPath, user);
-  const repoPath = path.join(userFolder, repoName);
+  const repoPath = path.join(rootPath, user, repoName);
   const commitsPath = path.join(repoPath, "commits");
 
   try {
     const commitDirs = await fs.readdir(commitsPath);
 
+    // Sort by timestamp (so latest commit is last)
+    commitDirs.sort((a, b) => Number(a) - Number(b));
+
     for (const commitDir of commitDirs) {
       const commitPath = path.join(commitsPath, commitDir);
       const files = await fs.readdir(commitPath);
 
+      // Upload each file in this commit
       for (const file of files) {
         const filePath = path.join(commitPath, file);
         const fileContent = await fs.readFile(filePath);
 
-        // S3 Key with user + repo included
         const params = {
           Bucket: S3_BUCKET,
           Key: `${user}/${repoName}/commits/${commitDir}/${file}`,
@@ -29,12 +31,62 @@ async function pushRepo(user, repoName) {
         await s3.upload(params).promise();
       }
 
+      // Save commit metadata (commit.json)
+      const commitMeta = {
+        commitId: commitDir,
+        timestamp: new Date().toISOString(),
+        message: await safeReadFile(path.join(commitPath, "message.txt")),
+        author: user,
+      };
+
+      await s3
+        .upload({
+          Bucket: S3_BUCKET,
+          Key: `${user}/${repoName}/commits/${commitDir}/commit.json`,
+          Body: JSON.stringify(commitMeta, null, 2),
+        })
+        .promise();
+
       console.log(
-        `Pushed commit ${commitDir} of repo '${repoName}' for user '${user}' to S3 bucket ${S3_BUCKET}`
+        `Pushed commit ${commitDir} of repo '${repoName}' for user '${user}'`
       );
     }
+
+    // Update HEAD pointer to latest commit
+    const latestCommit = commitDirs[commitDirs.length - 1];
+    const headData = {
+      branch: "main",
+      latestCommit,
+    };
+
+    await s3
+      .upload({
+        Bucket: S3_BUCKET,
+        Key: `${user}/${repoName}/HEAD.json`,
+        Body: JSON.stringify(headData, null, 2),
+      })
+      .promise();
+
+    await s3
+      .upload({
+        Bucket: S3_BUCKET,
+        Key: `${user}/${repoName}/refs/heads/main.json`,
+        Body: JSON.stringify(headData, null, 2),
+      })
+      .promise();
+
+    console.log(`Updated HEAD to commit ${latestCommit}`);
   } catch (error) {
     console.error("Error pushing repository:", error);
+  }
+}
+
+// Helper to safely read optional files
+async function safeReadFile(filePath) {
+  try {
+    return (await fs.readFile(filePath, "utf8")).trim();
+  } catch {
+    return "";
   }
 }
 

@@ -72,17 +72,6 @@ const ProjectRoutes = ()=>{
             path:"/repository/:id",
             element:<RepositoryDetails/>
         },
-
-
-
-        {
-            path:"/repository/",
-            element:<FileUploadCommit/>
-        },
-
-
-
-        
         { path: "/repository/update/:id", element: <UpdateRepository /> },
         {
             path:"/repository/:id/issue/create" ,element:<CreateIssueWrapper />

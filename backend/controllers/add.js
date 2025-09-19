@@ -1,7 +1,11 @@
 const fs = require("fs").promises;
 const path = require("path");
 
-async function addRepo(user, repoName, filepath) {
+async function addRepo(user, repoName, uploadedFilePath, originalName) {
+  if (!user || !repoName) {
+    throw new Error("User or repoName is missing in addRepo");
+  }
+
   // Root path for .github_clone
   const rootPath = path.resolve(process.cwd(), ".github_clone");
 
@@ -18,15 +22,24 @@ async function addRepo(user, repoName, filepath) {
     // Ensure the staging directory exists
     await fs.mkdir(stagingPath, { recursive: true });
 
-    // Get filename from given file path
-    const fileName = path.basename(filepath);
+    // Use original filename if provided
+    const fileName = originalName || path.basename(uploadedFilePath);
+
+    // Destination path in staging
+    const destPath = path.join(stagingPath, fileName);
 
     // Copy file into staging area
-    await fs.copyFile(filepath, path.join(stagingPath, fileName));
+    await fs.copyFile(uploadedFilePath, destPath);
 
-    console.log(`File ${fileName} added to staging area of repo '${repoName}' for user '${user}'.`);
+    // Remove temp uploaded file
+    await fs.unlink(uploadedFilePath).catch(() => {});
+
+    console.log(
+      `File ${fileName} added to staging area of repo '${repoName}' for user '${user}'.`
+    );
   } catch (error) {
     console.error("Error adding file:", error);
+    throw error;
   }
 }
 
