@@ -156,8 +156,11 @@ async function getCommittedFiles(user, repoName) {
     // Sort by timestamp (so latest commit is last)
     commitDirs.sort((a, b) => Number(a) - Number(b));
 
-    const commits = [];
+    // Track all files across all commits to ensure each commit has complete file set
+    const allFiles = new Set();
+    const commitFiles = new Map(); // commitId -> Set of files
 
+    // First pass: collect all files from all commits
     for (const commitDir of commitDirs) {
       const commitPath = path.join(commitsPath, commitDir);
       const files = await fs.readdir(commitPath);
@@ -166,6 +169,47 @@ async function getCommittedFiles(user, repoName) {
       const actualFiles = files.filter(file => 
         file !== 'commit.json' && file !== 'message.txt'
       );
+      
+      commitFiles.set(commitDir, new Set(actualFiles));
+      actualFiles.forEach(file => allFiles.add(file));
+    }
+
+    // Second pass: ensure each commit has all files (copy missing files from previous commits)
+    for (let i = 0; i < commitDirs.length; i++) {
+      const commitDir = commitDirs[i];
+      const commitPath = path.join(commitsPath, commitDir);
+      const currentCommitFiles = commitFiles.get(commitDir);
+      
+      // Copy missing files from previous commits
+      for (const file of allFiles) {
+        if (!currentCommitFiles.has(file)) {
+          // Find the most recent commit that has this file
+          for (let j = i - 1; j >= 0; j--) {
+            const prevCommitDir = commitDirs[j];
+            const prevCommitFiles = commitFiles.get(prevCommitDir);
+            
+            if (prevCommitFiles.has(file)) {
+              const sourcePath = path.join(commitsPath, prevCommitDir, file);
+              const destPath = path.join(commitPath, file);
+              
+              try {
+                await fs.copyFile(sourcePath, destPath);
+                currentCommitFiles.add(file);
+                console.log(`Copied ${file} from commit ${prevCommitDir} to commit ${commitDir}`);
+                break;
+              } catch (err) {
+                console.warn(`Could not copy ${file} from commit ${prevCommitDir}:`, err.message);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    const commits = [];
+
+    for (const commitDir of commitDirs) {
+      const commitPath = path.join(commitsPath, commitDir);
 
       // Read commit metadata
       let commitMeta = {};
@@ -181,7 +225,7 @@ async function getCommittedFiles(user, repoName) {
         message: commitMeta.message || await safeReadFile(path.join(commitPath, "message.txt")),
         timestamp: commitMeta.timestamp || new Date().toISOString(),
         author: user,
-        files: actualFiles
+        files: Array.from(commitFiles.get(commitDir) || [])
       });
     }
 

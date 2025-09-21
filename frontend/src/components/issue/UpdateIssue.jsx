@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { AlertCircle } from "lucide-react"; // using lucide-react icons
 import Navbar from "../Navbar";
+import { FaBug, FaFileAlt, FaExclamationCircle, FaCheckCircle, FaTimes, FaSpinner } from "react-icons/fa";
 
 const UpdateIssue = () => {
   const { id } = useParams(); // issue ID
@@ -69,112 +69,83 @@ const UpdateIssue = () => {
     }
   };
 
-  if (loading) return <div>Loading issue data...</div>;
-  if (error) return <div style={{ color: "red" }}>Error: {error}</div>;
+  if (loading) return (
+    <>
+      <Navbar />
+      <div style={styles.container}>
+        <div style={styles.loadingContainer}>
+          <div style={styles.loadingSpinner}></div>
+          <p style={styles.loadingText}>Loading issue data...</p>
+        </div>
+      </div>
+    </>
+  );
+  
+  if (error) return (
+    <>
+      <Navbar />
+      <div style={styles.container}>
+        <div style={styles.errorContainer}>
+          <FaExclamationCircle style={styles.errorIcon} />
+          <p style={styles.errorText}>Error: {error}</p>
+        </div>
+      </div>
+    </>
+  );
 
   return (
     <>
       <Navbar />
-      <div
-        style={{
-          padding: "120px 20px 20px", // increased padding from top
-          minHeight: "100vh",
-          backgroundColor: "#0d1117",
-          color: "#c9d1d9",
-        }}
-      >
-        <div
-          style={{
-            maxWidth: "850px", // wider container
-            margin: "auto",
-            backgroundColor: "#161b22",
-            padding: "30px",
-            borderRadius: "8px",
-            border: "1px solid #30363d",
-          }}
-        >
-          {/* Title with Icon */}
-          <h2
-            style={{
-              marginBottom: "20px",
-              display: "flex",
-              alignItems: "center",
-              gap: "10px",
-              fontSize: "20px",
-            }}
-          >
-            <AlertCircle size={22} /> Update Issue
-          </h2>
+      <div style={styles.container}>
+        <div style={styles.card}>
+          <div style={styles.header}>
+            <div style={styles.iconContainer}>
+              <FaBug size={32} />
+            </div>
+            <h1 style={styles.title}>Update Issue</h1>
+            <p style={styles.subtitle}>Modify the issue details and status</p>
+          </div>
 
-          <form onSubmit={handleSubmit}>
-            {/* Title */}
-            <div style={{ marginBottom: "15px" }}>
-              <label htmlFor="title" style={{ display: "block", marginBottom: "5px" }}>
-                Title
+          <form onSubmit={handleSubmit} style={styles.form}>
+            <div style={styles.inputGroup}>
+              <label style={styles.label}>
+                <FaFileAlt style={styles.labelIcon} />
+                Issue Title
               </label>
               <input
-                id="title"
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "10px",
-                  borderRadius: "6px",
-                  border: "1px solid #30363d",
-                  backgroundColor: "#0d1117",
-                  color: "#c9d1d9",
-                  fontSize: "14px",
-                }}
+                style={styles.input}
+                placeholder="Enter issue title"
                 required
               />
             </div>
 
-            {/* Description */}
-            <div style={{ marginBottom: "15px" }}>
-              <label
-                htmlFor="description"
-                style={{ display: "block", marginBottom: "5px" }}
-              >
+            <div style={styles.inputGroup}>
+              <label style={styles.label}>
+                <FaExclamationCircle style={styles.labelIcon} />
                 Description
               </label>
               <textarea
-                id="description"
                 rows="6"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "10px",
-                  borderRadius: "6px",
-                  border: "1px solid #30363d",
-                  backgroundColor: "#0d1117",
-                  color: "#c9d1d9",
-                  fontSize: "14px",
-                  resize: "vertical",
-                }}
+                style={styles.textarea}
+                placeholder="Describe the issue in detail"
                 required
               />
             </div>
 
-            {/* Status */}
-            <div style={{ marginBottom: "15px" }}>
-              <label htmlFor="status" style={{ display: "block", marginBottom: "5px" }}>
+            <div style={styles.inputGroup}>
+              <label style={styles.label}>
+                <FaCheckCircle style={styles.labelIcon} />
                 Status
               </label>
               <select
-                id="status"
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "10px",
-                  borderRadius: "6px",
-                  border: "1px solid #30363d",
-                  backgroundColor: "#0d1117",
-                  color: "#c9d1d9",
-                  fontSize: "14px",
-                }}
+                style={styles.select}
               >
                 <option value="open">Open</option>
                 <option value="closed">Closed</option>
@@ -182,40 +153,37 @@ const UpdateIssue = () => {
             </div>
 
             {submitError && (
-              <p style={{ color: "red", marginBottom: "10px" }}>{submitError}</p>
+              <div style={styles.errorMessage}>
+                <FaExclamationCircle />
+                {submitError}
+              </div>
             )}
 
-            {/* Buttons */}
-            <div style={{ display: "flex", gap: "10px" }}>
+            <div style={styles.buttonContainer}>
               <button
                 type="submit"
                 disabled={submitLoading}
-                style={{
-                  padding: "10px 20px",
-                  backgroundColor: "#1f6feb", // GitHub blue
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: "6px",
-                  cursor: submitLoading ? "not-allowed" : "pointer",
-                  fontSize: "14px",
-                }}
+                style={submitLoading ? styles.submitButtonDisabled : styles.submitButton}
               >
-                {submitLoading ? "Updating..." : "Update Issue"}
+                {submitLoading ? (
+                  <>
+                    <FaSpinner style={{ animation: "spin 1s linear infinite", marginRight: "8px" }} />
+                    Updating...
+                  </>
+                ) : (
+                  <>
+                    <FaBug style={{ marginRight: "8px" }} />
+                    Update Issue
+                  </>
+                )}
               </button>
 
               <button
                 type="button"
                 onClick={() => navigate(-1)}
-                style={{
-                  padding: "10px 20px",
-                  backgroundColor: "#30363d", // gray button
-                  color: "#c9d1d9",
-                  border: "none",
-                  borderRadius: "6px",
-                  cursor: "pointer",
-                  fontSize: "14px",
-                }}
+                style={styles.cancelButton}
               >
+                <FaTimes style={{ marginRight: "8px" }} />
                 Cancel
               </button>
             </div>
@@ -224,6 +192,219 @@ const UpdateIssue = () => {
       </div>
     </>
   );
+};
+
+const styles = {
+  container: {
+    minHeight: "100vh",
+    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    padding: "120px 20px 40px",
+    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  },
+  card: {
+    maxWidth: "800px",
+    margin: "0 auto",
+    background: "rgba(255, 255, 255, 0.95)",
+    backdropFilter: "blur(20px)",
+    borderRadius: "24px",
+    padding: "40px",
+    boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+    border: "1px solid rgba(255, 255, 255, 0.2)",
+  },
+  header: {
+    textAlign: "center",
+    marginBottom: "40px",
+  },
+  iconContainer: {
+    width: "80px",
+    height: "80px",
+    borderRadius: "20px",
+    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    color: "white",
+    margin: "0 auto 24px",
+    boxShadow: "0 10px 25px -5px rgba(102, 126, 234, 0.4)",
+  },
+  title: {
+    fontSize: "32px",
+    fontWeight: "800",
+    margin: "0 0 12px 0",
+    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+    backgroundClip: "text",
+  },
+  subtitle: {
+    fontSize: "18px",
+    color: "#64748b",
+    margin: 0,
+    fontWeight: "500",
+  },
+  form: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "24px",
+  },
+  inputGroup: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "8px",
+  },
+  label: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    fontSize: "16px",
+    fontWeight: "600",
+    color: "#374151",
+  },
+  labelIcon: {
+    color: "#667eea",
+    fontSize: "16px",
+  },
+  input: {
+    padding: "16px 20px",
+    borderRadius: "12px",
+    border: "2px solid #e2e8f0",
+    fontSize: "16px",
+    fontWeight: "500",
+    transition: "all 0.3s ease",
+    backgroundColor: "#ffffff",
+    outline: "none",
+  },
+  textarea: {
+    padding: "16px 20px",
+    borderRadius: "12px",
+    border: "2px solid #e2e8f0",
+    fontSize: "16px",
+    fontWeight: "500",
+    transition: "all 0.3s ease",
+    backgroundColor: "#ffffff",
+    outline: "none",
+    resize: "vertical",
+    fontFamily: "inherit",
+  },
+  select: {
+    padding: "16px 20px",
+    borderRadius: "12px",
+    border: "2px solid #e2e8f0",
+    fontSize: "16px",
+    fontWeight: "500",
+    transition: "all 0.3s ease",
+    backgroundColor: "#ffffff",
+    outline: "none",
+    cursor: "pointer",
+  },
+  buttonContainer: {
+    display: "flex",
+    gap: "16px",
+    marginTop: "20px",
+  },
+  submitButton: {
+    flex: 1,
+    padding: "16px 24px",
+    borderRadius: "12px",
+    border: "none",
+    fontSize: "16px",
+    fontWeight: "600",
+    cursor: "pointer",
+    transition: "all 0.3s ease",
+    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    color: "white",
+    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "8px",
+  },
+  submitButtonDisabled: {
+    flex: 1,
+    padding: "16px 24px",
+    borderRadius: "12px",
+    border: "none",
+    fontSize: "16px",
+    fontWeight: "600",
+    cursor: "not-allowed",
+    transition: "all 0.3s ease",
+    background: "#94a3b8",
+    color: "white",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "8px",
+  },
+  cancelButton: {
+    padding: "16px 24px",
+    borderRadius: "12px",
+    border: "2px solid #e2e8f0",
+    fontSize: "16px",
+    fontWeight: "600",
+    cursor: "pointer",
+    transition: "all 0.3s ease",
+    background: "white",
+    color: "#64748b",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "8px",
+  },
+  errorMessage: {
+    padding: "16px 20px",
+    borderRadius: "12px",
+    backgroundColor: "#fef2f2",
+    color: "#dc2626",
+    border: "1px solid #fecaca",
+    fontSize: "16px",
+    fontWeight: "600",
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+  },
+  loadingContainer: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    padding: "60px 20px",
+  },
+  loadingSpinner: {
+    width: "40px",
+    height: "40px",
+    border: "4px solid rgba(255, 255, 255, 0.3)",
+    borderTop: "4px solid white",
+    borderRadius: "50%",
+    animation: "spin 1s linear infinite",
+    marginBottom: "16px",
+  },
+  loadingText: {
+    fontSize: "16px",
+    color: "white",
+    margin: 0,
+    fontWeight: "500",
+  },
+  errorContainer: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    padding: "60px 20px",
+    background: "rgba(255, 255, 255, 0.95)",
+    borderRadius: "20px",
+    margin: "0 auto",
+    maxWidth: "400px",
+  },
+  errorIcon: {
+    fontSize: "48px",
+    color: "#dc2626",
+    marginBottom: "16px",
+  },
+  errorText: {
+    fontSize: "16px",
+    color: "#dc2626",
+    margin: 0,
+    fontWeight: "600",
+    textAlign: "center",
+  },
 };
 
 export default UpdateIssue;

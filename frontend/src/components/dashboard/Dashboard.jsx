@@ -1,126 +1,176 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiSearch, FiUser } from "react-icons/fi"; // ✅ Import icons
+import { FiSearch, FiUser, FiStar, FiEye, FiCode, FiCalendar, FiTrendingUp } from "react-icons/fi";
 import Navbar from "../Navbar";
 
 const palette = {
-  bg: "#0a0e14",
-  card: "#141c26",
-  border: "#30363d",
-  accent: "#58a6ff",
-  textPrimary: "#c9d1d9",
-  textSecondary: "#768390",
+  bg: "#f8fafc",
+  card: "rgba(255, 255, 255, 0.95)",
+  border: "#e2e8f0",
+  accent: "#667eea",
+  textPrimary: "#1e293b",
+  textSecondary: "#64748b",
+  gradient: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
 };
 
 const styles = {
   appWrapper: {
-    backgroundColor: palette.bg,
+    background: palette.gradient,
     minHeight: "100vh",
     width: "100%",
     margin: 0,
     padding: 0,
-    fontFamily:
-      '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"',
+    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
     color: palette.textPrimary,
   },
   dashboard: {
     display: "grid",
-    gridTemplateColumns: "1.3fr 2fr 1.3fr",
-    gap: "20px",
-    padding: "40px 20px 80px",
-    width: "90%",
+    gridTemplateColumns: "1fr 1.5fr 1fr",
+    gap: "32px",
+    padding: "120px 24px 80px",
+    width: "100%",
     maxWidth: "1400px",
     margin: "0 auto",
   },
   sidebar: {
     background: palette.card,
-    border: `1px solid ${palette.border}`,
-    borderRadius: "12px",
-    padding: "24px 20px",
-    boxShadow: "0 2px 12px rgb(20 23 26 / 0.5)",
+    backdropFilter: "blur(20px)",
+    border: `2px solid rgba(255, 255, 255, 0.2)`,
+    borderRadius: "24px",
+    padding: "32px 24px",
+    boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
     display: "flex",
     flexDirection: "column",
+    position: "relative",
+    overflow: "hidden",
   },
   card: {
-    background: palette.card,
-    borderRadius: "12px",
-    padding: "18px 20px",
-    marginBottom: "14px",
+    background: "rgba(255, 255, 255, 0.8)",
+    backdropFilter: "blur(10px)",
+    borderRadius: "16px",
+    padding: "24px 20px",
+    marginBottom: "16px",
     cursor: "pointer",
-    boxShadow: "0 2px 10px rgb(20 23 26 / 0.6)",
-    transition: "background-color 0.3s ease, box-shadow 0.3s ease",
+    boxShadow: "0 8px 25px -5px rgba(0, 0, 0, 0.1)",
+    transition: "all 0.3s ease",
     display: "flex",
     flexDirection: "column",
+    border: "1px solid rgba(255, 255, 255, 0.3)",
   },
   cardHover: {
-    background: "#1b2330",
-    boxShadow: "0 4px 20px rgb(56 139 253 / 0.4)",
+    background: "rgba(255, 255, 255, 0.95)",
+    boxShadow: "0 15px 35px -5px rgba(102, 126, 234, 0.3)",
+    transform: "translateY(-2px)",
   },
   cardTitle: {
     margin: 0,
-    color: palette.accent,
-    fontSize: "1rem",
-    fontWeight: "600",
+    background: palette.gradient,
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+    backgroundClip: "text",
+    fontSize: "1.1rem",
+    fontWeight: "700",
   },
   cardDesc: {
-    margin: "6px 0 0",
+    margin: "8px 0 0",
     color: palette.textSecondary,
-    fontSize: "0.85rem",
-    lineHeight: "1.3",
-    minHeight: "36px",
+    fontSize: "0.9rem",
+    lineHeight: "1.5",
+    minHeight: "40px",
   },
   ownerText: {
-    fontSize: "0.75rem",
+    fontSize: "0.8rem",
     color: palette.textSecondary,
-    marginTop: "6px",
+    marginTop: "8px",
     display: "flex",
     alignItems: "center",
-    gap: "6px",
-    fontStyle: "italic",
+    gap: "8px",
+    fontWeight: "500",
   },
   heading: {
-    borderBottom: `1px solid ${palette.border}`,
-    paddingBottom: "8px",
-    marginBottom: "20px",
-    fontSize: "1.25rem",
-    fontWeight: "600",
+    borderBottom: `2px solid ${palette.border}`,
+    paddingBottom: "16px",
+    marginBottom: "24px",
+    fontSize: "1.5rem",
+    fontWeight: "800",
+    background: palette.gradient,
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+    backgroundClip: "text",
   },
   searchWrapper: {
     position: "relative",
-    marginBottom: "20px",
+    marginBottom: "24px",
   },
   searchBox: {
     width: "100%",
-    padding: "10px 16px 10px 40px", // left padding for icon
-    borderRadius: "8px",
-    border: `1px solid ${palette.border}`,
-    background: "#0d1117",
+    padding: "16px 20px 16px 48px",
+    borderRadius: "16px",
+    border: `2px solid ${palette.border}`,
+    background: "rgba(255, 255, 255, 0.9)",
     color: palette.textPrimary,
-    fontSize: "14px",
+    fontSize: "16px",
     outline: "none",
-    transition: "border-color 0.3s ease",
+    transition: "all 0.3s ease",
+    fontWeight: "500",
   },
   searchIcon: {
     position: "absolute",
     top: "50%",
-    left: "12px",
+    left: "16px",
     transform: "translateY(-50%)",
-    color: palette.textSecondary,
+    color: palette.accent,
+    fontSize: "18px",
   },
   noResults: {
     textAlign: "center",
     color: palette.textSecondary,
-    padding: "20px",
+    padding: "32px 20px",
+    fontSize: "16px",
+    fontWeight: "500",
   },
   loading: {
     textAlign: "center",
-    padding: "40px",
-    fontSize: "1.2rem",
+    padding: "60px 40px",
+    fontSize: "1.3rem",
+    fontWeight: "600",
+    color: palette.textPrimary,
   },
   error: {
     textAlign: "center",
-    padding: "40px",
-    color: "#f85149",
+    padding: "60px 40px",
+    color: "#dc2626",
+    fontSize: "1.3rem",
+    fontWeight: "600",
+    backgroundColor: "#fef2f2",
+    borderRadius: "16px",
+    border: "2px solid #fecaca",
+  },
+  statsCard: {
+    background: "rgba(255, 255, 255, 0.8)",
+    backdropFilter: "blur(10px)",
+    borderRadius: "16px",
+    padding: "20px",
+    marginBottom: "16px",
+    border: "1px solid rgba(255, 255, 255, 0.3)",
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+  },
+  statsIcon: {
+    width: "40px",
+    height: "40px",
+    borderRadius: "12px",
+    background: palette.gradient,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    color: "white",
+  },
+  statsText: {
+    fontSize: "14px",
+    fontWeight: "600",
+    color: palette.textPrimary,
   },
 };
 
@@ -218,43 +268,55 @@ const Dashboard = () => {
   return (
     <>
       <Navbar />
-      <div style={{ ...styles.appWrapper, paddingTop: "80px" }}>
+      <div style={styles.appWrapper}>
         <section id="dashboard" style={styles.dashboard}>
-          {/* Suggested Repositories */}
+          {/* Stats & Quick Actions */}
           <aside style={styles.sidebar}>
-            <h3 style={styles.heading}>Suggested Repositories</h3>
-            {suggestedRepositories.length > 0 ? (
-              suggestedRepositories.map((repo) => (
-                <div
-                  style={styles.card}
-                  key={repo._id}
-                  onClick={() => navigate(`/repository/${repo._id}`)}
-                  onMouseEnter={handleMouseEnter}
-                  onMouseLeave={handleMouseLeave}
-                >
-                  <h4 style={styles.cardTitle}>{repo?.name}</h4>
-                  <p style={styles.cardDesc}>
-                    {repo?.description || "No description provided"}
-                  </p>
-                  <p style={styles.ownerText}>
-                    <FiUser /> {repo?.owner?.username || "Unknown"}
-                  </p>
+            <h3 style={styles.heading}>📊 Quick Stats</h3>
+            <div style={styles.statsCard}>
+              <div style={styles.statsIcon}>
+                <FiCode size={20} />
+              </div>
+              <div>
+                <div style={styles.statsText}>Your Repositories</div>
+                <div style={{ fontSize: "24px", fontWeight: "800", color: palette.accent }}>
+                  {repositories.length}
                 </div>
-              ))
-            ) : (
-              <p style={styles.noResults}>No suggestions available.</p>
-            )}
+              </div>
+            </div>
+            <div style={styles.statsCard}>
+              <div style={styles.statsIcon}>
+                <FiStar size={20} />
+              </div>
+              <div>
+                <div style={styles.statsText}>Total Stars</div>
+                <div style={{ fontSize: "24px", fontWeight: "800", color: palette.accent }}>
+                  {repositories.reduce((sum, repo) => sum + (repo.stars || 0), 0)}
+                </div>
+              </div>
+            </div>
+            <div style={styles.statsCard}>
+              <div style={styles.statsIcon}>
+                <FiEye size={20} />
+              </div>
+              <div>
+                <div style={styles.statsText}>Total Views</div>
+                <div style={{ fontSize: "24px", fontWeight: "800", color: palette.accent }}>
+                  {repositories.reduce((sum, repo) => sum + (repo.views || 0), 0)}
+                </div>
+              </div>
+            </div>
           </aside>
 
           {/* User Repositories with Search */}
           <main style={styles.sidebar}>
-            <h2 style={styles.heading}>Your Repositories</h2>
+            <h2 style={styles.heading}>🚀 Your Repositories</h2>
             <div style={styles.searchWrapper}>
               <FiSearch style={styles.searchIcon} />
               <input
                 type="text"
                 value={searchQuery}
-                placeholder="Search repositories..."
+                placeholder="Search your repositories..."
                 onChange={(e) => setSearchQuery(e.target.value)}
                 style={styles.searchBox}
                 onFocus={(e) => (e.target.style.borderColor = palette.accent)}
@@ -281,34 +343,69 @@ const Dashboard = () => {
                   </div>
                 ))
               ) : (
-                <p style={styles.noResults}>No repositories found.</p>
+                <p style={styles.noResults}>No repositories found matching your search.</p>
               )
             ) : (
-              <p style={styles.noResults}>
-                <FiSearch /> Start typing to search your repositories.
-              </p>
+              repositories.length > 0 ? (
+                repositories.map((repo) => (
+                  <div
+                    style={styles.card}
+                    key={repo._id}
+                    onClick={() => navigate(`/repository/${repo._id}`)}
+                    onMouseEnter={handleMouseEnter}
+                    onMouseLeave={handleMouseLeave}
+                  >
+                    <h4 style={styles.cardTitle}>{repo?.name}</h4>
+                    <p style={styles.cardDesc}>
+                      {repo?.description || "No description provided"}
+                    </p>
+                    <p style={styles.ownerText}>
+                      <FiUser /> {repo?.owner?.username || "You"}
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <p style={styles.noResults}>
+                  <FiCode /> No repositories yet. Create your first one!
+                </p>
+              )
             )}
           </main>
 
-          {/* Upcoming Events */}
+          {/* Suggested Repositories & Events */}
           <aside style={styles.sidebar}>
-            <h3 style={styles.heading}>Upcoming Events</h3>
+            <h3 style={styles.heading}>🌟 Discover</h3>
+            {suggestedRepositories.length > 0 ? (
+              suggestedRepositories.slice(0, 3).map((repo) => (
+                <div
+                  style={styles.card}
+                  key={repo._id}
+                  onClick={() => navigate(`/repository/${repo._id}`)}
+                  onMouseEnter={handleMouseEnter}
+                  onMouseLeave={handleMouseLeave}
+                >
+                  <h4 style={styles.cardTitle}>{repo?.name}</h4>
+                  <p style={styles.cardDesc}>
+                    {repo?.description || "No description provided"}
+                  </p>
+                  <p style={styles.ownerText}>
+                    <FiUser /> {repo?.owner?.username || "Unknown"}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <p style={styles.noResults}>No suggestions available.</p>
+            )}
+            
+            <h3 style={{...styles.heading, marginTop: "32px"}}>📅 Recent Activity</h3>
             <div
               style={styles.card}
               onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}
             >
-              <h4 style={styles.cardTitle}>Community Standup</h4>
-              <p style={styles.cardDesc}>Mon, Oct 26, 2024 - Virtual Event</p>
-            </div>
-            <div
-              style={styles.card}
-              onMouseEnter={handleMouseEnter}
-              onMouseLeave={handleMouseLeave}
-            >
-              <h4 style={styles.cardTitle}>Open Source Sprint</h4>
+              <h4 style={styles.cardTitle}>Welcome to CodeVault!</h4>
               <p style={styles.cardDesc}>
-                Wed, Oct 28, 2024 - Codebase Contribution
+                Start by creating your first repository or exploring public ones.
               </p>
             </div>
           </aside>

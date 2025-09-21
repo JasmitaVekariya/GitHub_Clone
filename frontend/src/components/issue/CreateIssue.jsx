@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../Navbar";
+import { FaBug, FaFileAlt, FaExclamationCircle, FaCheckCircle } from "react-icons/fa";
 
 const CreateIssue = ({ repositoryId }) => {
   const [title, setTitle] = useState("");
@@ -9,94 +10,144 @@ const CreateIssue = ({ repositoryId }) => {
   const navigate = useNavigate();
 
   const styles = {
-    wrapper: {
+    container: {
       minHeight: "100vh",
-      backgroundColor: "#0d1117",
-      color: "#c9d1d9",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "flex-start",
-      padding: "100px 20px 20px",
-      fontFamily:
-        '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',
+      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+      padding: "120px 20px 40px",
+      fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
     },
     card: {
-      width: "100%",
-      maxWidth: "720px",
-      background: "linear-gradient(145deg, #161b22, #1c2128)",
-      borderRadius: "8px",
-      padding: "28px",
-      boxShadow: "0 6px 14px rgba(0, 0, 0, 0.4)",
-      color: "#f0f6fc",
+      maxWidth: "800px",
+      margin: "0 auto",
+      background: "rgba(255, 255, 255, 0.95)",
+      backdropFilter: "blur(20px)",
+      borderRadius: "24px",
+      padding: "40px",
+      boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+      border: "1px solid rgba(255, 255, 255, 0.2)",
     },
-    title: {
-      fontSize: "22px",
-      fontWeight: 700,
-      marginBottom: "20px",
+    header: {
+      textAlign: "center",
+      marginBottom: "40px",
+    },
+    iconContainer: {
+      width: "80px",
+      height: "80px",
+      borderRadius: "20px",
+      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
       display: "flex",
       alignItems: "center",
-      gap: "10px",
-      borderBottom: "1px solid #30363d",
-      paddingBottom: "10px",
+      justifyContent: "center",
+      color: "white",
+      margin: "0 auto 24px",
+      boxShadow: "0 10px 25px -5px rgba(102, 126, 234, 0.4)",
+    },
+    title: {
+      fontSize: "32px",
+      fontWeight: "800",
+      margin: "0 0 12px 0",
+      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+      WebkitBackgroundClip: "text",
+      WebkitTextFillColor: "transparent",
+      backgroundClip: "text",
+    },
+    subtitle: {
+      fontSize: "18px",
+      color: "#64748b",
+      margin: 0,
+      fontWeight: "500",
+    },
+    form: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "24px",
+    },
+    inputGroup: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "8px",
     },
     label: {
-      fontSize: "14px",
-      fontWeight: 600,
-      marginBottom: "6px",
-      color: "#9ca3af",
-      display: "block",
+      display: "flex",
+      alignItems: "center",
+      gap: "8px",
+      fontSize: "16px",
+      fontWeight: "600",
+      color: "#374151",
+    },
+    labelIcon: {
+      color: "#667eea",
+      fontSize: "16px",
     },
     input: {
-      width: "100%",
-      padding: "12px",
-      marginBottom: "18px",
-      backgroundColor: "#0d1117",
-      border: "1px solid #30363d",
-      borderRadius: "6px",
-      color: "#f0f6fc",
-      fontSize: "14px",
+      padding: "16px 20px",
+      borderRadius: "12px",
+      border: "2px solid #e2e8f0",
+      fontSize: "16px",
+      fontWeight: "500",
+      transition: "all 0.3s ease",
+      backgroundColor: "#ffffff",
       outline: "none",
     },
     textarea: {
-      width: "100%",
-      padding: "12px",
-      marginBottom: "18px",
-      backgroundColor: "#0d1117",
-      border: "1px solid #30363d",
-      borderRadius: "6px",
-      color: "#f0f6fc",
-      fontSize: "14px",
+      padding: "16px 20px",
+      borderRadius: "12px",
+      border: "2px solid #e2e8f0",
+      fontSize: "16px",
+      fontWeight: "500",
+      transition: "all 0.3s ease",
+      backgroundColor: "#ffffff",
       outline: "none",
       resize: "vertical",
-      height: "120px",
+      minHeight: "120px",
+      fontFamily: "inherit",
     },
-    button: {
-      backgroundColor: "#3b82f6", // same as Create Repo
-      color: "#fff",
-      fontWeight: 600,
+    submitButton: {
+      padding: "20px 32px",
+      borderRadius: "16px",
       border: "none",
-      borderRadius: "6px",
-      padding: "12px 18px",
+      fontSize: "18px",
+      fontWeight: "700",
       cursor: "pointer",
-      fontSize: "15px",
+      transition: "all 0.3s ease",
+      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+      color: "white",
+      boxShadow: "0 10px 25px -5px rgba(102, 126, 234, 0.4)",
       display: "flex",
       alignItems: "center",
-      gap: "6px",
+      justifyContent: "center",
+      gap: "8px",
+      marginTop: "20px",
     },
-   
-    message: {
-      marginTop: "18px",
-      padding: "12px 16px",
-      borderRadius: "6px",
-      fontSize: "14px",
+    successMessage: {
+      padding: "16px 20px",
+      borderRadius: "12px",
+      backgroundColor: "#d1fae5",
+      color: "#059669",
+      border: "1px solid #a7f3d0",
+      fontSize: "16px",
+      fontWeight: "600",
       textAlign: "center",
-      fontWeight: 600,
+      marginTop: "20px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: "8px",
     },
-    success: {
-      color: "#3fb950",
-    },
-    error: {
-      color: "#f85149",
+    errorMessage: {
+      padding: "16px 20px",
+      borderRadius: "12px",
+      backgroundColor: "#fef2f2",
+      color: "#dc2626",
+      border: "1px solid #fecaca",
+      fontSize: "16px",
+      fontWeight: "600",
+      textAlign: "center",
+      marginTop: "20px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: "8px",
     },
   };
 
@@ -133,46 +184,61 @@ const CreateIssue = ({ repositoryId }) => {
   return (
     <>
       <Navbar />
-      <div style={styles.wrapper}>
+      <div style={styles.container}>
         <div style={styles.card}>
-          <h2 style={styles.title}>📝 Create New Issue</h2>
+          <div style={styles.header}>
+            <div style={styles.iconContainer}>
+              <FaBug size={32} />
+            </div>
+            <h1 style={styles.title}>Create New Issue</h1>
+            <p style={styles.subtitle}>Report a bug or request a feature for this repository</p>
+          </div>
 
-          <form onSubmit={handleSubmit}>
-            <label style={styles.label}>Issue Title *</label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              style={styles.input}
-              required
-              placeholder="Enter issue title"
-            />
+          <form onSubmit={handleSubmit} style={styles.form}>
+            <div style={styles.inputGroup}>
+              <label style={styles.label}>
+                <FaFileAlt style={styles.labelIcon} />
+                Issue Title *
+              </label>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                style={styles.input}
+                required
+                placeholder="Enter a clear and descriptive title"
+              />
+            </div>
 
-            <label style={styles.label}>Description *</label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              style={styles.textarea}
-              required
-              placeholder="Describe the issue"
-            />
+            <div style={styles.inputGroup}>
+              <label style={styles.label}>
+                <FaExclamationCircle style={styles.labelIcon} />
+                Description *
+              </label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                style={styles.textarea}
+                required
+                placeholder="Provide detailed information about the issue, including steps to reproduce if applicable"
+              />
+            </div>
 
-            <button type="submit" style={styles.button}>
-            Create Issue
+            <button type="submit" style={styles.submitButton}>
+              <FaBug style={{ marginRight: "8px" }} />
+              Create Issue
             </button>
           </form>
 
           {message && (
-            <p
-              style={{
-                ...styles.message,
-                ...(message.includes("Failed") || message.includes("Error")
-                  ? styles.error
-                  : styles.success),
-              }}
-            >
+            <div style={message.includes("Failed") || message.includes("Error") ? styles.errorMessage : styles.successMessage}>
+              {message.includes("Failed") || message.includes("Error") ? (
+                <FaExclamationCircle />
+              ) : (
+                <FaCheckCircle />
+              )}
               {message}
-            </p>
+            </div>
           )}
         </div>
       </div>

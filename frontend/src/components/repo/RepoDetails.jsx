@@ -47,7 +47,11 @@ const RepositoryDetails = () => {
       setCommitsLoading(true);
       const response = await api.get(`/repo/${owner}/${repoName}/commits`);
       if (response.data.success) {
-        setCommits(response.data.commits);
+        // Sort commits by timestamp in descending order (latest first)
+        const sortedCommits = response.data.commits.sort((a, b) => 
+          new Date(b.timestamp) - new Date(a.timestamp)
+        );
+        setCommits(sortedCommits);
       }
     } catch (err) {
       console.error("Error fetching commits:", err);
@@ -128,13 +132,13 @@ const RepositoryDetails = () => {
           <div style={styles.visibilityBadge}>
             {repo?.isPublic || repo?.visibility === true ? (
               <>
-                <FaGlobe size={14} color="#58a6ff" />
-                <span>Public</span>
+                <FaGlobe size={16} color="#059669" />
+                <span>Public Repository</span>
               </>
             ) : (
               <>
-                <FaLock size={14} color="#f85149" />
-                <span>Private</span>
+                <FaLock size={16} color="#dc2626" />
+                <span>Private Repository</span>
               </>
             )}
           </div>
@@ -239,8 +243,16 @@ const RepositoryDetails = () => {
                         ) : (
                           <FaChevronRight style={styles.expandIcon} />
                         )}
-                        <div>
-                          <div style={styles.commitMessage}>{commit.message}</div>
+                        <div style={styles.commitNumber}>
+                          #{commits.length - index}
+                        </div>
+                        <div style={styles.commitContent}>
+                          <div style={styles.commitMessage}>
+                            {commit.message}
+                            {index === 0 && (
+                              <span style={styles.latestBadge}>Latest</span>
+                            )}
+                          </div>
                           <div style={styles.commitMeta}>
                             {new Date(commit.timestamp).toLocaleString()} • {commit.files.length} file(s)
                           </div>
@@ -275,190 +287,272 @@ const RepositoryDetails = () => {
 const styles = {
   wrapper: {
     paddingTop: "0px",
-    backgroundColor: "#0d1117",
+    backgroundColor: "#f8fafc",
     height: "100%",
-    minHeight: "200vh",
-    padding: "100px 20px 30px",
+    minHeight: "100vh",
+    padding: "120px 20px 40px",
     width: "100%",
-    color: "#c9d1d9",
-    fontFamily:
-      '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',
+    color: "#1e293b",
+    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
   },
   card: {
-    background: "#161b22",
-    border: "1px solid #30363d",
-    borderRadius: "10px",
-    padding: "25px 30px",
+    background: "rgba(255, 255, 255, 0.95)",
+    backdropFilter: "blur(20px)",
+    border: "1px solid rgba(255, 255, 255, 0.2)",
+    borderRadius: "24px",
+    padding: "40px",
     margin: "0 auto",
-    maxWidth: "600px",
-    boxShadow: "0 0 20px rgba(0, 0, 0, 0.4)",
+    maxWidth: "800px",
+    boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.05)",
+    position: "relative",
+    overflow: "hidden",
   },
   headerRow: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 12,
+    marginBottom: "24px",
+    paddingBottom: "20px",
+    borderBottom: "2px solid #e2e8f0",
   },
   repoName: {
-    fontSize: "22px",
-    fontWeight: 700,
+    fontSize: "32px",
+    fontWeight: 800,
     margin: 0,
+    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+    backgroundClip: "text",
   },
   blueText: {
-    color: "#58a6ff",
+    color: "inherit",
   },
   ownerInfo: {
     display: "flex",
     alignItems: "center",
-    fontSize: "14px",
-    color: "#c9d1d9",
+    fontSize: "16px",
+    color: "#64748b",
+    fontWeight: 500,
+    padding: "8px 16px",
+    backgroundColor: "#f1f5f9",
+    borderRadius: "12px",
+    border: "1px solid #e2e8f0",
   },
   visibilityBadge: {
     display: "flex",
     alignItems: "center",
-    gap: "6px",
+    gap: "8px",
     fontSize: "14px",
     fontWeight: 600,
-    marginBottom: "12px",
-    color: "#c9d1d9",
+    marginBottom: "20px",
+    color: "#059669",
+    padding: "6px 12px",
+    backgroundColor: "#d1fae5",
+    borderRadius: "8px",
+    border: "1px solid #a7f3d0",
+    width: "fit-content",
   },
   desc: {
-    fontSize: "16px",
-    color: "#8b949e",
-    marginBottom: 16,
+    fontSize: "18px",
+    color: "#475569",
+    marginBottom: "24px",
+    lineHeight: "1.6",
+    fontStyle: "italic",
   },
   metaText: {
-    fontSize: "14px",
-    color: "#8b949e",
-    marginBottom: 4,
+    fontSize: "15px",
+    color: "#64748b",
+    marginBottom: "8px",
+    fontWeight: 500,
   },
   statsRow: {
     display: "flex",
     justifyContent: "flex-start",
-    gap: "30px",
-    marginTop: 20,
-    marginBottom: 25,
+    gap: "24px",
+    marginTop: "32px",
+    marginBottom: "32px",
+    padding: "20px",
+    backgroundColor: "#f8fafc",
+    borderRadius: "16px",
+    border: "1px solid #e2e8f0",
   },
   statItem: {
     display: "flex",
     alignItems: "center",
-    gap: 6,
-    fontSize: "14px",
-    color: "#c9d1d9",
+    gap: "8px",
+    fontSize: "16px",
+    color: "#475569",
     cursor: "pointer",
+    padding: "8px 16px",
+    borderRadius: "12px",
+    transition: "all 0.3s ease",
+    fontWeight: 600,
+    backgroundColor: "transparent",
   },
   actionRow: {
     display: "flex",
     justifyContent: "space-between",
-    marginTop: 10,
-    gap: 12,
+    marginTop: "24px",
+    gap: "16px",
     flexWrap: "wrap",
   },
   actionItem: {
     display: "flex",
     alignItems: "center",
-    gap: 6,
-    color: "#c9d1d9",
-    fontWeight: 500,
-    borderRadius: "6px",
-    padding: "10px 14px",
+    gap: "8px",
+    color: "#475569",
+    fontWeight: 600,
+    borderRadius: "12px",
+    padding: "12px 20px",
     cursor: "pointer",
-    transition: "background 0.2s ease",
-    fontSize: "14px",
+    transition: "all 0.3s ease",
+    fontSize: "15px",
+    backgroundColor: "#f1f5f9",
+    border: "2px solid #e2e8f0",
+    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.05)",
   },
   icon: {
-    color: "#c9d1d9",
+    color: "#667eea",
+    fontSize: "16px",
   },
   loading: {
     textAlign: "center",
-    padding: "30px",
+    padding: "40px",
     fontSize: "18px",
+    color: "#64748b",
+    fontWeight: 500,
   },
   error: {
     textAlign: "center",
-    padding: "30px",
-    color: "#f85149",
+    padding: "40px",
+    color: "#dc2626",
     fontSize: "18px",
+    fontWeight: 600,
+    backgroundColor: "#fef2f2",
+    borderRadius: "12px",
+    border: "1px solid #fecaca",
   },
   sectionHeader: {
     display: "flex",
     alignItems: "center",
-    marginBottom: "20px",
-    paddingBottom: "10px",
-    borderBottom: "1px solid #30363d",
+    marginBottom: "24px",
+    paddingBottom: "16px",
+    borderBottom: "2px solid #e2e8f0",
   },
   commitsContainer: {
-    maxHeight: "500px",
+    maxHeight: "600px",
     overflowY: "auto",
-    border: "1px solid #30363d",
-    borderRadius: "8px",
-    backgroundColor: "#0d1117",
+    border: "2px solid #e2e8f0",
+    borderRadius: "16px",
+    backgroundColor: "#f8fafc",
+    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
   },
   commitItem: {
-    borderBottom: "1px solid #21262d",
+    borderBottom: "1px solid #e2e8f0",
+    transition: "all 0.3s ease",
   },
   commitHeader: {
-    padding: "15px 20px",
+    padding: "20px 24px",
     cursor: "pointer",
-    transition: "background-color 0.2s ease",
+    transition: "all 0.3s ease",
     backgroundColor: "transparent",
+    borderRadius: "12px",
+    margin: "4px",
   },
   commitHeaderLeft: {
     display: "flex",
     alignItems: "center",
-    gap: "12px",
+    gap: "16px",
+  },
+  commitNumber: {
+    fontSize: "14px",
+    fontWeight: "700",
+    color: "#667eea",
+    backgroundColor: "#e0e7ff",
+    padding: "6px 12px",
+    borderRadius: "8px",
+    minWidth: "40px",
+    textAlign: "center",
+    border: "1px solid #c7d2fe",
+  },
+  commitContent: {
+    flex: 1,
   },
   expandIcon: {
-    color: "#8b949e",
-    fontSize: "12px",
+    color: "#667eea",
+    fontSize: "14px",
+    transition: "transform 0.3s ease",
   },
   commitMessage: {
-    fontSize: "16px",
+    fontSize: "18px",
+    fontWeight: "700",
+    color: "#1e293b",
+    marginBottom: "6px",
+    lineHeight: "1.4",
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+  },
+  latestBadge: {
+    fontSize: "12px",
     fontWeight: "600",
-    color: "#c9d1d9",
-    marginBottom: "4px",
+    color: "#059669",
+    backgroundColor: "#d1fae5",
+    padding: "4px 8px",
+    borderRadius: "6px",
+    border: "1px solid #a7f3d0",
   },
   commitMeta: {
-    fontSize: "14px",
-    color: "#8b949e",
+    fontSize: "15px",
+    color: "#64748b",
+    fontWeight: 500,
   },
   commitFiles: {
-    padding: "0 20px 15px 20px",
-    backgroundColor: "#161b22",
-    borderTop: "1px solid #21262d",
+    padding: "0 24px 20px 24px",
+    backgroundColor: "#ffffff",
+    borderTop: "1px solid #e2e8f0",
+    borderRadius: "0 0 12px 12px",
   },
   filesHeader: {
-    fontSize: "14px",
-    color: "#8b949e",
-    marginBottom: "10px",
-    fontWeight: "500",
+    fontSize: "16px",
+    color: "#475569",
+    marginBottom: "16px",
+    fontWeight: "600",
+    padding: "12px 0",
+    borderBottom: "1px solid #e2e8f0",
   },
   filesList: {
     display: "flex",
     flexDirection: "column",
-    gap: "6px",
+    gap: "8px",
   },
   fileItem: {
     display: "flex",
     alignItems: "center",
-    gap: "8px",
-    fontSize: "14px",
-    color: "#c9d1d9",
-    padding: "4px 8px",
-    backgroundColor: "#0d1117",
-    borderRadius: "4px",
-    border: "1px solid #21262d",
+    gap: "12px",
+    fontSize: "15px",
+    color: "#475569",
+    padding: "12px 16px",
+    backgroundColor: "#f1f5f9",
+    borderRadius: "8px",
+    border: "1px solid #e2e8f0",
+    transition: "all 0.2s ease",
+    fontWeight: 500,
   },
   fileIcon: {
-    color: "#58a6ff",
-    fontSize: "12px",
+    color: "#667eea",
+    fontSize: "14px",
   },
   noCommits: {
     textAlign: "center",
-    padding: "40px",
-    color: "#8b949e",
-    fontSize: "16px",
+    padding: "60px 40px",
+    color: "#64748b",
+    fontSize: "18px",
     fontStyle: "italic",
+    backgroundColor: "#f8fafc",
+    borderRadius: "12px",
+    border: "2px dashed #e2e8f0",
   },
 };
 

@@ -1,90 +1,191 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../Navbar";
-import { Settings } from "lucide-react";
+import { FaCog, FaCode, FaInfoCircle, FaGlobe, FaLock, FaCheckCircle, FaExclamationCircle } from "react-icons/fa";
 
 const styles = {
-  wrapper: {
-    backgroundColor: "#0d1117",
+  container: {
     minHeight: "100vh",
-    color: "#c9d1d9",
-    padding: "100px 20px 20px",
-    fontFamily:
-      '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',
+    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    padding: "120px 20px 40px",
+    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
   },
   card: {
-    background: "linear-gradient(145deg, #161b22, #1c2128)",
-    border: "1px solid #30363d",
-    borderRadius: "8px",
-    padding: "28px",
-    margin: "20px auto",
-    maxWidth: "720px",
-    boxShadow: "0 6px 14px rgba(0,0,0,0.4)",
+    maxWidth: "800px",
+    margin: "0 auto",
+    background: "rgba(255, 255, 255, 0.95)",
+    backdropFilter: "blur(20px)",
+    borderRadius: "24px",
+    padding: "40px",
+    boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+    border: "1px solid rgba(255, 255, 255, 0.2)",
   },
-  title: {
-    fontSize: "22px",
-    fontWeight: 700,
-    color: "#f0f6fc",
-    marginBottom: "20px",
+  header: {
+    textAlign: "center",
+    marginBottom: "40px",
+  },
+  iconContainer: {
+    width: "80px",
+    height: "80px",
+    borderRadius: "20px",
+    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
     display: "flex",
     alignItems: "center",
-    gap: "10px",
-    borderBottom: "1px solid #30363d",
-    paddingBottom: "10px",
+    justifyContent: "center",
+    color: "white",
+    margin: "0 auto 24px",
+    boxShadow: "0 10px 25px -5px rgba(102, 126, 234, 0.4)",
+  },
+  title: {
+    fontSize: "32px",
+    fontWeight: "800",
+    margin: "0 0 12px 0",
+    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+    backgroundClip: "text",
+  },
+  subtitle: {
+    fontSize: "18px",
+    color: "#64748b",
+    margin: 0,
+    fontWeight: "500",
+  },
+  form: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "24px",
+  },
+  inputGroup: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "8px",
   },
   label: {
-    fontSize: "14px",
-    fontWeight: 600,
-    marginBottom: "6px",
-    display: "block",
-    color: "#9ca3af",
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    fontSize: "16px",
+    fontWeight: "600",
+    color: "#374151",
+  },
+  labelIcon: {
+    color: "#667eea",
+    fontSize: "16px",
   },
   input: {
-    width: "100%",
-    padding: "12px",
-    marginBottom: "18px",
-    backgroundColor: "#0d1117",
-    border: "1px solid #30363d",
-    borderRadius: "6px",
-    color: "#f0f6fc",
-    fontSize: "14px",
+    padding: "16px 20px",
+    borderRadius: "12px",
+    border: "2px solid #e2e8f0",
+    fontSize: "16px",
+    fontWeight: "500",
+    transition: "all 0.3s ease",
+    backgroundColor: "#ffffff",
     outline: "none",
   },
   textarea: {
-    width: "100%",
-    padding: "12px",
-    height: "120px",
-    backgroundColor: "#0d1117",
-    border: "1px solid #30363d",
-    borderRadius: "6px",
-    color: "#f0f6fc",
-    fontSize: "14px",
-    resize: "vertical",
+    padding: "16px 20px",
+    borderRadius: "12px",
+    border: "2px solid #e2e8f0",
+    fontSize: "16px",
+    fontWeight: "500",
+    transition: "all 0.3s ease",
+    backgroundColor: "#ffffff",
     outline: "none",
-    marginBottom: "18px",
+    resize: "vertical",
+    minHeight: "120px",
+    fontFamily: "inherit",
+  },
+  checkboxContainer: {
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+    padding: "16px",
+    backgroundColor: "#f8fafc",
+    borderRadius: "12px",
+    border: "1px solid #e2e8f0",
   },
   checkbox: {
-    marginRight: "8px",
+    width: "20px",
+    height: "20px",
+    accentColor: "#667eea",
   },
-  buttonBlue: {
-    backgroundColor: "#3b82f6",
-    color: "#fff",
-    fontWeight: 600,
-    border: "none",
-    borderRadius: "6px",
-    padding: "12px 18px",
+  checkboxLabel: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    fontSize: "16px",
+    fontWeight: "600",
+    color: "#374151",
     cursor: "pointer",
-    fontSize: "15px",
   },
-  error: {
-    color: "#f85149",
-    marginBottom: "10px",
-    fontSize: "14px",
+  submitButton: {
+    padding: "20px 32px",
+    borderRadius: "16px",
+    border: "none",
+    fontSize: "18px",
+    fontWeight: "700",
+    cursor: "pointer",
+    transition: "all 0.3s ease",
+    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    color: "white",
+    boxShadow: "0 10px 25px -5px rgba(102, 126, 234, 0.4)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "8px",
+    marginTop: "20px",
   },
-  success: {
-    color: "#3fb950",
-    marginBottom: "10px",
-    fontSize: "14px",
+  successMessage: {
+    padding: "16px 20px",
+    borderRadius: "12px",
+    backgroundColor: "#d1fae5",
+    color: "#059669",
+    border: "1px solid #a7f3d0",
+    fontSize: "16px",
+    fontWeight: "600",
+    textAlign: "center",
+    marginTop: "20px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "8px",
+  },
+  errorMessage: {
+    padding: "16px 20px",
+    borderRadius: "12px",
+    backgroundColor: "#fef2f2",
+    color: "#dc2626",
+    border: "1px solid #fecaca",
+    fontSize: "16px",
+    fontWeight: "600",
+    textAlign: "center",
+    marginTop: "20px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "8px",
+  },
+  loadingContainer: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    padding: "60px 20px",
+  },
+  loadingSpinner: {
+    width: "40px",
+    height: "40px",
+    border: "4px solid rgba(255, 255, 255, 0.3)",
+    borderTop: "4px solid white",
+    borderRadius: "50%",
+    animation: "spin 1s linear infinite",
+    marginBottom: "16px",
+  },
+  loadingText: {
+    fontSize: "16px",
+    color: "white",
+    margin: 0,
+    fontWeight: "500",
   },
 };
 
@@ -156,8 +257,11 @@ const UpdateRepository = () => {
     return (
       <>
         <Navbar />
-        <div style={styles.wrapper}>
-          <p>Loading repository...</p>
+        <div style={styles.container}>
+          <div style={styles.loadingContainer}>
+            <div style={styles.loadingSpinner}></div>
+            <p style={styles.loadingText}>Loading repository...</p>
+          </div>
         </div>
       </>
     );
@@ -166,54 +270,88 @@ const UpdateRepository = () => {
   return (
     <>
       <Navbar />
-      <div style={styles.wrapper}>
+      <div style={styles.container}>
         <div style={styles.card}>
-          <h1 style={styles.title}>
-            <Settings size={22} /> Update Repository
-          </h1>
+          <div style={styles.header}>
+            <div style={styles.iconContainer}>
+              <FaCog size={32} />
+            </div>
+            <h1 style={styles.title}>Update Repository</h1>
+            <p style={styles.subtitle}>Modify your repository settings and information</p>
+          </div>
 
-          {error && <p style={styles.error}>{error}</p>}
-          {message && <p style={styles.success}>{message}</p>}
+          {error && (
+            <div style={styles.errorMessage}>
+              <FaExclamationCircle />
+              {error}
+            </div>
+          )}
+          {message && (
+            <div style={styles.successMessage}>
+              <FaCheckCircle />
+              {message}
+            </div>
+          )}
 
-          <form onSubmit={handleUpdate}>
-            <label style={styles.label}>Repository Name</label>
-            <input
-              type="text"
-              placeholder="Repository Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              style={styles.input}
-              required
-            />
+          <form onSubmit={handleUpdate} style={styles.form}>
+            <div style={styles.inputGroup}>
+              <label style={styles.label}>
+                <FaCode style={styles.labelIcon} />
+                Repository Name
+              </label>
+              <input
+                type="text"
+                placeholder="Enter repository name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                style={styles.input}
+                required
+              />
+            </div>
 
-            <label style={styles.label}>Description</label>
-            <textarea
-              placeholder="Description (optional)"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              style={styles.textarea}
-            />
+            <div style={styles.inputGroup}>
+              <label style={styles.label}>
+                <FaInfoCircle style={styles.labelIcon} />
+                Description
+              </label>
+              <textarea
+                placeholder="Describe what this repository is about"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                style={styles.textarea}
+              />
+            </div>
 
-            <label style={styles.label}>Add Content</label>
-            <input
-              type="text"
-              placeholder="New content"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              style={styles.input}
-            />
+            <div style={styles.inputGroup}>
+              <label style={styles.label}>
+                <FaCode style={styles.labelIcon} />
+                Add Content
+              </label>
+              <input
+                type="text"
+                placeholder="Add new content or files"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                style={styles.input}
+              />
+            </div>
 
-            <label style={styles.label}>
+            <div style={styles.checkboxContainer}>
               <input
                 type="checkbox"
                 checked={visibility}
                 onChange={(e) => setVisibility(e.target.checked)}
                 style={styles.checkbox}
+                id="visibility"
               />
-              Public Repository
-            </label>
+              <label style={styles.checkboxLabel} htmlFor="visibility">
+                {visibility ? <FaGlobe style={styles.labelIcon} /> : <FaLock style={styles.labelIcon} />}
+                Public Repository
+              </label>
+            </div>
 
-            <button type="submit" style={styles.buttonBlue}>
+            <button type="submit" style={styles.submitButton}>
+              <FaCog style={{ marginRight: "8px" }} />
               Save Changes
             </button>
           </form>

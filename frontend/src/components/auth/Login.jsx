@@ -1,24 +1,14 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useAuth } from "../../authContext";
-
-import { PageHeader } from "@primer/react";
-import { Box, Button } from "@primer/react";
-import "./auth.css";
-
-import logo from "../../assets/github-mark-white.svg";
 import { Link } from "react-router-dom";
+import { FaCode, FaEye, FaEyeSlash, FaLock, FaEnvelope } from "react-icons/fa";
 
 const Login = () => {
-  // useEffect(() => {
-  //   localStorage.removeItem("token");
-  //   localStorage.removeItem("userId");
-  //   setCurrentUser(null);
-  // });
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { setCurrentUser } = useAuth();
 
   const handleLogin = async (e) => {
@@ -46,64 +36,232 @@ const Login = () => {
   };
 
   return (
-    <div className="login-wrapper">
-      <div className="login-logo-container">
-        <img className="logo-login" src={logo} alt="Logo" />
-      </div>
-
-      <div className="login-box-wrapper">
-        <div className="login-heading">
-          <Box sx={{ padding: 1 }}>
-            <PageHeader>
-              <PageHeader.TitleArea variant="large">
-                <PageHeader.Title>Log In</PageHeader.Title>
-              </PageHeader.TitleArea>
-            </PageHeader>
-          </Box>
-        </div>
-        <div className="login-box">
-          <div>
-            <label className="label">Email address</label>
-            <input
-              autoComplete="off"
-              name="Email"
-              id="Email"
-              className="input"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
-          <div className="div">
-            <label className="label">Password</label>
-            <input
-              autoComplete="off"
-              name="Password"
-              id="Password"
-              className="input"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+    <div style={styles.container}>
+      <div style={styles.background}>
+        <div style={styles.card}>
+          <div style={styles.header}>
+            <div style={styles.logo}>
+              <FaCode size={32} />
+            </div>
+            <h1 style={styles.title}>Welcome Back</h1>
+            <p style={styles.subtitle}>Sign in to your CodeVault account</p>
           </div>
 
-          <Button
-            variant="primary"
-            className="login-btn"
-            disabled={loading}
-            onClick={handleLogin}
-          >
-            {loading ? "Loading..." : "Login"}
-          </Button>
-        </div>
-        <div className="pass-box">
-          <p>
-            New to GitHub? <Link to="/signup">Create an account</Link>
-          </p>
+          <form onSubmit={handleLogin} style={styles.form}>
+            <div style={styles.inputGroup}>
+              <label style={styles.label}>
+                <FaEnvelope style={styles.labelIcon} />
+                Email Address
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                style={styles.input}
+                placeholder="Enter your email"
+                required
+              />
+            </div>
+
+            <div style={styles.inputGroup}>
+              <label style={styles.label}>
+                <FaLock style={styles.labelIcon} />
+                Password
+              </label>
+              <div style={styles.passwordContainer}>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  style={styles.passwordInput}
+                  placeholder="Enter your password"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={styles.eyeButton}
+                >
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              style={loading ? styles.submitButtonDisabled : styles.submitButton}
+            >
+              {loading ? "Signing In..." : "Sign In"}
+            </button>
+          </form>
+
+          <div style={styles.footer}>
+            <p style={styles.footerText}>
+              New to CodeVault?{" "}
+              <Link to="/signup" style={styles.link}>
+                Create an account
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </div>
   );
+};
+
+const styles = {
+  container: {
+    minHeight: "100vh",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    padding: "20px",
+  },
+  background: {
+    width: "100%",
+    maxWidth: "400px",
+  },
+  card: {
+    background: "rgba(255, 255, 255, 0.95)",
+    backdropFilter: "blur(20px)",
+    borderRadius: "24px",
+    padding: "40px",
+    boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+    border: "1px solid rgba(255, 255, 255, 0.2)",
+  },
+  header: {
+    textAlign: "center",
+    marginBottom: "32px",
+  },
+  logo: {
+    width: "60px",
+    height: "60px",
+    borderRadius: "16px",
+    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    color: "white",
+    margin: "0 auto 20px",
+    boxShadow: "0 8px 25px -5px rgba(102, 126, 234, 0.4)",
+  },
+  title: {
+    fontSize: "28px",
+    fontWeight: "800",
+    margin: "0 0 8px 0",
+    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+    backgroundClip: "text",
+  },
+  subtitle: {
+    fontSize: "16px",
+    color: "#64748b",
+    margin: 0,
+    fontWeight: "500",
+  },
+  form: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "24px",
+  },
+  inputGroup: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "8px",
+  },
+  label: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    fontSize: "14px",
+    fontWeight: "600",
+    color: "#374151",
+  },
+  labelIcon: {
+    color: "#667eea",
+    fontSize: "14px",
+  },
+  input: {
+    padding: "16px 20px",
+    borderRadius: "12px",
+    border: "2px solid #e2e8f0",
+    fontSize: "16px",
+    fontWeight: "500",
+    transition: "all 0.3s ease",
+    backgroundColor: "#ffffff",
+    outline: "none",
+  },
+  passwordContainer: {
+    position: "relative",
+  },
+  passwordInput: {
+    padding: "16px 50px 16px 20px",
+    borderRadius: "12px",
+    border: "2px solid #e2e8f0",
+    fontSize: "16px",
+    fontWeight: "500",
+    transition: "all 0.3s ease",
+    backgroundColor: "#ffffff",
+    outline: "none",
+    width: "100%",
+  },
+  eyeButton: {
+    position: "absolute",
+    right: "16px",
+    top: "50%",
+    transform: "translateY(-50%)",
+    background: "none",
+    border: "none",
+    color: "#64748b",
+    cursor: "pointer",
+    padding: "4px",
+    borderRadius: "6px",
+    transition: "all 0.2s ease",
+  },
+  submitButton: {
+    padding: "16px 24px",
+    borderRadius: "12px",
+    border: "none",
+    fontSize: "16px",
+    fontWeight: "700",
+    cursor: "pointer",
+    transition: "all 0.3s ease",
+    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    color: "white",
+    boxShadow: "0 10px 25px -5px rgba(102, 126, 234, 0.4)",
+  },
+  submitButtonDisabled: {
+    padding: "16px 24px",
+    borderRadius: "12px",
+    border: "none",
+    fontSize: "16px",
+    fontWeight: "700",
+    cursor: "not-allowed",
+    background: "#94a3b8",
+    color: "white",
+    opacity: 0.6,
+  },
+  footer: {
+    textAlign: "center",
+    marginTop: "32px",
+    paddingTop: "24px",
+    borderTop: "1px solid #e2e8f0",
+  },
+  footerText: {
+    fontSize: "14px",
+    color: "#64748b",
+    margin: 0,
+  },
+  link: {
+    color: "#667eea",
+    textDecoration: "none",
+    fontWeight: "600",
+    transition: "color 0.2s ease",
+  },
 };
 
 export default Login;

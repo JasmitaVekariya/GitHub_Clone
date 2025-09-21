@@ -241,10 +241,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../Navbar";
 import HeatMapProfile from "./HeatMap";
-import "./Profile.css";
 import { useAuth } from "../../authContext";
-import { UnderlineNav } from "@primer/react";
-import { BookIcon, RepoIcon } from "@primer/octicons-react";
+import { FaUser, FaEnvelope, FaCode, FaStar, FaEye, FaCodeBranch, FaSignOutAlt, FaEdit, FaBook, FaHistory } from "react-icons/fa";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -345,86 +343,153 @@ const Profile = () => {
   return (
     <>
       <Navbar />
-      <div className="underline-nav">
-        <UnderlineNav aria-label="Repository">
-          <UnderlineNav.Item
-            aria-current="page"
-            icon={BookIcon}
-            sx={{
-              backgroundColor: "transparent",
-              color: "white",
-              "&:hover": { textDecoration: "underline", color: "white" },
-            }}
-          >
-            Overview
-          </UnderlineNav.Item>
-          <UnderlineNav.Item
-            onClick={() => navigate("/profile/starred")}
-            icon={RepoIcon}
-            sx={{
-              backgroundColor: "transparent",
-              color: "whitesmoke",
-              "&:hover": { textDecoration: "underline", color: "white" },
-            }}
-          >
-            Starred Repositories
-          </UnderlineNav.Item>
-        </UnderlineNav>
-      </div>
-
-      <div className="profile-container">
-        {/* LEFT SIDEBAR */}
-        <div className="profile-sidebar">
-          <div className="profile-image">
-            <img
-              src="https://avatars.githubusercontent.com/u/583231?v=4"
-              alt="Profile"
-            />
+      <div style={styles.container}>
+        {/* Navigation Tabs */}
+        <div style={styles.navTabs}>
+          <div style={styles.tabContainer}>
+            <button style={styles.activeTab}>
+              <FaBook style={styles.tabIcon} />
+              Overview
+            </button>
+            <button 
+              style={styles.tab}
+              onClick={() => navigate("/profile/starred")}
+            >
+              <FaStar style={styles.tabIcon} />
+              Starred Repositories
+            </button>
           </div>
-          <h2 className="username">{userDetails.username}</h2>
-          <p className="user-email">{userDetails.email}</p>
-          <p className="user-bio">{userDetails.bio}</p>
-          <button
-            className="edit-profile-btn"
-            onClick={() => navigate(`/user/update/${userId}`)}
-          >
-            Edit Profile
-          </button>
         </div>
 
-        {/* RIGHT SECTION */}
-        <div className="profile-main">
-          <div className="popular-repos">
-            <h3>User Repositories</h3>
-            {loading && <p>Loading repositories...</p>}
-            {error && <p className="error-message">{error}</p>}
-            <div className="repos-grid">
-              {repositories.length > 0 ? (
-                repositories.map((repo) => (
-                  <div
-                    className="repo-card"
-                    key={repo._id}
-                    onClick={() => navigate(`/repository/${repo._id}`)}
-                  >
-                    <h4 className="repo-title">{repo.name}</h4>
-                    <p className="repo-description">
-                      {repo.description || "No description provided"}
-                    </p>
-                    <span className="repo-language">{repo.language || "Unknown"}</span>
-
-                    
+        <div style={styles.profileContainer}>
+          {/* LEFT SIDEBAR */}
+          <div style={styles.sidebar}>
+            <div style={styles.profileCard}>
+              <div style={styles.profileImage}>
+                <img
+                  src={userDetails.profilePicture || "https://avatars.githubusercontent.com/u/583231?v=4"}
+                  alt="Profile"
+                  style={styles.avatar}
+                />
+              </div>
+              <h2 style={styles.username}>{userDetails.username}</h2>
+              <p style={styles.userEmail}>
+                <FaEnvelope style={styles.infoIcon} />
+                {userDetails.email}
+              </p>
+              <p style={styles.userBio}>{userDetails.bio || "No bio available"}</p>
+              
+              <div style={styles.statsContainer}>
+                <div style={styles.statItem}>
+                  <FaCode style={styles.statIcon} />
+                  <div>
+                    <div style={styles.statNumber}>{repositories.length}</div>
+                    <div style={styles.statLabel}>Repositories</div>
                   </div>
-                ))
-              ) : (
-                !loading && <p>No repositories found.</p>
-              )}
+                </div>
+                <div style={styles.statItem}>
+                  <FaStar style={styles.statIcon} />
+                  <div>
+                    <div style={styles.statNumber}>
+                      {repositories.reduce((sum, repo) => sum + (repo.stars || 0), 0)}
+                    </div>
+                    <div style={styles.statLabel}>Stars</div>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                style={styles.editButton}
+                onClick={() => navigate(`/user/update/${userId}`)}
+              >
+                <FaEdit style={{ marginRight: "8px" }} />
+                Edit Profile
+              </button>
             </div>
           </div>
 
-          {/* HEATMAP */}
-          <div className="heatmap-wrapper">
-            <h3>Contribution activity</h3>
-            <HeatMapProfile />
+          {/* RIGHT SECTION */}
+          <div style={styles.mainContent}>
+            <div style={styles.repositoriesSection}>
+              <div style={styles.sectionHeader}>
+                <h3 style={styles.sectionTitle}>Your Repositories</h3>
+                <div style={styles.sectionStats}>
+                  {repositories.length} repositories
+                </div>
+              </div>
+              
+              {loading && (
+                <div style={styles.loadingContainer}>
+                  <div style={styles.loadingSpinner}></div>
+                  <p style={styles.loadingText}>Loading repositories...</p>
+                </div>
+              )}
+              
+              {error && (
+                <div style={styles.errorContainer}>
+                  <p style={styles.errorText}>{error}</p>
+                </div>
+              )}
+              
+              <div style={styles.reposGrid}>
+                {repositories.length > 0 ? (
+                  repositories.map((repo) => (
+                    <div
+                      style={styles.repoCard}
+                      key={repo._id}
+                      onClick={() => navigate(`/repository/${repo._id}`)}
+                    >
+                      <div style={styles.repoHeader}>
+                        <h4 style={styles.repoTitle}>{repo.name}</h4>
+                        <div style={styles.repoVisibility}>
+                          {repo.visibility ? (
+                            <FaEye style={styles.visibilityIcon} />
+                          ) : (
+                            <FaCodeBranch style={styles.visibilityIcon} />
+                          )}
+                        </div>
+                      </div>
+                      
+                      <p style={styles.repoDescription}>
+                        {repo.description || "No description provided"}
+                      </p>
+                      
+                      <div style={styles.repoFooter}>
+                        <span style={styles.repoLanguage}>
+                          {repo.language || "Unknown"}
+                        </span>
+                        <div style={styles.repoStats}>
+                          <span style={styles.repoStat}>
+                            <FaStar style={styles.repoStatIcon} />
+                            {repo.stars || 0}
+                          </span>
+                          <span style={styles.repoStat}>
+                            <FaCodeBranch style={styles.repoStatIcon} />
+                            {repo.forks || 0}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  !loading && (
+                    <div style={styles.emptyState}>
+                      <FaCode style={styles.emptyIcon} />
+                      <p style={styles.emptyText}>No repositories found</p>
+                      <p style={styles.emptySubtext}>Create your first repository to get started</p>
+                    </div>
+                  )
+                )}
+              </div>
+            </div>
+
+            {/* HEATMAP */}
+            <div style={styles.heatmapSection}>
+              <h3 style={styles.sectionTitle}>Contribution Activity</h3>
+              <div style={styles.heatmapCard}>
+                <HeatMapProfile />
+              </div>
+            </div>
           </div>
         </div>
 
@@ -436,13 +501,359 @@ const Profile = () => {
             setCurrentUser(null);
             window.location.href = "/auth";
           }}
-          className="logout-btn"
+          style={styles.logoutButton}
         >
+          <FaSignOutAlt style={{ marginRight: "8px" }} />
           Logout
         </button>
       </div>
     </>
   );
+};
+
+const styles = {
+  container: {
+    minHeight: "100vh",
+    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    padding: "120px 20px 40px",
+    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  },
+  navTabs: {
+    maxWidth: "1200px",
+    margin: "0 auto 32px",
+  },
+  tabContainer: {
+    display: "flex",
+    gap: "8px",
+    background: "rgba(255, 255, 255, 0.1)",
+    borderRadius: "12px",
+    padding: "4px",
+    backdropFilter: "blur(10px)",
+  },
+  activeTab: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    padding: "12px 20px",
+    borderRadius: "8px",
+    border: "none",
+    background: "rgba(255, 255, 255, 0.9)",
+    color: "#1e293b",
+    fontWeight: "600",
+    fontSize: "16px",
+    cursor: "pointer",
+    transition: "all 0.3s ease",
+  },
+  tab: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    padding: "12px 20px",
+    borderRadius: "8px",
+    border: "none",
+    background: "transparent",
+    color: "rgba(255, 255, 255, 0.8)",
+    fontWeight: "600",
+    fontSize: "16px",
+    cursor: "pointer",
+    transition: "all 0.3s ease",
+  },
+  tabIcon: {
+    fontSize: "16px",
+  },
+  profileContainer: {
+    maxWidth: "1200px",
+    margin: "0 auto",
+    display: "grid",
+    gridTemplateColumns: "300px 1fr",
+    gap: "32px",
+  },
+  sidebar: {
+    display: "flex",
+    flexDirection: "column",
+  },
+  profileCard: {
+    background: "rgba(255, 255, 255, 0.95)",
+    backdropFilter: "blur(20px)",
+    borderRadius: "20px",
+    padding: "32px",
+    boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+    border: "1px solid rgba(255, 255, 255, 0.2)",
+    textAlign: "center",
+  },
+  profileImage: {
+    marginBottom: "24px",
+  },
+  avatar: {
+    width: "120px",
+    height: "120px",
+    borderRadius: "50%",
+    objectFit: "cover",
+    border: "4px solid rgba(255, 255, 255, 0.3)",
+    boxShadow: "0 8px 25px -5px rgba(0, 0, 0, 0.2)",
+  },
+  username: {
+    fontSize: "28px",
+    fontWeight: "800",
+    margin: "0 0 12px 0",
+    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+    backgroundClip: "text",
+  },
+  userEmail: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "8px",
+    fontSize: "16px",
+    color: "#64748b",
+    margin: "0 0 16px 0",
+    fontWeight: "500",
+  },
+  userBio: {
+    fontSize: "16px",
+    color: "#475569",
+    margin: "0 0 24px 0",
+    lineHeight: "1.5",
+    fontStyle: "italic",
+  },
+  infoIcon: {
+    color: "#667eea",
+    fontSize: "14px",
+  },
+  statsContainer: {
+    display: "flex",
+    justifyContent: "space-around",
+    marginBottom: "24px",
+    padding: "20px 0",
+    borderTop: "1px solid #e2e8f0",
+    borderBottom: "1px solid #e2e8f0",
+  },
+  statItem: {
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+  },
+  statIcon: {
+    color: "#667eea",
+    fontSize: "20px",
+  },
+  statNumber: {
+    fontSize: "24px",
+    fontWeight: "800",
+    color: "#1e293b",
+  },
+  statLabel: {
+    fontSize: "14px",
+    color: "#64748b",
+    fontWeight: "500",
+  },
+  editButton: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "8px",
+    padding: "12px 24px",
+    borderRadius: "12px",
+    border: "none",
+    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    color: "white",
+    fontSize: "16px",
+    fontWeight: "600",
+    cursor: "pointer",
+    transition: "all 0.3s ease",
+    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+  },
+  mainContent: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "32px",
+  },
+  repositoriesSection: {
+    background: "rgba(255, 255, 255, 0.95)",
+    backdropFilter: "blur(20px)",
+    borderRadius: "20px",
+    padding: "32px",
+    boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+    border: "1px solid rgba(255, 255, 255, 0.2)",
+  },
+  sectionHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "24px",
+    paddingBottom: "16px",
+    borderBottom: "2px solid #e2e8f0",
+  },
+  sectionTitle: {
+    fontSize: "24px",
+    fontWeight: "700",
+    color: "#1e293b",
+    margin: 0,
+  },
+  sectionStats: {
+    fontSize: "16px",
+    color: "#64748b",
+    fontWeight: "500",
+  },
+  loadingContainer: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    padding: "40px",
+  },
+  loadingSpinner: {
+    width: "40px",
+    height: "40px",
+    border: "4px solid #e2e8f0",
+    borderTop: "4px solid #667eea",
+    borderRadius: "50%",
+    animation: "spin 1s linear infinite",
+    marginBottom: "16px",
+  },
+  loadingText: {
+    fontSize: "16px",
+    color: "#64748b",
+    margin: 0,
+  },
+  errorContainer: {
+    padding: "20px",
+    backgroundColor: "#fef2f2",
+    borderRadius: "12px",
+    border: "1px solid #fecaca",
+    textAlign: "center",
+  },
+  errorText: {
+    color: "#dc2626",
+    fontSize: "16px",
+    fontWeight: "600",
+    margin: 0,
+  },
+  reposGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+    gap: "20px",
+  },
+  repoCard: {
+    background: "#f8fafc",
+    borderRadius: "16px",
+    padding: "24px",
+    border: "1px solid #e2e8f0",
+    cursor: "pointer",
+    transition: "all 0.3s ease",
+    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+  },
+  repoHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "12px",
+  },
+  repoTitle: {
+    fontSize: "18px",
+    fontWeight: "700",
+    color: "#1e293b",
+    margin: 0,
+    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+    backgroundClip: "text",
+  },
+  repoVisibility: {
+    color: "#64748b",
+  },
+  visibilityIcon: {
+    fontSize: "16px",
+  },
+  repoDescription: {
+    fontSize: "14px",
+    color: "#64748b",
+    margin: "0 0 16px 0",
+    lineHeight: "1.5",
+  },
+  repoFooter: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  repoLanguage: {
+    fontSize: "12px",
+    color: "#667eea",
+    fontWeight: "600",
+    padding: "4px 8px",
+    backgroundColor: "#e0e7ff",
+    borderRadius: "6px",
+  },
+  repoStats: {
+    display: "flex",
+    gap: "12px",
+  },
+  repoStat: {
+    display: "flex",
+    alignItems: "center",
+    gap: "4px",
+    fontSize: "14px",
+    color: "#64748b",
+    fontWeight: "500",
+  },
+  repoStatIcon: {
+    fontSize: "12px",
+  },
+  emptyState: {
+    textAlign: "center",
+    padding: "60px 20px",
+    color: "#64748b",
+  },
+  emptyIcon: {
+    fontSize: "48px",
+    color: "#cbd5e1",
+    marginBottom: "16px",
+  },
+  emptyText: {
+    fontSize: "18px",
+    fontWeight: "600",
+    color: "#475569",
+    margin: "0 0 8px 0",
+  },
+  emptySubtext: {
+    fontSize: "14px",
+    color: "#94a3b8",
+    margin: 0,
+  },
+  heatmapSection: {
+    background: "rgba(255, 255, 255, 0.95)",
+    backdropFilter: "blur(20px)",
+    borderRadius: "20px",
+    padding: "32px",
+    boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+    border: "1px solid rgba(255, 255, 255, 0.2)",
+  },
+  heatmapCard: {
+    background: "#f8fafc",
+    borderRadius: "12px",
+    padding: "20px",
+    border: "1px solid #e2e8f0",
+  },
+  logoutButton: {
+    position: "fixed",
+    bottom: "32px",
+    right: "32px",
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    padding: "12px 20px",
+    borderRadius: "12px",
+    border: "none",
+    background: "rgba(220, 38, 38, 0.9)",
+    color: "white",
+    fontSize: "16px",
+    fontWeight: "600",
+    cursor: "pointer",
+    transition: "all 0.3s ease",
+    boxShadow: "0 8px 25px -5px rgba(220, 38, 38, 0.4)",
+    backdropFilter: "blur(10px)",
+  },
 };
 
 export default Profile; 

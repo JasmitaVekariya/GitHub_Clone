@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../Navbar";
-import { FaTrashAlt, FaPen } from "react-icons/fa";
+import { FaTrashAlt, FaPen, FaBug, FaPlus, FaCircle, FaChevronRight, FaExclamationCircle } from "react-icons/fa";
 
 const IssueList = () => {
   const { id: repositoryId } = useParams();
@@ -58,81 +58,120 @@ const IssueList = () => {
     }
   };
 
-  if (loading) return <div style={styles.loading}>Loading issues...</div>;
-  if (error) return <div style={styles.error}>{error}</div>;
+  if (loading) return (
+    <>
+      <Navbar />
+      <div style={styles.container}>
+        <div style={styles.loadingContainer}>
+          <div style={styles.loadingSpinner}></div>
+          <p style={styles.loadingText}>Loading issues...</p>
+        </div>
+      </div>
+    </>
+  );
+  
+  if (error) return (
+    <>
+      <Navbar />
+      <div style={styles.container}>
+        <div style={styles.errorContainer}>
+          <FaExclamationCircle style={styles.errorIcon} />
+          <p style={styles.errorText}>{error}</p>
+        </div>
+      </div>
+    </>
+  );
 
   return (
     <>
       <Navbar />
-      <div style={styles.wrapper}>
-        {/* Sub-header */}
+      <div style={styles.container}>
         <div style={styles.header}>
           <div style={styles.breadcrumb}>
-  <span
-    style={{ ...styles.repoName, cursor: "pointer", textDecoration: "underline", opacity: 0.9 }}
-    onClick={() => navigate(`/repository/${repositoryId}`)}
-  >
-    {repoName}
-  </span>
-  <span style={styles.separator}>›</span>
-  <span>Issues</span>
-</div>
+            <span
+              style={styles.repoName}
+              onClick={() => navigate(`/repository/${repositoryId}`)}
+            >
+              {repoName}
+            </span>
+            <FaChevronRight style={styles.separator} />
+            <span style={styles.currentPage}>Issues</span>
+          </div>
 
           <button
             style={styles.newIssueBtn}
             onClick={() => navigate(`/repository/${repositoryId}/issue/create`)}
           >
+            <FaPlus style={{ marginRight: "8px" }} />
             New Issue
           </button>
         </div>
 
-        {/* Issue List */}
-        <div style={styles.issueList}>
-          {issues.length === 0 ? (
-            <p>No issues found.</p>
-          ) : (
-            issues.map((issue) => (
-              <div key={issue._id} style={styles.issueCard}>
-                <div style={styles.issueLeft}>
-                  <div
-                    style={{
-                      ...styles.statusDot,
-                      backgroundColor: issue.status === "open" ? "#2ea043" : "#a371f7",
-                    }}
-                  />
-                  <div>
-                    <h3 style={styles.issueTitle}>{issue.title}</h3>
-                    <p style={styles.issueDesc}>{issue.description}</p>
-                    <p style={styles.issueMeta}>
-                      {issue.status === "open" ? "opened" : "closed"} 5d ago
-                    </p>
-                  </div>
-                </div>
+        <div style={styles.issuesSection}>
+          <div style={styles.sectionHeader}>
+            <h2 style={styles.sectionTitle}>
+              <FaBug style={styles.sectionIcon} />
+              Issues
+            </h2>
+            <div style={styles.issueCount}>
+              {issues.length} {issues.length === 1 ? 'issue' : 'issues'}
+            </div>
+          </div>
 
-                <div style={styles.issueRight}>
-                  <span style={styles.issueNumber}>#{issue.issueNumber || "N/A"}</span>
-                  <div style={styles.iconRow}>
-                    <span
-                      title="Edit"
+          <div style={styles.issueList}>
+            {issues.length === 0 ? (
+              <div style={styles.emptyState}>
+                <FaBug style={styles.emptyIcon} />
+                <p style={styles.emptyText}>No issues found</p>
+                <p style={styles.emptySubtext}>Create the first issue for this repository</p>
+              </div>
+            ) : (
+              issues.map((issue) => (
+                <div key={issue._id} style={styles.issueCard}>
+                  <div style={styles.issueLeft}>
+                    <div style={styles.statusContainer}>
+                      <FaCircle
+                        style={{
+                          ...styles.statusDot,
+                          color: issue.status === "open" ? "#059669" : "#7c3aed",
+                        }}
+                      />
+                      <span style={styles.statusText}>
+                        {issue.status === "open" ? "Open" : "Closed"}
+                      </span>
+                    </div>
+                    <div style={styles.issueContent}>
+                      <h3 style={styles.issueTitle}>{issue.title}</h3>
+                      <p style={styles.issueDesc}>{issue.description}</p>
+                      <div style={styles.issueMeta}>
+                        <span style={styles.issueDate}>
+                          {issue.status === "open" ? "opened" : "closed"} 5d ago
+                        </span>
+                        <span style={styles.issueNumber}>#{issue.issueNumber || "N/A"}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={styles.issueActions}>
+                    <button
+                      style={styles.actionButton}
                       onClick={() => navigate(`/issue/update/${issue._id}`)}
-                      style={styles.iconBtn}
                     >
                       <FaPen size={14} />
-                      <span style={styles.actionText}>Update</span>
-                    </span>
-                    <span
-                      title="Delete"
+                      Update
+                    </button>
+                    <button
+                      style={styles.deleteButton}
                       onClick={() => handleDelete(issue._id)}
-                      style={styles.iconBtn}
                     >
                       <FaTrashAlt size={14} />
-                      <span style={styles.actionText}>Delete</span>
-                    </span>
+                      Delete
+                    </button>
                   </div>
                 </div>
-              </div>
-            ))
-          )}
+              ))
+            )}
+          </div>
         </div>
       </div>
     </>
@@ -140,119 +179,253 @@ const IssueList = () => {
 };
 
 const styles = {
-  wrapper: {
-    padding: "100px 20px 40px",
-    backgroundColor: "#0d1117",
+  container: {
     minHeight: "100vh",
-    color: "#c9d1d9",
-    fontFamily:
-      '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',
+    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    padding: "120px 20px 40px",
+    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
   },
   header: {
+    maxWidth: "1200px",
+    margin: "0 auto 32px",
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: "20px",
-    padding: "10px 0",
-    borderBottom: "1px solid #30363d",
+    padding: "20px 0",
   },
   breadcrumb: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
     fontSize: "18px",
-    fontWeight: 600,
+    fontWeight: "600",
+    color: "rgba(255, 255, 255, 0.9)",
   },
   repoName: {
-  color: "#58a6ff",
-  cursor: "pointer",
-  textDecoration: "underline",
-  opacity: 0.9,
-  transition: "opacity 0.2s ease",
-},
-
+    color: "rgba(255, 255, 255, 0.9)",
+    cursor: "pointer",
+    textDecoration: "underline",
+    transition: "all 0.3s ease",
+  },
   separator: {
-    margin: "0 6px",
-    color: "#8b949e",
+    color: "rgba(255, 255, 255, 0.6)",
+    fontSize: "14px",
+  },
+  currentPage: {
+    color: "white",
+    fontWeight: "700",
   },
   newIssueBtn: {
-    backgroundColor: "#2e5da0ff",
-    color: "#fff",
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    padding: "12px 24px",
+    borderRadius: "12px",
     border: "none",
-    borderRadius: "6px",
-    padding: "8px 16px",
+    background: "rgba(255, 255, 255, 0.9)",
+    color: "#1e293b",
+    fontSize: "16px",
+    fontWeight: "600",
     cursor: "pointer",
-    fontWeight: 600,
-    fontSize: "14px",
+    transition: "all 0.3s ease",
+    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+  },
+  issuesSection: {
+    maxWidth: "1200px",
+    margin: "0 auto",
+    background: "rgba(255, 255, 255, 0.95)",
+    backdropFilter: "blur(20px)",
+    borderRadius: "20px",
+    padding: "32px",
+    boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+    border: "1px solid rgba(255, 255, 255, 0.2)",
+  },
+  sectionHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "24px",
+    paddingBottom: "16px",
+    borderBottom: "2px solid #e2e8f0",
+  },
+  sectionTitle: {
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+    fontSize: "24px",
+    fontWeight: "700",
+    color: "#1e293b",
+    margin: 0,
+  },
+  sectionIcon: {
+    color: "#667eea",
+    fontSize: "20px",
+  },
+  issueCount: {
+    fontSize: "16px",
+    color: "#64748b",
+    fontWeight: "500",
   },
   issueList: {
     display: "flex",
     flexDirection: "column",
-    gap: "12px",
+    gap: "16px",
   },
   issueCard: {
-    backgroundColor: "#161b22",
-    borderRadius: "10px",
-    padding: "18px 20px",
-    border: "1px solid #30363d",
+    background: "#f8fafc",
+    borderRadius: "16px",
+    padding: "24px",
+    border: "1px solid #e2e8f0",
     display: "flex",
     justifyContent: "space-between",
     alignItems: "flex-start",
+    transition: "all 0.3s ease",
+    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
   },
   issueLeft: {
     display: "flex",
-    gap: "12px",
+    gap: "16px",
+    flex: 1,
+  },
+  statusContainer: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    marginTop: "4px",
   },
   statusDot: {
-    width: "14px",
-    height: "14px",
-    borderRadius: "50%",
-    marginTop: "6px",
+    fontSize: "12px",
+  },
+  statusText: {
+    fontSize: "12px",
+    fontWeight: "600",
+    color: "#64748b",
+  },
+  issueContent: {
+    flex: 1,
   },
   issueTitle: {
-    margin: 0,
-    fontSize: "16px",
-    fontWeight: 600,
-    color: "#58a6ff",
+    margin: "0 0 8px 0",
+    fontSize: "18px",
+    fontWeight: "700",
+    color: "#1e293b",
+    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+    backgroundClip: "text",
   },
   issueDesc: {
     fontSize: "14px",
-    color: "#8b949e",
-    margin: "4px 0",
+    color: "#64748b",
+    margin: "0 0 12px 0",
+    lineHeight: "1.5",
   },
   issueMeta: {
-    fontSize: "13px",
-    color: "#8b949e",
-  },
-  issueRight: {
     display: "flex",
-    flexDirection: "column",
-    alignItems: "flex-end",
-    gap: "10px",
+    gap: "16px",
+    fontSize: "13px",
+    color: "#94a3b8",
+  },
+  issueDate: {
+    fontWeight: "500",
   },
   issueNumber: {
-    color: "#8b949e",
-    fontSize: "13px",
+    fontWeight: "600",
   },
-  iconRow: {
+  issueActions: {
     display: "flex",
-    gap: "12px",
+    gap: "8px",
   },
-  iconBtn: {
+  actionButton: {
     display: "flex",
     alignItems: "center",
-    gap: "4px",
-    color: "#c9d1d9",
+    gap: "6px",
+    padding: "8px 16px",
+    borderRadius: "8px",
+    border: "1px solid #e2e8f0",
+    background: "white",
+    color: "#475569",
+    fontSize: "14px",
+    fontWeight: "500",
     cursor: "pointer",
-    fontSize: "13px",
+    transition: "all 0.3s ease",
   },
-  actionText: {
-    fontSize: "13px",
+  deleteButton: {
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+    padding: "8px 16px",
+    borderRadius: "8px",
+    border: "1px solid #fecaca",
+    background: "#fef2f2",
+    color: "#dc2626",
+    fontSize: "14px",
+    fontWeight: "500",
+    cursor: "pointer",
+    transition: "all 0.3s ease",
   },
-  loading: {
+  emptyState: {
     textAlign: "center",
-    padding: "30px",
+    padding: "60px 20px",
+    color: "#64748b",
   },
-  error: {
-    color: "#f85149",
-    padding: "20px",
+  emptyIcon: {
+    fontSize: "48px",
+    color: "#cbd5e1",
+    marginBottom: "16px",
+  },
+  emptyText: {
+    fontSize: "18px",
+    fontWeight: "600",
+    color: "#475569",
+    margin: "0 0 8px 0",
+  },
+  emptySubtext: {
+    fontSize: "14px",
+    color: "#94a3b8",
+    margin: 0,
+  },
+  loadingContainer: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    padding: "60px 20px",
+  },
+  loadingSpinner: {
+    width: "40px",
+    height: "40px",
+    border: "4px solid rgba(255, 255, 255, 0.3)",
+    borderTop: "4px solid white",
+    borderRadius: "50%",
+    animation: "spin 1s linear infinite",
+    marginBottom: "16px",
+  },
+  loadingText: {
+    fontSize: "16px",
+    color: "white",
+    margin: 0,
+    fontWeight: "500",
+  },
+  errorContainer: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    padding: "60px 20px",
+    background: "rgba(255, 255, 255, 0.95)",
+    borderRadius: "20px",
+    margin: "0 auto",
+    maxWidth: "400px",
+  },
+  errorIcon: {
+    fontSize: "48px",
+    color: "#dc2626",
+    marginBottom: "16px",
+  },
+  errorText: {
+    fontSize: "16px",
+    color: "#dc2626",
+    margin: 0,
+    fontWeight: "600",
     textAlign: "center",
   },
 };
