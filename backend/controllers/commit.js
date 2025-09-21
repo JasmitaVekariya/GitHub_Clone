@@ -41,6 +41,12 @@ async function commitRepo(user, repoName, msg) {
       JSON.stringify(commitMeta, null, 2)
     );
 
+    // Also save message in a separate file for the push command
+    await fs.writeFile(
+      path.join(commitDir, "message.txt"),
+      msg
+    );
+
     console.log(
       `Commit successful for ${user}/${repoName} with ID: ${commitId} and message: "${msg}"`
     );

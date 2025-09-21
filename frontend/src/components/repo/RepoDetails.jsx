@@ -12,6 +12,10 @@ import {
   FaBook,
   FaLock,
   FaGlobe,
+  FaFile,
+  FaHistory,
+  FaChevronDown,
+  FaChevronRight,
 } from "react-icons/fa";
 import axios from "axios";
 import FileUploadCommit from "./filesAdding";
@@ -25,6 +29,9 @@ const RepositoryDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isStarred, setIsStarred] = useState(false);
+  const [commits, setCommits] = useState([]);
+  const [commitsLoading, setCommitsLoading] = useState(false);
+  const [expandedCommits, setExpandedCommits] = useState(new Set());
 
   const userId = localStorage.getItem("userId");
   const token = localStorage.getItem("token");
@@ -35,6 +42,30 @@ const RepositoryDetails = () => {
     headers: { "Content-Type": "application/json", ...authHeader },
   });
 
+  const fetchCommits = async (owner, repoName) => {
+    try {
+      setCommitsLoading(true);
+      const response = await api.get(`/repo/${owner}/${repoName}/commits`);
+      if (response.data.success) {
+        setCommits(response.data.commits);
+      }
+    } catch (err) {
+      console.error("Error fetching commits:", err);
+    } finally {
+      setCommitsLoading(false);
+    }
+  };
+
+  const toggleCommitExpansion = (commitId) => {
+    const newExpanded = new Set(expandedCommits);
+    if (newExpanded.has(commitId)) {
+      newExpanded.delete(commitId);
+    } else {
+      newExpanded.add(commitId);
+    }
+    setExpandedCommits(newExpanded);
+  };
+
   useEffect(() => {
     const fetchRepo = async () => {
       try {
@@ -43,12 +74,16 @@ const RepositoryDetails = () => {
 
         setRepo(response.data);
 
-        // ✅ check starredRepos instead of startRepos
         const userRes = await api.get(`/userProfile/${userId}`);
         const starred = (userRes.data.starredRepos || []).some(
           (r) => r.toString() === id
         );
         setIsStarred(starred);
+
+        // Fetch commits if repo has owner
+        if (response.data.owner?.username) {
+          fetchCommits(response.data.owner.username, response.data.name);
+        }
       } catch (err) {
         console.error("Error fetching repo details:", err);
         setError("Failed to load repository details");
@@ -171,9 +206,66 @@ const RepositoryDetails = () => {
           {repo && repo.owner && (
             <div style={{ marginTop: "30px" }}>
               <h3 style={{ color: "#58a6ff" }}>Manage Files</h3>
-              <FileUploadCommit user={repo.owner.username} repo={repo.name} />
+              <FileUploadCommit 
+                user={repo.owner.username} 
+                repo={repo.name} 
+                onCommitSuccess={() => fetchCommits(repo.owner.username, repo.name)}
+              />
             </div>
           )}
+
+          {/* Commits History Section */}
+          <div style={{ marginTop: "40px" }}>
+            <div style={styles.sectionHeader}>
+              <FaHistory style={{ marginRight: "8px" }} />
+              <h3 style={{ color: "#58a6ff", margin: 0 }}>Commit History</h3>
+            </div>
+            
+            {commitsLoading ? (
+              <div style={styles.loading}>Loading commits...</div>
+            ) : commits.length === 0 ? (
+              <div style={styles.noCommits}>No commits yet</div>
+            ) : (
+              <div style={styles.commitsContainer}>
+                {commits.map((commit, index) => (
+                  <div key={commit.commitId} style={styles.commitItem}>
+                    <div 
+                      style={styles.commitHeader}
+                      onClick={() => toggleCommitExpansion(commit.commitId)}
+                    >
+                      <div style={styles.commitHeaderLeft}>
+                        {expandedCommits.has(commit.commitId) ? (
+                          <FaChevronDown style={styles.expandIcon} />
+                        ) : (
+                          <FaChevronRight style={styles.expandIcon} />
+                        )}
+                        <div>
+                          <div style={styles.commitMessage}>{commit.message}</div>
+                          <div style={styles.commitMeta}>
+                            {new Date(commit.timestamp).toLocaleString()} • {commit.files.length} file(s)
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {expandedCommits.has(commit.commitId) && (
+                      <div style={styles.commitFiles}>
+                        <div style={styles.filesHeader}>Files in this commit:</div>
+                        <div style={styles.filesList}>
+                          {commit.files.map((file, fileIndex) => (
+                            <div key={fileIndex} style={styles.fileItem}>
+                              <FaFile style={styles.fileIcon} />
+                              <span>{file}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </>
@@ -287,6 +379,86 @@ const styles = {
     padding: "30px",
     color: "#f85149",
     fontSize: "18px",
+  },
+  sectionHeader: {
+    display: "flex",
+    alignItems: "center",
+    marginBottom: "20px",
+    paddingBottom: "10px",
+    borderBottom: "1px solid #30363d",
+  },
+  commitsContainer: {
+    maxHeight: "500px",
+    overflowY: "auto",
+    border: "1px solid #30363d",
+    borderRadius: "8px",
+    backgroundColor: "#0d1117",
+  },
+  commitItem: {
+    borderBottom: "1px solid #21262d",
+  },
+  commitHeader: {
+    padding: "15px 20px",
+    cursor: "pointer",
+    transition: "background-color 0.2s ease",
+    backgroundColor: "transparent",
+  },
+  commitHeaderLeft: {
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+  },
+  expandIcon: {
+    color: "#8b949e",
+    fontSize: "12px",
+  },
+  commitMessage: {
+    fontSize: "16px",
+    fontWeight: "600",
+    color: "#c9d1d9",
+    marginBottom: "4px",
+  },
+  commitMeta: {
+    fontSize: "14px",
+    color: "#8b949e",
+  },
+  commitFiles: {
+    padding: "0 20px 15px 20px",
+    backgroundColor: "#161b22",
+    borderTop: "1px solid #21262d",
+  },
+  filesHeader: {
+    fontSize: "14px",
+    color: "#8b949e",
+    marginBottom: "10px",
+    fontWeight: "500",
+  },
+  filesList: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "6px",
+  },
+  fileItem: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    fontSize: "14px",
+    color: "#c9d1d9",
+    padding: "4px 8px",
+    backgroundColor: "#0d1117",
+    borderRadius: "4px",
+    border: "1px solid #21262d",
+  },
+  fileIcon: {
+    color: "#58a6ff",
+    fontSize: "12px",
+  },
+  noCommits: {
+    textAlign: "center",
+    padding: "40px",
+    color: "#8b949e",
+    fontSize: "16px",
+    fontStyle: "italic",
   },
 };
 

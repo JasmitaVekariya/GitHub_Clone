@@ -13,12 +13,65 @@ async function pushRepo(user, repoName) {
     // Sort by timestamp (so latest commit is last)
     commitDirs.sort((a, b) => Number(a) - Number(b));
 
+    // Track all files across all commits to ensure each commit has complete file set
+    const allFiles = new Set();
+    const commitFiles = new Map(); // commitId -> Set of files
+
+    // First pass: collect all files from all commits
+    for (const commitDir of commitDirs) {
+      const commitPath = path.join(commitsPath, commitDir);
+      const files = await fs.readdir(commitPath);
+      
+      // Filter out metadata files
+      const actualFiles = files.filter(file => 
+        file !== 'commit.json' && file !== 'message.txt'
+      );
+      
+      commitFiles.set(commitDir, new Set(actualFiles));
+      actualFiles.forEach(file => allFiles.add(file));
+    }
+
+    // Second pass: ensure each commit has all files (copy missing files from previous commits)
+    for (let i = 0; i < commitDirs.length; i++) {
+      const commitDir = commitDirs[i];
+      const commitPath = path.join(commitsPath, commitDir);
+      const currentCommitFiles = commitFiles.get(commitDir);
+      
+      // Copy missing files from previous commits
+      for (const file of allFiles) {
+        if (!currentCommitFiles.has(file)) {
+          // Find the most recent commit that has this file
+          for (let j = i - 1; j >= 0; j--) {
+            const prevCommitDir = commitDirs[j];
+            const prevCommitFiles = commitFiles.get(prevCommitDir);
+            
+            if (prevCommitFiles.has(file)) {
+              const sourcePath = path.join(commitsPath, prevCommitDir, file);
+              const destPath = path.join(commitPath, file);
+              
+              try {
+                await fs.copyFile(sourcePath, destPath);
+                currentCommitFiles.add(file);
+                console.log(`Copied ${file} from commit ${prevCommitDir} to commit ${commitDir}`);
+                break;
+              } catch (err) {
+                console.warn(`Could not copy ${file} from commit ${prevCommitDir}:`, err.message);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Third pass: upload all commits with complete file sets
     for (const commitDir of commitDirs) {
       const commitPath = path.join(commitsPath, commitDir);
       const files = await fs.readdir(commitPath);
 
       // Upload each file in this commit
       for (const file of files) {
+        if (file === 'commit.json' || file === 'message.txt') continue;
+        
         const filePath = path.join(commitPath, file);
         const fileContent = await fs.readFile(filePath);
 
@@ -37,6 +90,7 @@ async function pushRepo(user, repoName) {
         timestamp: new Date().toISOString(),
         message: await safeReadFile(path.join(commitPath, "message.txt")),
         author: user,
+        files: Array.from(commitFiles.get(commitDir) || [])
       };
 
       await s3
@@ -48,7 +102,7 @@ async function pushRepo(user, repoName) {
         .promise();
 
       console.log(
-        `Pushed commit ${commitDir} of repo '${repoName}' for user '${user}'`
+        `Pushed commit ${commitDir} of repo '${repoName}' for user '${user}' with ${commitFiles.get(commitDir)?.size || 0} files`
       );
     }
 
@@ -90,4 +144,52 @@ async function safeReadFile(filePath) {
   }
 }
 
-module.exports = { pushRepo };
+// Get committed files for a repository
+async function getCommittedFiles(user, repoName) {
+  const rootPath = path.resolve(process.cwd(), ".github_clone");
+  const repoPath = path.join(rootPath, user, repoName);
+  const commitsPath = path.join(repoPath, "commits");
+
+  try {
+    const commitDirs = await fs.readdir(commitsPath);
+    
+    // Sort by timestamp (so latest commit is last)
+    commitDirs.sort((a, b) => Number(a) - Number(b));
+
+    const commits = [];
+
+    for (const commitDir of commitDirs) {
+      const commitPath = path.join(commitsPath, commitDir);
+      const files = await fs.readdir(commitPath);
+      
+      // Filter out metadata files
+      const actualFiles = files.filter(file => 
+        file !== 'commit.json' && file !== 'message.txt'
+      );
+
+      // Read commit metadata
+      let commitMeta = {};
+      try {
+        const metaContent = await fs.readFile(path.join(commitPath, "commit.json"), "utf8");
+        commitMeta = JSON.parse(metaContent);
+      } catch (err) {
+        console.warn(`Could not read commit metadata for ${commitDir}:`, err.message);
+      }
+
+      commits.push({
+        commitId: commitDir,
+        message: commitMeta.message || await safeReadFile(path.join(commitPath, "message.txt")),
+        timestamp: commitMeta.timestamp || new Date().toISOString(),
+        author: user,
+        files: actualFiles
+      });
+    }
+
+    return commits;
+  } catch (error) {
+    console.error("Error getting committed files:", error);
+    return [];
+  }
+}
+
+module.exports = { pushRepo, getCommittedFiles };

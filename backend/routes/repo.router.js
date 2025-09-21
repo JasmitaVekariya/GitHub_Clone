@@ -2,7 +2,7 @@ const express = require("express");
 const repoController = require("../controllers/repoController.js");
 const { addRepo } = require("../controllers/add.js");
 const { commitRepo } = require("../controllers/commit.js");
-const { pushRepo } = require("../controllers/push.js");
+const { pushRepo, getCommittedFiles } = require("../controllers/push.js");
 const multer = require("multer");
 const upload = multer({ dest: "uploads/" }); // temp storage
 
@@ -58,6 +58,18 @@ repoRouter.post("/repo/:user/:repo/push", async (req, res) => {
     const { user, repo } = req.params;
     await pushRepo(user, repo);
     res.json({ success: true, message: `Repo ${repo} pushed successfully` });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Get committed files for a repository
+repoRouter.get("/repo/:user/:repo/commits", async (req, res) => {
+  try {
+    const { user, repo } = req.params;
+    const commits = await getCommittedFiles(user, repo);
+    res.json({ success: true, commits });
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, error: err.message });

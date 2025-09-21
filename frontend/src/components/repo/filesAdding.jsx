@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-const FileUploadCommit = ({ user, repo }) => {
+const FileUploadCommit = ({ user, repo, onCommitSuccess }) => {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [commitFiles, setCommitFiles] = useState([]);
   const [commitMsg, setCommitMsg] = useState("");
@@ -51,6 +51,11 @@ const FileUploadCommit = ({ user, repo }) => {
       alert("Files committed and pushed successfully!");
       setCommitFiles([]);
       setCommitMsg("");
+      
+      // Notify parent component to refresh commits
+      if (onCommitSuccess) {
+        onCommitSuccess();
+      }
     } catch (err) {
       console.error(err);
       alert("Failed to push files");
