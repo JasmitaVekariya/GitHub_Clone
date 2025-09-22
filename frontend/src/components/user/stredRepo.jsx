@@ -121,7 +121,7 @@ const StarredRepos = () => {
 const styles = {
   container: {
     minHeight: "100vh",
-    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    background: "#0d1117",
     padding: "120px 20px 40px",
     fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
   },
@@ -142,7 +142,7 @@ const styles = {
     alignItems: "center",
     gap: "8px",
     padding: "12px 20px",
-    borderRadius: "8px",
+    borderRadius: "6px",
     border: "none",
     background: "rgba(255, 255, 255, 0.9)",
     color: "#1e293b",
@@ -156,7 +156,7 @@ const styles = {
     alignItems: "center",
     gap: "8px",
     padding: "12px 20px",
-    borderRadius: "8px",
+    borderRadius: "6px",
     border: "none",
     background: "transparent",
     color: "rgba(255, 255, 255, 0.8)",
@@ -171,12 +171,11 @@ const styles = {
   content: {
     maxWidth: "1200px",
     margin: "0 auto",
-    background: "rgba(255, 255, 255, 0.95)",
-    backdropFilter: "blur(20px)",
-    borderRadius: "20px",
+    background: "#161b22",
+    borderRadius: "6px",
     padding: "32px",
-    boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
-    border: "1px solid rgba(255, 255, 255, 0.2)",
+    boxShadow: "0 6px 14px rgba(0,0,0,0.4)",
+    border: "1px solid #30363d",
   },
   header: {
     display: "flex",
@@ -184,7 +183,7 @@ const styles = {
     alignItems: "center",
     marginBottom: "24px",
     paddingBottom: "16px",
-    borderBottom: "2px solid #e2e8f0",
+    borderBottom: "1px solid #30363d",
   },
   title: {
     display: "flex",
@@ -192,7 +191,7 @@ const styles = {
     gap: "12px",
     fontSize: "24px",
     fontWeight: "700",
-    color: "#1e293b",
+    color: "#c9d1d9",
     margin: 0,
   },
   titleIcon: {
@@ -201,7 +200,7 @@ const styles = {
   },
   count: {
     fontSize: "16px",
-    color: "#64748b",
+    color: "#8b949e",
     fontWeight: "500",
   },
   reposGrid: {
@@ -210,10 +209,10 @@ const styles = {
     gap: "20px",
   },
   repoCard: {
-    background: "#f8fafc",
-    borderRadius: "16px",
+    background: "#21262d",
+    borderRadius: "6px",
     padding: "24px",
-    border: "1px solid #e2e8f0",
+    border: "1px solid #30363d",
     cursor: "pointer",
     transition: "all 0.3s ease",
     boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
@@ -227,22 +226,18 @@ const styles = {
   repoTitle: {
     fontSize: "18px",
     fontWeight: "700",
-    color: "#1e293b",
+    color: "#58a6ff",
     margin: 0,
-    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-    WebkitBackgroundClip: "text",
-    WebkitTextFillColor: "transparent",
-    backgroundClip: "text",
   },
   repoVisibility: {
-    color: "#64748b",
+    color: "#8b949e",
   },
   visibilityIcon: {
     fontSize: "16px",
   },
   repoDescription: {
     fontSize: "14px",
-    color: "#64748b",
+    color: "#8b949e",
     margin: "0 0 16px 0",
     lineHeight: "1.5",
   },
@@ -253,10 +248,10 @@ const styles = {
   },
   repoLanguage: {
     fontSize: "12px",
-    color: "#667eea",
+    color: "#58a6ff",
     fontWeight: "600",
     padding: "4px 8px",
-    backgroundColor: "#e0e7ff",
+    backgroundColor: "#21262d",
     borderRadius: "6px",
   },
   repoStats: {
@@ -268,7 +263,7 @@ const styles = {
     alignItems: "center",
     gap: "4px",
     fontSize: "14px",
-    color: "#64748b",
+    color: "#8b949e",
     fontWeight: "500",
   },
   repoStatIcon: {
@@ -277,7 +272,7 @@ const styles = {
   emptyState: {
     textAlign: "center",
     padding: "60px 20px",
-    color: "#64748b",
+    color: "#8b949e",
   },
   emptyIcon: {
     fontSize: "48px",
@@ -287,12 +282,12 @@ const styles = {
   emptyText: {
     fontSize: "18px",
     fontWeight: "600",
-    color: "#475569",
+    color: "#c9d1d9",
     margin: "0 0 8px 0",
   },
   emptySubtext: {
     fontSize: "14px",
-    color: "#94a3b8",
+    color: "#8b949e",
     margin: 0,
   },
   loadingContainer: {
@@ -304,15 +299,15 @@ const styles = {
   loadingSpinner: {
     width: "40px",
     height: "40px",
-    border: "4px solid #e2e8f0",
-    borderTop: "4px solid #667eea",
+    border: "4px solid #30363d",
+    borderTop: "4px solid #58a6ff",
     borderRadius: "50%",
     animation: "spin 1s linear infinite",
     marginBottom: "16px",
   },
   loadingText: {
     fontSize: "16px",
-    color: "#64748b",
+    color: "#8b949e",
     margin: 0,
     fontWeight: "500",
   },

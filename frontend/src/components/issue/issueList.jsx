@@ -181,7 +181,7 @@ const IssueList = () => {
 const styles = {
   container: {
     minHeight: "100vh",
-    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    background: "#0d1117",
     padding: "120px 20px 40px",
     fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
   },
@@ -199,20 +199,20 @@ const styles = {
     gap: "8px",
     fontSize: "18px",
     fontWeight: "600",
-    color: "rgba(255, 255, 255, 0.9)",
+    color: "#c9d1d9",
   },
   repoName: {
-    color: "rgba(255, 255, 255, 0.9)",
+    color: "#58a6ff",
     cursor: "pointer",
     textDecoration: "underline",
     transition: "all 0.3s ease",
   },
   separator: {
-    color: "rgba(255, 255, 255, 0.6)",
+    color: "#8b949e",
     fontSize: "14px",
   },
   currentPage: {
-    color: "white",
+    color: "#c9d1d9",
     fontWeight: "700",
   },
   newIssueBtn: {
@@ -220,10 +220,10 @@ const styles = {
     alignItems: "center",
     gap: "8px",
     padding: "12px 24px",
-    borderRadius: "12px",
+    borderRadius: "6px",
     border: "none",
-    background: "rgba(255, 255, 255, 0.9)",
-    color: "#1e293b",
+    background: "#58a6ff",
+    color: "white",
     fontSize: "16px",
     fontWeight: "600",
     cursor: "pointer",
@@ -233,12 +233,11 @@ const styles = {
   issuesSection: {
     maxWidth: "1200px",
     margin: "0 auto",
-    background: "rgba(255, 255, 255, 0.95)",
-    backdropFilter: "blur(20px)",
-    borderRadius: "20px",
+    background: "#161b22",
+    borderRadius: "6px",
     padding: "32px",
-    boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
-    border: "1px solid rgba(255, 255, 255, 0.2)",
+    boxShadow: "0 6px 14px rgba(0,0,0,0.4)",
+    border: "1px solid #30363d",
   },
   sectionHeader: {
     display: "flex",
@@ -246,7 +245,7 @@ const styles = {
     alignItems: "center",
     marginBottom: "24px",
     paddingBottom: "16px",
-    borderBottom: "2px solid #e2e8f0",
+    borderBottom: "1px solid #30363d",
   },
   sectionTitle: {
     display: "flex",
@@ -254,16 +253,16 @@ const styles = {
     gap: "12px",
     fontSize: "24px",
     fontWeight: "700",
-    color: "#1e293b",
+    color: "#c9d1d9",
     margin: 0,
   },
   sectionIcon: {
-    color: "#667eea",
+    color: "#58a6ff",
     fontSize: "20px",
   },
   issueCount: {
     fontSize: "16px",
-    color: "#64748b",
+    color: "#8b949e",
     fontWeight: "500",
   },
   issueList: {
