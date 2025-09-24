@@ -16,6 +16,8 @@ import UpdateProfile from "./components/user/UpdateProfile";
 import StarredRepos from "./components/user/stredRepo";
 import Connections from "./components/connections/Connections";
 import UserProfile from "./components/connections/UserProfile";
+import Support from "./components/Support";
+import Contact from "./components/Contact";
 
 // Auth Context
 import { useAuth } from "./authContext";
@@ -91,7 +93,9 @@ const ProjectRoutes = ()=>{
     {
         path:"/user/:userId",
         element:<UserProfile/>
-    }
+    },
+    { path: "/support", element: <Support /> },
+    { path: "/contact", element: <Contact /> }
 
 
     ]);

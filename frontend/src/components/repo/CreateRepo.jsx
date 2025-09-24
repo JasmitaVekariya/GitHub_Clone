@@ -20,7 +20,6 @@ const CreateRepo = () => {
     e.preventDefault();
     try {
       const owner = localStorage.getItem("userId");
-      console.log("Creating repository with visibility:", visibility, "type:", typeof visibility);
       const response = await axios.post("http://localhost:3000/repo/create", {
         owner,
         name,

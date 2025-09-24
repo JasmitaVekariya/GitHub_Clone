@@ -8,8 +8,9 @@ const UpdateProfile = () => {
   const { id } = useParams(); // userId from route params
   const navigate = useNavigate();
 
+  const [username, setUsername] = useState("");
   const [bio, setBio] = useState("");
-  const [profilePicture, setProfilePicture] = useState("");
+  // Profile picture is managed by the backend default; no editing here
   const [message, setMessage] = useState("");
 
   // Load existing user profile
@@ -17,8 +18,9 @@ const UpdateProfile = () => {
     const fetchUser = async () => {
       try {
         const res = await axios.get(`http://localhost:3000/userProfile/${id}`);
+        setUsername(res.data.username || "");
         setBio(res.data.bio || "");
-        setProfilePicture(res.data.profilePicture || "");
+        // profilePicture handled by backend default; no local state needed
       } catch (err) {
         console.error("Error fetching profile:", err);
       }
@@ -30,12 +32,12 @@ const UpdateProfile = () => {
   e.preventDefault();
   try {
     await axios.put(`http://localhost:3000/updateuser/${id}`, {
+      username,
       bio,
-      profilePicture,
     });
 
     setMessage("Profile updated successfully ✅");
-    setTimeout(() => navigate(`/profile/${id}`), 1200);
+    navigate("/profile");
   } catch (err) {
     console.error("Error updating user:", err);
     setMessage("Failed to update profile ❌");
@@ -60,6 +62,19 @@ const UpdateProfile = () => {
             <div style={styles.inputGroup}>
               <label style={styles.label}>
                 <FaUser style={styles.labelIcon} />
+                Username
+              </label>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                style={styles.input}
+                placeholder="Enter your username"
+              />
+            </div>
+            <div style={styles.inputGroup}>
+              <label style={styles.label}>
+                <FaUser style={styles.labelIcon} />
                 Bio
               </label>
               <textarea
@@ -71,37 +86,9 @@ const UpdateProfile = () => {
               />
             </div>
 
-            <div style={styles.inputGroup}>
-              <label style={styles.label}>
-                <FaImage style={styles.labelIcon} />
-                Profile Picture URL
-              </label>
-              <input
-                type="text"
-                value={profilePicture}
-                onChange={(e) => setProfilePicture(e.target.value)}
-                style={styles.input}
-                placeholder="Enter image URL"
-              />
-            </div>
+            {/* Profile image update removed as requested */}
 
-            {profilePicture && (
-              <div style={styles.previewContainer}>
-                <div style={styles.previewLabel}>Preview:</div>
-                <img
-                  src={profilePicture}
-                  alt="Profile Preview"
-                  style={styles.previewImage}
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                    e.target.nextSibling.style.display = 'block';
-                  }}
-                />
-                <div style={styles.imageError} style={{ display: 'none' }}>
-                  Invalid image URL
-                </div>
-              </div>
-            )}
+            {/* Profile image preview removed */}
 
             <button type="submit" style={styles.submitButton}>
               <FaEdit style={{ marginRight: "8px" }} />

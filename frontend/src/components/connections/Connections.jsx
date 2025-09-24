@@ -20,7 +20,6 @@ const Connections = () => {
       if (!response.ok) throw new Error("Failed to fetch users");
       
       const users = await response.json();
-      console.log("Fetched users from database:", users);
       
       // Filter out the current user from the list
       const currentUserId = localStorage.getItem("userId");

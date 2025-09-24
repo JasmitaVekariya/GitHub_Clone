@@ -9,7 +9,6 @@ const { deleteRepoFolder } = require("./deleteRepo.js");
 // Create a new repository
 async function createRepository(req, res) {
     const { owner, name, content, description, visibility } = req.body;
-    console.log("Received visibility:", visibility, "type:", typeof visibility);
 
     if (!mongoose.Types.ObjectId.isValid(owner)) {
         return res.status(400).send("Invalid owner ID");
@@ -37,12 +36,6 @@ async function createRepository(req, res) {
             content: content ? [content] : [],
             description: description || "",
             visibility: typeof visibility === "boolean" ? visibility : true,
-        });
-
-        console.log("Repository to be saved:", {
-            name: repository.name,
-            visibility: repository.visibility,
-            visibilityType: typeof repository.visibility
         });
 
         const result = await repository.save();

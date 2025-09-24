@@ -1,5 +1,5 @@
 import React from "react";
-import { FaCode, FaGithub, FaLinkedin, FaTwitter, FaHeart } from "react-icons/fa";
+import { FaCode } from "react-icons/fa";
 
 const Footer = () => {
   return (
@@ -21,49 +21,31 @@ const Footer = () => {
           </div>
 
           <div style={styles.footerSection}>
-            <h4 style={styles.sectionTitle}>Product</h4>
+            <h4 style={styles.sectionTitle}>Explore</h4>
             <ul style={styles.linkList}>
+              <li><a href="/" style={styles.footerLink}>Dashboard</a></li>
+              <li><a href="/connections" style={styles.footerLink}>Profiles</a></li>
               <li><a href="/repository/create" style={styles.footerLink}>Create Repository</a></li>
-              <li><a href="/connections" style={styles.footerLink}>Connections</a></li>
-              <li><a href="/profile" style={styles.footerLink}>Profile</a></li>
             </ul>
           </div>
 
           <div style={styles.footerSection}>
             <h4 style={styles.sectionTitle}>Support</h4>
             <ul style={styles.linkList}>
-              <li><a href="#" style={styles.footerLink}>Documentation</a></li>
-              <li><a href="#" style={styles.footerLink}>Help Center</a></li>
-              <li><a href="#" style={styles.footerLink}>Contact Us</a></li>
+              <li><a href="/support" style={styles.footerLink}>Documentation</a></li>
+              <li><a href="/support" style={styles.footerLink}>Help Center</a></li>
+              <li><a href="/contact" style={styles.footerLink}>Contact Us</a></li>
             </ul>
           </div>
 
-          <div style={styles.footerSection}>
-            <h4 style={styles.sectionTitle}>Connect</h4>
-            <div style={styles.socialLinks}>
-              <a href="#" style={styles.socialLink} aria-label="GitHub">
-                <FaGithub size={20} />
-              </a>
-              <a href="#" style={styles.socialLink} aria-label="LinkedIn">
-                <FaLinkedin size={20} />
-              </a>
-              <a href="#" style={styles.socialLink} aria-label="Twitter">
-                <FaTwitter size={20} />
-              </a>
-            </div>
-          </div>
+          {/* Connect section intentionally removed */}
         </div>
 
         <div style={styles.footerBottom}>
-          <div style={styles.footerBottomContent}>
-            <p style={styles.copyright}>
-              © 2024 CodeVault. Made with <FaHeart style={styles.heartIcon} /> for developers.
+          <div style={styles.footerBottomContentCentered}>
+            <p style={styles.copyrightCentered}>
+              © 2025 CodeVault. Made with ❤️ for developers.
             </p>
-            <div style={styles.footerBottomLinks}>
-              <a href="#" style={styles.bottomLink}>Privacy Policy</a>
-              <a href="#" style={styles.bottomLink}>Terms of Service</a>
-              <a href="#" style={styles.bottomLink}>Security</a>
-            </div>
           </div>
         </div>
       </div>
@@ -85,13 +67,15 @@ const styles = {
   },
   footerContent: {
     display: "grid",
-    gridTemplateColumns: "2fr 1fr 1fr 1fr",
-    gap: "48px",
+    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+    gap: "32px",
     padding: "48px 0 32px",
   },
   footerSection: {
     display: "flex",
     flexDirection: "column",
+    alignItems: "flex-start",
+    textAlign: "left",
   },
   logoSection: {
     display: "flex",
@@ -147,56 +131,20 @@ const styles = {
     fontWeight: "500",
     transition: "color 0.3s ease",
   },
-  socialLinks: {
-    display: "flex",
-    gap: "16px",
-  },
-  socialLink: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    width: "40px",
-    height: "40px",
-    borderRadius: "6px",
-    background: "#21262d",
-    color: "#8b949e",
-    textDecoration: "none",
-    transition: "all 0.3s ease",
-    border: "1px solid #30363d",
-  },
   footerBottom: {
     borderTop: "1px solid #30363d",
     padding: "24px 0",
   },
-  footerBottomContent: {
+  footerBottomContentCentered: {
     display: "flex",
-    justifyContent: "space-between",
+    justifyContent: "center",
     alignItems: "center",
-    flexWrap: "wrap",
-    gap: "16px",
   },
-  copyright: {
+  copyrightCentered: {
     fontSize: "14px",
     color: "#8b949e",
     margin: 0,
-    display: "flex",
-    alignItems: "center",
-    gap: "4px",
-  },
-  heartIcon: {
-    color: "#f85149",
-    fontSize: "12px",
-  },
-  footerBottomLinks: {
-    display: "flex",
-    gap: "24px",
-  },
-  bottomLink: {
-    color: "#8b949e",
-    textDecoration: "none",
-    fontSize: "14px",
-    fontWeight: "500",
-    transition: "color 0.3s ease",
+    textAlign: "center",
   },
 };
 

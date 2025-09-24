@@ -33,10 +33,7 @@ async function downloadLatestCommitAsZip(req, res) {
       .filter(id => id && !isNaN(Number(id)))
       .sort((a, b) => Number(b) - Number(a)); // Sort descending to get latest first
 
-    console.log('Found commit IDs:', commitIds);
-
     if (commitIds.length === 0) {
-      console.log('No valid commits found');
       return res.status(404).json({ 
         success: false, 
         message: "No valid commits found" 
@@ -46,16 +43,11 @@ async function downloadLatestCommitAsZip(req, res) {
     const latestCommitId = commitIds[0];
     const latestCommitKey = `${commitsPrefix}${latestCommitId}/`;
     
-    console.log(`Latest commit ID: ${latestCommitId}`);
-    console.log(`Latest commit key: ${latestCommitKey}`);
-    
     // List all objects in the latest commit directory
     const listResponse = await s3.listObjectsV2({
       Bucket: S3_BUCKET,
       Prefix: latestCommitKey,
     }).promise();
-
-    console.log(`Found ${listResponse.Contents?.length || 0} files in latest commit`);
 
     if (!listResponse.Contents || listResponse.Contents.length === 0) {
       return res.status(404).json({ 
@@ -195,44 +187,8 @@ async function downloadCommitAsZip(req, res) {
   }
 }
 
-// Test endpoint to check if S3 is working
-async function testS3Connection(req, res) {
-  try {
-    console.log('Testing S3 connection...');
-    const { user, repo } = req.params;
-    
-    const commitsPrefix = `${user}/${repo}/commits/`;
-    console.log('Looking for commits with prefix:', commitsPrefix);
-    
-    const commitsResponse = await s3.listObjectsV2({
-      Bucket: S3_BUCKET,
-      Prefix: commitsPrefix,
-      Delimiter: '/'
-    }).promise();
-
-    console.log('S3 response:', JSON.stringify(commitsResponse, null, 2));
-    
-    res.json({
-      success: true,
-      message: "S3 connection working",
-      data: {
-        prefix: commitsPrefix,
-        commonPrefixes: commitsResponse.CommonPrefixes || [],
-        contents: commitsResponse.Contents || []
-      }
-    });
-  } catch (error) {
-    console.error('S3 test error:', error);
-    res.status(500).json({
-      success: false,
-      message: "S3 connection failed",
-      error: error.message
-    });
-  }
-}
 
 module.exports = {
   downloadLatestCommitAsZip,
-  downloadCommitAsZip,
-  testS3Connection
+  downloadCommitAsZip
 };
