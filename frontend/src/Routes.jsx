@@ -14,6 +14,8 @@ import CreateIssue from "./components/issue/CreateIssue";
 import UpdateIssue from "./components/issue/UpdateIssue";
 import UpdateProfile from "./components/user/UpdateProfile";
 import StarredRepos from "./components/user/stredRepo";
+import Connections from "./components/connections/Connections";
+import UserProfile from "./components/connections/UserProfile";
 
 // Auth Context
 import { useAuth } from "./authContext";
@@ -81,7 +83,15 @@ const ProjectRoutes = ()=>{
 {              path:"/issue/update/:id" ,
      element:<UpdateIssue />
     } ,
-    {path:"/profile/starred", element:<StarredRepos />}
+    {path:"/profile/starred", element:<StarredRepos />},
+    {
+        path:"/connections",
+        element:<Connections/>
+    },
+    {
+        path:"/user/:userId",
+        element:<UserProfile/>
+    }
 
 
     ]);

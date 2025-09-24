@@ -121,6 +121,16 @@ const styles = {
     fontSize: "16px",
     fontWeight: "500",
   },
+  searchInfo: {
+    color: palette.textSecondary,
+    fontSize: "14px",
+    fontWeight: "500",
+    margin: "8px 0 16px 0",
+    padding: "8px 12px",
+    backgroundColor: "#21262d",
+    borderRadius: "4px",
+    border: "1px solid #30363d",
+  },
   loading: {
     textAlign: "center",
     padding: "60px 40px",
@@ -217,13 +227,13 @@ const Dashboard = () => {
     fetchSuggestedRepositories();
   }, []);
 
-  // Filter repos only when searching
+  // Filter repos: show last 3-4 repos by default, or all matching repos when searching
   const filteredUserRepos =
     searchQuery.length > 0
       ? repositories.filter((repo) =>
           repo?.name?.toLowerCase().includes(searchQuery.toLowerCase())
         )
-      : [];
+      : repositories.slice(-4); // Show last 4 repositories (most recent)
 
   if (loading) {
     return (
@@ -307,60 +317,42 @@ const Dashboard = () => {
               <input
                 type="text"
                 value={searchQuery}
-                placeholder="Search your repositories..."
+                placeholder="Search all your repositories..."
                 onChange={(e) => setSearchQuery(e.target.value)}
                 style={styles.searchBox}
                 onFocus={(e) => (e.target.style.borderColor = palette.accent)}
                 onBlur={(e) => (e.target.style.borderColor = palette.border)}
               />
             </div>
-            {searchQuery.length > 0 ? (
-              filteredUserRepos.length > 0 ? (
-                filteredUserRepos.map((repo) => (
-                  <div
-                    style={styles.card}
-                    key={repo._id}
-                    onClick={() => navigate(`/repository/${repo._id}`)}
-                    onMouseEnter={handleMouseEnter}
-                    onMouseLeave={handleMouseLeave}
-                  >
-                    <h4 style={styles.cardTitle}>{repo?.name}</h4>
-                    <p style={styles.cardDesc}>
-                      {repo?.description || "No description provided"}
-                    </p>
-                    <p style={styles.ownerText}>
-                      <FiUser /> {repo?.owner?.username || "You"}
-                    </p>
-                  </div>
-                ))
-              ) : (
-                <p style={styles.noResults}>No repositories found matching your search.</p>
-              )
-            ) : (
-              repositories.length > 0 ? (
-                repositories.map((repo) => (
-                  <div
-                    style={styles.card}
-                    key={repo._id}
-                    onClick={() => navigate(`/repository/${repo._id}`)}
-                    onMouseEnter={handleMouseEnter}
-                    onMouseLeave={handleMouseLeave}
-                  >
-                    <h4 style={styles.cardTitle}>{repo?.name}</h4>
-                    <p style={styles.cardDesc}>
-                      {repo?.description || "No description provided"}
-                    </p>
-                    <p style={styles.ownerText}>
-                      <FiUser /> {repo?.owner?.username || "You"}
-                    </p>
-                  </div>
-                ))
-              ) : (
-                <p style={styles.noResults}>
-                  <FiCode /> No repositories yet. Create your first one!
-                </p>
-              )
+            {searchQuery.length > 0 && (
+              <p style={styles.searchInfo}>
+                Showing {filteredUserRepos.length} matching repositories
+              </p>
             )}
+            {searchQuery.length === 0 && repositories.length > 4 }
+            {filteredUserRepos.length > 0 ? (
+              filteredUserRepos.map((repo) => (
+                <div
+                  style={styles.card}
+                  key={repo._id}
+                  onClick={() => navigate(`/repository/${repo._id}`)}
+                  onMouseEnter={handleMouseEnter}
+                  onMouseLeave={handleMouseLeave}
+                >
+                  <h4 style={styles.cardTitle}>{repo?.name}</h4>
+                  <p style={styles.cardDesc}>
+                    {repo?.description || "No description provided"}
+                  </p>
+                  <p style={styles.ownerText}>
+                    <FiUser /> {repo?.owner?.username || "You"}
+                  </p>
+                </div>
+              ))
+            ) : searchQuery.length > 0 ? (
+              <p style={styles.noResults}>No repositories found matching your search.</p>
+            ) : repositories.length === 0 ? (
+              <p style={styles.noResults}>You haven't created any repositories yet.</p>
+            ) : null}
           </main>
 
           {/* Suggested Repositories & Events */}

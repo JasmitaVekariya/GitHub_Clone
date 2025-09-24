@@ -16,6 +16,7 @@ import {
   FaHistory,
   FaChevronDown,
   FaChevronRight,
+  FaDownload,
 } from "react-icons/fa";
 import axios from "axios";
 import FileUploadCommit from "./filesAdding";
@@ -32,6 +33,7 @@ const RepositoryDetails = () => {
   const [commits, setCommits] = useState([]);
   const [commitsLoading, setCommitsLoading] = useState(false);
   const [expandedCommits, setExpandedCommits] = useState(new Set());
+  const [downloadingCommit, setDownloadingCommit] = useState(null);
 
   const userId = localStorage.getItem("userId");
   const token = localStorage.getItem("token");
@@ -68,6 +70,48 @@ const RepositoryDetails = () => {
       newExpanded.add(commitId);
     }
     setExpandedCommits(newExpanded);
+  };
+
+
+  const downloadCommit = async (commitId) => {
+    if (!repo || !repo.owner || !repo.name) return;
+    
+    setDownloadingCommit(commitId);
+    try {
+      const response = await fetch(
+        `${API_BASE}/repo/${repo.owner.username}/${repo.name}/download/${commitId}`,
+        {
+          method: 'GET',
+          headers: {
+            'user-id': localStorage.getItem('userId')
+          }
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to download files');
+      }
+
+      // Get the blob from the response
+      const blob = await response.blob();
+      
+      // Create a download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${repo.name}-commit-${commitId}.zip`;
+      document.body.appendChild(link);
+      link.click();
+      
+      // Clean up
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading files:', error);
+      alert('Failed to download files. Please try again.');
+    } finally {
+      setDownloadingCommit(null);
+    }
   };
 
   useEffect(() => {
@@ -207,7 +251,7 @@ const RepositoryDetails = () => {
           </div>
 
           {/* File Upload & Commit Section */}
-          {repo && repo.owner && (
+          {repo && repo.owner && userId && repo.owner._id === userId && (
             <div style={{ marginTop: "30px" }}>
               <div style={styles.sectionHeader}>
                 <FaPlusCircle style={{ marginRight: "8px", color: "#58a6ff" }} />
@@ -221,11 +265,14 @@ const RepositoryDetails = () => {
             </div>
           )}
 
+         
           {/* Commits History Section */}
           <div style={{ marginTop: "40px" }}>
             <div style={styles.sectionHeader}>
-              <FaHistory style={{ marginRight: "8px" }} />
-              <h3 style={{ color: "#58a6ff", margin: 0 }}>Commit History</h3>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <FaHistory style={{ color: "#58a6ff" }} />
+                <h3 style={{ color: "#58a6ff", margin: 0 }}>Commit History</h3>
+              </div>
             </div>
             
             {commitsLoading ? (
@@ -236,11 +283,11 @@ const RepositoryDetails = () => {
               <div style={styles.commitsContainer}>
                 {commits.map((commit, index) => (
                   <div key={commit.commitId} style={styles.commitItem}>
-                    <div 
-                      style={styles.commitHeader}
-                      onClick={() => toggleCommitExpansion(commit.commitId)}
-                    >
-                      <div style={styles.commitHeaderLeft}>
+                    <div style={styles.commitHeader}>
+                      <div 
+                        style={styles.commitHeaderLeft}
+                        onClick={() => toggleCommitExpansion(commit.commitId)}
+                      >
                         {expandedCommits.has(commit.commitId) ? (
                           <FaChevronDown style={styles.expandIcon} />
                         ) : (
@@ -261,6 +308,51 @@ const RepositoryDetails = () => {
                           </div>
                         </div>
                       </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          downloadCommit(commit.commitId);
+                        }}
+                        disabled={downloadingCommit === commit.commitId}
+                        style={{
+                          ...styles.commitDownloadButton,
+                          opacity: downloadingCommit === commit.commitId ? 0.7 : 1,
+                          cursor: downloadingCommit === commit.commitId ? 'not-allowed' : 'pointer'
+                        }}
+                        title={`Download commit ${commit.commitId} as ZIP`}
+                        onMouseEnter={(e) => {
+                          if (downloadingCommit !== commit.commitId) {
+                            e.target.style.backgroundColor = "#30363d";
+                            e.target.style.color = "#4a9eff";
+                            e.target.style.transform = "translateY(-1px)";
+                            e.target.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.3)";
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (downloadingCommit !== commit.commitId) {
+                            e.target.style.backgroundColor = "#21262d";
+                            e.target.style.color = "#58a6ff";
+                            e.target.style.transform = "translateY(0)";
+                            e.target.style.boxShadow = "0 2px 4px rgba(0, 0, 0, 0.2)";
+                          }
+                        }}
+                      >
+                        {downloadingCommit === commit.commitId ? (
+                          <div style={{
+                            width: "50px",
+                            height: "14px",
+                            border: "2px solid #58a6ff",
+                            borderTop: "2px solid transparent",
+                            borderRadius: "50%",
+                            animation: "spin 1s linear infinite"
+                          }} />
+                        ) : (
+                          <>
+                          <FaDownload size={14} />
+                          Download
+                          </>
+                        )}
+                      </button>
                     </div>
                     
                     {expandedCommits.has(commit.commitId) && (
@@ -434,6 +526,7 @@ const styles = {
   sectionHeader: {
     display: "flex",
     alignItems: "center",
+    justifyContent: "space-between",
     marginBottom: "24px",
     paddingBottom: "16px",
     borderBottom: "1px solid #30363d",
@@ -451,8 +544,10 @@ const styles = {
     transition: "all 0.3s ease",
   },
   commitHeader: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
     padding: "20px 24px",
-    cursor: "pointer",
     transition: "all 0.3s ease",
     backgroundColor: "transparent",
     borderRadius: "6px",
@@ -462,6 +557,8 @@ const styles = {
     display: "flex",
     alignItems: "center",
     gap: "16px",
+    cursor: "pointer",
+    flex: 1,
   },
   commitNumber: {
     fontSize: "14px",
@@ -552,6 +649,31 @@ const styles = {
     borderRadius: "6px",
     border: "2px dashed #30363d",
   },
+  commitDownloadButton: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "36px",
+    height: "36px",
+    backgroundColor: "#21262d",
+    color: "#58a6ff",
+    border: "1px solid #30363d",
+    borderRadius: "6px",
+    cursor: "pointer",
+    transition: "all 0.3s ease",
+    marginLeft: "12px",
+    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
+  },
 };
+
+// Add CSS animation for spinner
+const spinnerStyle = document.createElement('style');
+spinnerStyle.textContent = `
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`;
+document.head.appendChild(spinnerStyle);
 
 export default RepositoryDetails;

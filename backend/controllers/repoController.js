@@ -9,6 +9,7 @@ const { deleteRepoFolder } = require("./deleteRepo.js");
 // Create a new repository
 async function createRepository(req, res) {
     const { owner, name, content, description, visibility } = req.body;
+    console.log("Received visibility:", visibility, "type:", typeof visibility);
 
     if (!mongoose.Types.ObjectId.isValid(owner)) {
         return res.status(400).send("Invalid owner ID");
@@ -24,12 +25,24 @@ async function createRepository(req, res) {
             return res.status(404).send("User not found");
         }
 
+        // Check if repository with same name already exists for this owner
+        const existingRepo = await Repository.findOne({ owner: user._id, name: name });
+        if (existingRepo) {
+            return res.status(400).send("A repository with this name already exists");
+        }
+
         const repository = new Repository({
             owner: user._id,
             name,
             content: content ? [content] : [],
             description: description || "",
             visibility: typeof visibility === "boolean" ? visibility : true,
+        });
+
+        console.log("Repository to be saved:", {
+            name: repository.name,
+            visibility: repository.visibility,
+            visibilityType: typeof repository.visibility
         });
 
         const result = await repository.save();
@@ -134,6 +147,35 @@ async function fetchRepositoriesForCurrentUser(req, res) {
     }
 }
 
+// Get public repositories for a user (for other users to view)
+async function fetchPublicRepositoriesForUser(req, res) {
+    const userID = req.params.userID;
+
+    if (!mongoose.Types.ObjectId.isValid(userID)) {
+        return res.status(400).send("Invalid user ID format");
+    }
+
+    try {
+        const user = await User.findById(userID);
+        if (!user) {
+            return res.status(404).send("User not found");
+        }
+
+        // Only fetch public repositories (visibility: true)
+        const repositories = await Repository.find({ 
+            owner: user._id,
+            visibility: true 
+        })
+            .populate("owner")
+            .populate("issues");
+
+        res.status(200).json(repositories);
+    } catch (error) {
+        console.error("Error fetching public repositories for user:", error);
+        res.status(500).send("Internal Server Error");
+    }
+}
+
 // Update repository by ID
 async function updateRepositoryByID(req, res) {
     const { id } = req.params;
@@ -154,10 +196,22 @@ async function updateRepositoryByID(req, res) {
 
         // ✅ Update fields if provided
         if (name && name !== repository.name) {
+            // Check if another repository with the same name exists for this owner
+            const existingRepo = await Repository.findOne({ 
+                owner: repository.owner._id, 
+                name: name,
+                _id: { $ne: repository._id }
+            });
+            
+            if (existingRepo) {
+                return res.status(400).send("A repository with this name already exists");
+            }
+            
             await renameRepoFolder(repository.owner.username, repository.name, name);
-          }          
+            repository.name = name;
+        }
 
-        if (description) {
+        if (description !== undefined) {
             repository.description = description;
         }
 
@@ -244,6 +298,7 @@ module.exports = {
     fetchRepositoryByID,
     fetchRepositoryByName,
     fetchRepositoriesForCurrentUser,
+    fetchPublicRepositoriesForUser,
     updateRepositoryByID,
     deleteRepositoryByID,
     toggleVisibilityByID,

@@ -5,7 +5,6 @@ const RepositorySchema = new Schema({
     name: {
         type: String,
         required: true,
-        unique: true,
     },
     description: {
         type: String,
@@ -31,6 +30,9 @@ const RepositorySchema = new Schema({
         ref: "Issue",}]
 
 });
+
+// Add compound unique index for owner + name combination
+RepositorySchema.index({ owner: 1, name: 1 }, { unique: true });
 
 const Repository = mongoose.model("Repository", RepositorySchema);
 

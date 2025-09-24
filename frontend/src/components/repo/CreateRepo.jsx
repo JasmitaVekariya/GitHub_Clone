@@ -12,10 +12,15 @@ const CreateRepo = () => {
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
+  const handleVisibilityChange = (value) => {
+    setVisibility(value === "true");
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const owner = localStorage.getItem("userId");
+      console.log("Creating repository with visibility:", visibility, "type:", typeof visibility);
       const response = await axios.post("http://localhost:3000/repo/create", {
         owner,
         name,
@@ -27,7 +32,7 @@ const CreateRepo = () => {
       setMessage(response.data.message);
       if (response.status === 200) {
         // Get the repository ID from the response to redirect to repo details
-        const repoId = response.data.repoId || response.data.repository?._id;
+        const repoId = response.data.repositoryID || response.data.repoId || response.data.repository?._id;
         if (repoId) {
           setTimeout(() => {
             navigate(`/repository/${repoId}`);
@@ -41,7 +46,11 @@ const CreateRepo = () => {
       }
     } catch (error) {
       console.error("Error creating repository:", error);
-      setMessage("Failed to create repository.");
+      if (error.response?.data?.message) {
+        setMessage(`❌ ${error.response.data.message}`);
+      } else {
+        setMessage("❌ Failed to create repository.");
+      }
     }
   };
 
@@ -136,7 +145,7 @@ const CreateRepo = () => {
                       type="radio"
                       value="true"
                       checked={visibility === true}
-                      onChange={(e) => setVisibility(e.target.value === "true")}
+                      onChange={(e) => handleVisibilityChange(e.target.value)}
                       style={styles.radio}
                     />
                     <div style={styles.radioContent}>
@@ -153,7 +162,7 @@ const CreateRepo = () => {
                       type="radio"
                       value="false"
                       checked={visibility === false}
-                      onChange={(e) => setVisibility(e.target.value === "false")}
+                      onChange={(e) => handleVisibilityChange(e.target.value)}
                       style={styles.radio}
                     />
                     <div style={styles.radioContent}>

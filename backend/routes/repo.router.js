@@ -3,6 +3,8 @@ const repoController = require("../controllers/repoController.js");
 const { addRepo } = require("../controllers/add.js");
 const { commitRepo } = require("../controllers/commit.js");
 const { pushRepo, getCommittedFiles } = require("../controllers/push.js");
+const { checkRepositoryOwnership } = require("../middleware/repoOwnershipMiddleware.js");
+const { downloadLatestCommitAsZip, downloadCommitAsZip, testS3Connection } = require("../controllers/downloadController.js");
 const multer = require("multer");
 const upload = multer({ dest: "uploads/" }); // temp storage
 
@@ -14,12 +16,13 @@ repoRouter.get("/repo/all", repoController.getAllRepository);
 repoRouter.get("/repo/:id", repoController.fetchRepositoryByID);
 repoRouter.get("/repo/name/:name", repoController.fetchRepositoryByName);
 repoRouter.get("/repo/user/:userID", repoController.fetchRepositoriesForCurrentUser);
+repoRouter.get("/repo/user/:userID/public", repoController.fetchPublicRepositoriesForUser);
 repoRouter.put("/repo/update/:id", repoController.updateRepositoryByID);
 repoRouter.delete("/repo/delete/:id", repoController.deleteRepositoryByID);
 repoRouter.patch("/repo/toggle/:id", repoController.toggleVisibilityByID);
 
 // Add file(s) to staging
-repoRouter.post("/repo/:user/:repo/add", upload.array("files"), async (req, res) => {
+repoRouter.post("/repo/:user/:repo/add", checkRepositoryOwnership, upload.array("files"), async (req, res) => {
   try {
     const { user, repo } = req.params;
     const files = req.files;
@@ -40,7 +43,7 @@ repoRouter.post("/repo/:user/:repo/add", upload.array("files"), async (req, res)
 });
 
 // Commit staged files
-repoRouter.post("/repo/:user/:repo/commit", async (req, res) => {
+repoRouter.post("/repo/:user/:repo/commit", checkRepositoryOwnership, async (req, res) => {
   try {
     const { user, repo } = req.params;
     const { message } = req.body;
@@ -53,7 +56,7 @@ repoRouter.post("/repo/:user/:repo/commit", async (req, res) => {
 });
 
 // Push commits to S3
-repoRouter.post("/repo/:user/:repo/push", async (req, res) => {
+repoRouter.post("/repo/:user/:repo/push", checkRepositoryOwnership, async (req, res) => {
   try {
     const { user, repo } = req.params;
     await pushRepo(user, repo);
@@ -75,5 +78,14 @@ repoRouter.get("/repo/:user/:repo/commits", async (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 });
+
+// Download latest commit as ZIP
+repoRouter.get("/repo/:user/:repo/download/latest", downloadLatestCommitAsZip);
+
+// Download specific commit as ZIP
+repoRouter.get("/repo/:user/:repo/download/:commitId", downloadCommitAsZip);
+
+// Test S3 connection
+repoRouter.get("/repo/:user/:repo/test-s3", testS3Connection);
 
 module.exports = repoRouter;

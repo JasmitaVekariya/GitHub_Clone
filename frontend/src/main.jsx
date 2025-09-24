@@ -20,12 +20,22 @@ import App from './App.jsx'
 import './index.css'
 import { AuthProvider } from './authContext.jsx'
 import ProjectRoutes from './Routes.jsx';
+import Footer from './components/Footer.jsx';
 import { BrowserRouter as Router } from 'react-router-dom'
+
+const AppLayout = () => {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <ProjectRoutes />
+      <Footer />
+    </div>
+  );
+};
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <AuthProvider>
     <Router>
-      <ProjectRoutes />
+      <AppLayout />
     </Router>
   </AuthProvider>
 );

@@ -9,6 +9,9 @@ const FileUploadCommit = ({ user, repo, onCommitSuccess }) => {
 
   const api = axios.create({
     baseURL: "http://localhost:3000",
+    headers: {
+      'user-id': localStorage.getItem('userId')
+    }
   });
 
   // Step 1: select files

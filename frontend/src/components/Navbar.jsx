@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { FaCode, FaUser, FaPlus, FaHome, FaStar } from "react-icons/fa";
+import { FaCode, FaUser, FaPlus, FaUsers } from "react-icons/fa";
 
 const Navbar = () => {
   return (
@@ -16,17 +16,13 @@ const Navbar = () => {
         </Link>
         
         <div style={styles.navLinks}>
-          <Link to="/" style={styles.navLink}>
-            <FaHome size={16} style={styles.navIcon} />
-            <span>Dashboard</span>
-          </Link>
           <Link to="/repository/create" style={styles.navLink}>
             <FaPlus size={16} style={styles.navIcon} />
             <span>New Repository</span>
           </Link>
-          <Link to="/profile/starred" style={styles.navLink}>
-            <FaStar size={16} style={styles.navIcon} />
-            <span>Starred</span>
+          <Link to="/connections" style={styles.navLink}>
+            <FaUsers size={16} style={styles.navIcon} />
+            <span>Profiles</span>
           </Link>
           <Link to="/profile" style={styles.navLink}>
             <FaUser size={16} style={styles.navIcon} />
