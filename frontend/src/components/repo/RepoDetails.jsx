@@ -5,8 +5,6 @@ import {
   FaUserCircle,
   FaStar,
   FaRegStar,
-  FaCodeBranch,
-  FaEye,
   FaSyncAlt,
   FaPlusCircle,
   FaBook,
@@ -193,12 +191,12 @@ const RepositoryDetails = () => {
           </p>
 
           {/* Dates */}
-          <p style={styles.metaText}>
+          {/* <p style={styles.metaText}>
             Created: {new Date(repo?.createdAt).toLocaleDateString()}
           </p>
           <p style={styles.metaText}>
             Updated: {new Date(repo?.updatedAt).toLocaleDateString()}
-          </p>
+          </p> */}
 
           {/* Stats Row */}
           <div style={styles.statsRow}>
@@ -214,17 +212,17 @@ const RepositoryDetails = () => {
               )}
               <span>{repo?.stars || 0}</span>
             </div>
-            <div style={styles.statItem}>
+            {/* <div style={styles.statItem}>
               <FaCodeBranch /> <span>{repo?.forks || 0}</span>
             </div>
             <div style={styles.statItem}>
               <FaEye /> <span>{repo?.views || 0}</span>
-            </div>
+            </div> */}
           </div>
 
           {/* Actions Row */}
           <div style={styles.actionRow}>
-            {/* ✅ Update button only for repo owner */}
+            {/* Update button only for repo owner */}
             {repo?.owner?._id?.toString() === userId && (
               <div
                 style={styles.actionItem}

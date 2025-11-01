@@ -215,18 +215,18 @@ const Profile = () => {
                       </p>
                       
                       <div style={styles.repoFooter}>
-                        <span style={styles.repoLanguage}>
+                        {/* <span style={styles.repoLanguage}>
                           {repo.language || "Unknown"}
-                        </span>
+                        </span> */}
                         <div style={styles.repoStats}>
                           <span style={styles.repoStat}>
                             <FaStar style={styles.repoStatIcon} />
                             {repo.stars || 0}
                           </span>
-                          <span style={styles.repoStat}>
+                          {/* <span style={styles.repoStat}>
                             <FaCodeBranch style={styles.repoStatIcon} />
                             {repo.forks || 0}
-                          </span>
+                          </span> */}
                         </div>
                       </div>
                     </div>
