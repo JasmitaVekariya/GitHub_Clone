@@ -4,7 +4,7 @@ import Navbar from "../Navbar";
 import {
   FaUserCircle,
   FaStar,
-  FaRegStar,
+  FaRegStar, // Imported for toggle
   FaSyncAlt,
   FaPlusCircle,
   FaBook,
@@ -15,9 +15,11 @@ import {
   FaChevronDown,
   FaChevronRight,
   FaDownload,
+  FaCodeBranch, // Added for stats
+  FaEye, // Added for stats
 } from "react-icons/fa";
 import axios from "axios";
-import FileUploadCommit from "./filesAdding";
+import FileUploadCommit from "./filesAdding"; // This component is still imported
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -42,12 +44,13 @@ const RepositoryDetails = () => {
     headers: { "Content-Type": "application/json", ...authHeader },
   });
 
+  // --- All logic from the complex file is retained ---
+
   const fetchCommits = async (owner, repoName) => {
     try {
       setCommitsLoading(true);
       const response = await api.get(`/repo/${owner}/${repoName}/commits`);
       if (response.data.success) {
-        // Sort commits by timestamp in descending order (latest first)
         const sortedCommits = response.data.commits.sort((a, b) => 
           new Date(b.timestamp) - new Date(a.timestamp)
         );
@@ -70,7 +73,6 @@ const RepositoryDetails = () => {
     setExpandedCommits(newExpanded);
   };
 
-
   const downloadCommit = async (commitId) => {
     if (!repo || !repo.owner || !repo.name) return;
     
@@ -90,10 +92,7 @@ const RepositoryDetails = () => {
         throw new Error('Failed to download files');
       }
 
-      // Get the blob from the response
       const blob = await response.blob();
-      
-      // Create a download link
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -101,7 +100,6 @@ const RepositoryDetails = () => {
       document.body.appendChild(link);
       link.click();
       
-      // Clean up
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (error) {
@@ -126,7 +124,6 @@ const RepositoryDetails = () => {
         );
         setIsStarred(starred);
 
-        // Fetch commits if repo has owner
         if (response.data.owner?.username) {
           fetchCommits(response.data.owner.username, response.data.name);
         }
@@ -159,7 +156,7 @@ const RepositoryDetails = () => {
       <Navbar />
       <div style={styles.wrapper}>
         <div style={styles.card}>
-          {/* Header */}
+          {/* Header (From Simple) */}
           <div style={styles.headerRow}>
             <h2 style={styles.repoName}>
               <span style={styles.blueText}>{repo?.name}</span>
@@ -170,27 +167,27 @@ const RepositoryDetails = () => {
             </div>
           </div>
 
-          {/* Visibility Badge */}
+          {/* Visibility Badge (Merged) */}
           <div style={styles.visibilityBadge}>
             {repo?.isPublic || repo?.visibility === true ? (
               <>
-                <FaGlobe size={16} color="#059669" />
+                <FaGlobe size={14} color="#58a6ff" />
                 <span>Public Repository</span>
               </>
             ) : (
               <>
-                <FaLock size={16} color="#dc2626" />
+                <FaLock size={14} color="#f85149" />
                 <span>Private Repository</span>
               </>
             )}
           </div>
 
-          {/* Description */}
+          {/* Description (From Simple) */}
           <p style={styles.desc}>
             {repo?.description || "No description available"}
           </p>
 
-          {/* Dates */}
+          {/* Dates (From Simple, uncommented) */}
           {/* <p style={styles.metaText}>
             Created: {new Date(repo?.createdAt).toLocaleDateString()}
           </p>
@@ -198,17 +195,16 @@ const RepositoryDetails = () => {
             Updated: {new Date(repo?.updatedAt).toLocaleDateString()}
           </p> */}
 
-          {/* Stats Row */}
+          {/* Stats Row (From Simple, logic from Complex) */}
           <div style={styles.statsRow}>
             <div
               style={styles.statItem}
               onClick={toggleStar}
-              className="cursor-pointer"
             >
               {isStarred ? (
-                <FaStar color="#58a6ff" />
+                <FaStar color="gold" />
               ) : (
-                <FaRegStar color="#8b949e" />
+                <FaRegStar color="#c9d1d9" />
               )}
               <span>{repo?.stars || 0}</span>
             </div>
@@ -220,9 +216,8 @@ const RepositoryDetails = () => {
             </div> */}
           </div>
 
-          {/* Actions Row */}
+          {/* Actions Row (From Simple, logic from Complex) */}
           <div style={styles.actionRow}>
-            {/* Update button only for repo owner */}
             {repo?.owner?._id?.toString() === userId && (
               <div
                 style={styles.actionItem}
@@ -248,12 +243,11 @@ const RepositoryDetails = () => {
             </div>
           </div>
 
-          {/* File Upload & Commit Section */}
+          {/* File Upload & Commit Section (From Complex) */}
           {repo && repo.owner && userId && repo.owner._id === userId && (
             <div style={{ marginTop: "30px" }}>
               <div style={styles.sectionHeader}>
-                <FaPlusCircle style={{ marginRight: "8px", color: "#58a6ff" }} />
-                <h3 style={{ color: "#58a6ff", margin: 0 }}>Manage Files</h3>
+                <h3 style={{ margin: 0 }}>Manage Files</h3>
               </div>
               <FileUploadCommit 
                 user={repo.owner.username} 
@@ -262,14 +256,13 @@ const RepositoryDetails = () => {
               />
             </div>
           )}
-
-         
-          {/* Commits History Section */}
+          
+          {/* Commits History Section (From Complex, styled with Simple) */}
           <div style={{ marginTop: "40px" }}>
             <div style={styles.sectionHeader}>
               <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <FaHistory style={{ color: "#58a6ff" }} />
-                <h3 style={{ color: "#58a6ff", margin: 0 }}>Commit History</h3>
+                <FaHistory />
+                <h3 style={{ margin: 0 }}>Commit History</h3>
               </div>
             </div>
             
@@ -291,9 +284,9 @@ const RepositoryDetails = () => {
                         ) : (
                           <FaChevronRight style={styles.expandIcon} />
                         )}
-                        <div style={styles.commitNumber}>
+                        <span style={styles.commitNumber}>
                           #{commits.length - index}
-                        </div>
+                        </span>
                         <div style={styles.commitContent}>
                           <div style={styles.commitMessage}>
                             {commit.message}
@@ -318,36 +311,12 @@ const RepositoryDetails = () => {
                           cursor: downloadingCommit === commit.commitId ? 'not-allowed' : 'pointer'
                         }}
                         title={`Download commit ${commit.commitId} as ZIP`}
-                        onMouseEnter={(e) => {
-                          if (downloadingCommit !== commit.commitId) {
-                            e.target.style.backgroundColor = "#30363d";
-                            e.target.style.color = "#4a9eff";
-                            e.target.style.transform = "translateY(-1px)";
-                            e.target.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.3)";
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          if (downloadingCommit !== commit.commitId) {
-                            e.target.style.backgroundColor = "#21262d";
-                            e.target.style.color = "#58a6ff";
-                            e.target.style.transform = "translateY(0)";
-                            e.target.style.boxShadow = "0 2px 4px rgba(0, 0, 0, 0.2)";
-                          }
-                        }}
                       >
                         {downloadingCommit === commit.commitId ? (
-                          <div style={{
-                            width: "50px",
-                            height: "14px",
-                            border: "2px solid #58a6ff",
-                            borderTop: "2px solid transparent",
-                            borderRadius: "50%",
-                            animation: "spin 1s linear infinite"
-                          }} />
+                          <div style={styles.spinner} />
                         ) : (
                           <>
-                          <FaDownload size={14} />
-                          Download
+                            <FaDownload size={14} />
                           </>
                         )}
                       </button>
@@ -377,243 +346,224 @@ const RepositoryDetails = () => {
   );
 };
 
+// --- STYLES (Simple styles + new styles for commits) ---
 const styles = {
+  // Styles from the simple file
   wrapper: {
     paddingTop: "0px",
     backgroundColor: "#0d1117",
     height: "100%",
-    minHeight: "100vh",
-    padding: "120px 20px 40px",
+    minHeight: "100vh", // <-- THIS WAS THE FIX
+    padding: "100px 20px 30px",
     width: "100%",
     color: "#c9d1d9",
-    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    fontFamily:
+      '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',
   },
   card: {
-    background: "linear-gradient(145deg, #161b22, #1c2128)",
+    background: "#161b22",
     border: "1px solid #30363d",
-    borderRadius: "8px",
-    padding: "28px",
+    borderRadius: "10px",
+    padding: "25px 30px",
     margin: "0 auto",
-    maxWidth: "800px",
-    boxShadow: "0 6px 14px rgba(0,0,0,0.4)",
-    position: "relative",
-    overflow: "hidden",
+    maxWidth: "800px", // Increased width to fit more content
+    boxShadow: "0 0 20px rgba(0, 0, 0, 0.4)",
   },
   headerRow: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: "24px",
-    paddingBottom: "20px",
-    borderBottom: "1px solid #30363d",
+    marginBottom: 12,
   },
   repoName: {
-    fontSize: "32px",
-    fontWeight: 800,
+    fontSize: "22px",
+    fontWeight: 700,
     margin: 0,
-    color: "#58a6ff",
   },
   blueText: {
-    color: "inherit",
+    color: "#58a6ff",
   },
   ownerInfo: {
     display: "flex",
     alignItems: "center",
-    fontSize: "16px",
-    color: "#8b949e",
-    fontWeight: 500,
-    padding: "8px 16px",
-    backgroundColor: "#21262d",
-    borderRadius: "6px",
-    border: "1px solid #30363d",
+    fontSize: "14px",
+    color: "#c9d1d9",
   },
   visibilityBadge: {
     display: "flex",
     alignItems: "center",
-    gap: "8px",
+    gap: "6px",
     fontSize: "14px",
     fontWeight: 600,
-    marginBottom: "20px",
-    color: "#8b949e",
-    padding: "6px 12px",
-    backgroundColor: "#21262d",
-    borderRadius: "6px",
-    border: "1px solid #30363d",
-    width: "fit-content",
+    marginBottom: "12px",
+    color: "#c9d1d9",
   },
   desc: {
-    fontSize: "18px",
+    fontSize: "16px",
     color: "#8b949e",
-    marginBottom: "24px",
-    lineHeight: "1.6",
-    fontStyle: "italic",
+    marginBottom: 16,
   },
   metaText: {
-    fontSize: "15px",
+    fontSize: "14px",
     color: "#8b949e",
-    marginBottom: "8px",
-    fontWeight: 500,
+    marginBottom: 4,
   },
   statsRow: {
     display: "flex",
     justifyContent: "flex-start",
-    gap: "24px",
-    marginTop: "32px",
-    marginBottom: "32px",
-    padding: "20px",
-    backgroundColor: "#21262d",
-    borderRadius: "6px",
-    border: "1px solid #30363d",
+    gap: "30px",
+    marginTop: 20,
+    marginBottom: 25,
   },
   statItem: {
     display: "flex",
     alignItems: "center",
-    gap: "8px",
-    fontSize: "16px",
+    gap: 6,
+    fontSize: "14px",
     color: "#c9d1d9",
-    cursor: "pointer",
-    padding: "8px 16px",
-    borderRadius: "6px",
-    transition: "all 0.3s ease",
-    fontWeight: 600,
-    backgroundColor: "transparent",
+    cursor: "pointer", // Added
   },
   actionRow: {
     display: "flex",
-    justifyContent: "space-between",
-    marginTop: "24px",
-    gap: "16px",
+    justifyContent: "flex-start", // Changed
+    marginTop: 10,
+    gap: 12,
     flexWrap: "wrap",
   },
   actionItem: {
     display: "flex",
     alignItems: "center",
-    gap: "8px",
+    gap: 6,
     color: "#c9d1d9",
-    fontWeight: 600,
+    fontWeight: 500,
     borderRadius: "6px",
-    padding: "12px 20px",
+    padding: "10px 14px",
     cursor: "pointer",
-    transition: "all 0.3s ease",
-    fontSize: "15px",
-    backgroundColor: "#21262d",
-    border: "1px solid #30363d",
-    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
+    transition: "background 0.2s ease",
+    fontSize: "14px",
+    backgroundColor: "#21262d", // Added
+    border: "1px solid #30363d", // Added
   },
   icon: {
-    color: "#58a6ff",
-    fontSize: "16px",
+    color: "#58a6ff", // Changed
   },
   loading: {
     textAlign: "center",
-    padding: "40px",
+    padding: "30px",
     fontSize: "18px",
-    color: "#8b949e",
-    fontWeight: 500,
+    color: "#8b949e", // Added
   },
   error: {
     textAlign: "center",
-    padding: "40px",
+    padding: "30px",
     color: "#f85149",
     fontSize: "18px",
-    fontWeight: 600,
-    backgroundColor: "#21262d",
-    borderRadius: "6px",
-    border: "1px solid #30363d",
   },
+
+  // --- New styles added for commit history ---
   sectionHeader: {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: "24px",
-    paddingBottom: "16px",
+    marginBottom: "16px",
+    paddingBottom: "10px",
     borderBottom: "1px solid #30363d",
+    color: "#58a6ff", // Matched blueText
+    fontSize: "18px",
+    fontWeight: "600",
   },
   commitsContainer: {
-    maxHeight: "600px",
-    overflowY: "auto",
     border: "1px solid #30363d",
     borderRadius: "6px",
+    marginTop: "16px",
+    maxHeight: "600px",
+    overflowY: "auto",
     backgroundColor: "#0d1117",
-    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.3)",
   },
   commitItem: {
     borderBottom: "1px solid #30363d",
-    transition: "all 0.3s ease",
   },
   commitHeader: {
     display: "flex",
-    alignItems: "center",
     justifyContent: "space-between",
-    padding: "20px 24px",
-    transition: "all 0.3s ease",
-    backgroundColor: "transparent",
-    borderRadius: "6px",
-    margin: "4px",
+    alignItems: "center",
+    padding: "12px 16px",
   },
   commitHeaderLeft: {
     display: "flex",
     alignItems: "center",
-    gap: "16px",
+    gap: "10px",
     cursor: "pointer",
     flex: 1,
+    minWidth: 0,
+  },
+  expandIcon: { 
+    color: "#8b949e",
+    fontSize: "12px",
   },
   commitNumber: {
-    fontSize: "14px",
-    fontWeight: "700",
-    color: "#58a6ff",
-    backgroundColor: "#21262d",
-    padding: "6px 12px",
-    borderRadius: "6px",
-    minWidth: "40px",
-    textAlign: "center",
-    border: "1px solid #30363d",
+    fontSize: "12px",
+    fontWeight: "600",
+    color: "#8b949e",
   },
   commitContent: {
     flex: 1,
-  },
-  expandIcon: {
-    color: "#58a6ff",
-    fontSize: "14px",
-    transition: "transform 0.3s ease",
+    minWidth: 0,
   },
   commitMessage: {
-    fontSize: "18px",
-    fontWeight: "700",
     color: "#c9d1d9",
-    marginBottom: "6px",
-    lineHeight: "1.4",
+    fontWeight: "600",
     display: "flex",
     alignItems: "center",
-    gap: "12px",
+    gap: "8px",
   },
   latestBadge: {
-    fontSize: "12px",
+    fontSize: "10px",
     fontWeight: "600",
     color: "#3fb950",
     backgroundColor: "#21262d",
-    padding: "4px 8px",
-    borderRadius: "6px",
-    border: "1px solid #30363d",
+    padding: "2px 6px",
+    borderRadius: "4px",
   },
   commitMeta: {
-    fontSize: "15px",
+    fontSize: "12px",
     color: "#8b949e",
-    fontWeight: 500,
+    marginTop: "4px",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+  },
+  commitDownloadButton: {
+    background: "#21262d",
+    border: "1px solid #30363d",
+    color: "#58a6ff",
+    padding: "6px 10px",
+    borderRadius: "6px",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center", // Added
+    gap: "5px",
+    minWidth: "36px", // Added
+    height: "30px", // Added
+  },
+  spinner: {
+    width: "14px",
+    height: "14px",
+    border: "2px solid #58a6ff",
+    borderTop: "2px solid transparent",
+    borderRadius: "50%",
+    animation: "spin 1s linear infinite"
   },
   commitFiles: {
-    padding: "0 24px 20px 24px",
-    backgroundColor: "#161b22",
+    backgroundColor: "#0d1117",
+    padding: "16px",
     borderTop: "1px solid #30363d",
-    borderRadius: "0 0 6px 6px",
   },
   filesHeader: {
-    fontSize: "16px",
     color: "#c9d1d9",
-    marginBottom: "16px",
     fontWeight: "600",
-    padding: "12px 0",
-    borderBottom: "1px solid #30363d",
+    marginBottom: "10px",
   },
   filesList: {
     display: "flex",
@@ -623,44 +573,22 @@ const styles = {
   fileItem: {
     display: "flex",
     alignItems: "center",
-    gap: "12px",
-    fontSize: "15px",
-    color: "#c9d1d9",
-    padding: "12px 16px",
-    backgroundColor: "#21262d",
-    borderRadius: "6px",
-    border: "1px solid #30363d",
-    transition: "all 0.2s ease",
-    fontWeight: 500,
+    gap: "8px",
+
+    color: "#8b949e",
+    fontSize: "14px",
   },
-  fileIcon: {
-    color: "#58a6ff",
+  fileIcon: { 
+    color: "#8b949e",
     fontSize: "14px",
   },
   noCommits: {
     textAlign: "center",
-    padding: "60px 40px",
+    padding: "20px",
     color: "#8b949e",
-    fontSize: "18px",
     fontStyle: "italic",
-    backgroundColor: "#21262d",
+    background: "#21262d",
     borderRadius: "6px",
-    border: "2px dashed #30363d",
-  },
-  commitDownloadButton: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    width: "36px",
-    height: "36px",
-    backgroundColor: "#21262d",
-    color: "#58a6ff",
-    border: "1px solid #30363d",
-    borderRadius: "6px",
-    cursor: "pointer",
-    transition: "all 0.3s ease",
-    marginLeft: "12px",
-    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
   },
 };
 

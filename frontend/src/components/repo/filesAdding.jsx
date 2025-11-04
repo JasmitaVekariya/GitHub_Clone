@@ -1,5 +1,19 @@
 import React, { useState } from "react";
 import axios from "axios";
+// --- ICONS ---
+import { 
+  FaFolder, 
+  FaUpload, 
+  FaFile, 
+  FaPlus, 
+  FaClipboardList, 
+  FaClock, 
+  FaRocket 
+} from "react-icons/fa";
+
+// --- SET YOUR LIMIT HERE ---
+const MAX_FILE_SIZE_MB = 20;
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
 const FileUploadCommit = ({ user, repo, onCommitSuccess }) => {
   const [selectedFiles, setSelectedFiles] = useState([]);
@@ -14,9 +28,30 @@ const FileUploadCommit = ({ user, repo, onCommitSuccess }) => {
     }
   });
 
-  // Step 1: select files
+  // --- THIS FUNCTION IS UPDATED ---
   const handleFileSelect = (e) => {
-    setSelectedFiles([...selectedFiles, ...e.target.files]);
+    const files = Array.from(e.target.files);
+    const validFiles = [];
+    const oversizedFiles = [];
+
+    for (const file of files) {
+      if (file.size > MAX_FILE_SIZE_BYTES) {
+        oversizedFiles.push(file.name);
+      } else {
+        validFiles.push(file);
+      }
+    }
+
+    // Show an alert if any files were too large
+    if (oversizedFiles.length > 0) {
+      alert(
+        `The following files are too large (Max ${MAX_FILE_SIZE_MB}MB):\n\n` +
+        oversizedFiles.join("\n")
+      );
+    }
+    
+    // Add only the valid files
+    setSelectedFiles((prev) => [...prev, ...validFiles]);
   };
 
   // Step 2: move to commit box
@@ -72,7 +107,9 @@ const FileUploadCommit = ({ user, repo, onCommitSuccess }) => {
       {/* Box 1: Add Files */}
       <div style={styles.box}>
         <div style={styles.boxHeader}>
-          <h3 style={styles.boxTitle}>📁 Add Files</h3>
+          <h3 style={styles.boxTitle}>
+            <FaFolder style={styles.titleIcon} /> Add Files
+          </h3>
           <p style={styles.boxSubtitle}>Select files to add to your repository</p>
         </div>
         
@@ -85,7 +122,7 @@ const FileUploadCommit = ({ user, repo, onCommitSuccess }) => {
             id="file-upload"
           />
           <label htmlFor="file-upload" style={styles.fileInputLabel}>
-            <span style={styles.uploadIcon}>📤</span>
+            <FaUpload style={styles.uploadIcon} />
             Choose Files
           </label>
         </div>
@@ -96,13 +133,13 @@ const FileUploadCommit = ({ user, repo, onCommitSuccess }) => {
             <div style={styles.filesList}>
               {selectedFiles.map((f, idx) => (
                 <div key={idx} style={styles.fileItem}>
-                  <span style={styles.fileIcon}>📄</span>
+                  <FaFile style={styles.fileIcon} />
                   <span style={styles.fileName}>{f.name}</span>
                 </div>
               ))}
             </div>
             <button onClick={handleAddToCommit} style={styles.addButton}>
-              ➕ Add to Commit
+              <FaPlus style={styles.buttonIcon} /> Add to Commit
             </button>
           </div>
         )}
@@ -111,13 +148,14 @@ const FileUploadCommit = ({ user, repo, onCommitSuccess }) => {
       {/* Box 2: Commit Box */}
       <div style={styles.box}>
         <div style={styles.boxHeader}>
-          <h3 style={styles.boxTitle}>💾 Commit Box</h3>
+          <h3 style={styles.boxTitle}>
+            <FaClipboardList style={styles.titleIcon} /> Commit Box 
+          </h3>
           <p style={styles.boxSubtitle}>Review and commit your changes</p>
         </div>
         
         {commitFiles.length === 0 ? (
           <div style={styles.emptyState}>
-            <span style={styles.emptyIcon}>📦</span>
             <p style={styles.emptyText}>No files to commit</p>
             <p style={styles.emptySubtext}>Add some files first to get started</p>
           </div>
@@ -128,7 +166,7 @@ const FileUploadCommit = ({ user, repo, onCommitSuccess }) => {
               <div style={styles.filesList}>
                 {commitFiles.map((f, idx) => (
                   <div key={idx} style={styles.fileItem}>
-                    <span style={styles.fileIcon}>📄</span>
+                    <FaFile style={styles.fileIcon} />
                     <span style={styles.fileName}>{f.name}</span>
                   </div>
                 ))}
@@ -150,7 +188,15 @@ const FileUploadCommit = ({ user, repo, onCommitSuccess }) => {
               disabled={uploading}
               style={uploading ? styles.pushButtonDisabled : styles.pushButton}
             >
-              {uploading ? "⏳ Pushing..." : "🚀 Commit & Push"}
+              {uploading ? (
+                <>
+                  <FaClock style={styles.buttonIcon} /> Pushing...
+                </>
+              ) : (
+                <>
+                  <FaRocket style={styles.buttonIcon} /> Commit & Push
+                </>
+              )}
             </button>
           </div>
         )}
@@ -159,6 +205,7 @@ const FileUploadCommit = ({ user, repo, onCommitSuccess }) => {
   );
 };
 
+// --- STYLES (Unchanged) ---
 const styles = {
   container: {
     display: "flex",
@@ -187,12 +234,22 @@ const styles = {
     fontWeight: "800",
     margin: "0 0 8px 0",
     color: "#c9d1d9",
+    display: "flex", 
+    alignItems: "center", 
+    justifyContent: "center", 
   },
   boxSubtitle: {
     fontSize: "16px",
     color: "#8b949e",
     margin: 0,
     fontWeight: "500",
+  },
+  titleIcon: {
+    marginRight: "10px",
+  },
+  buttonIcon: {
+    marginRight: "8px",
+    verticalAlign: "middle", 
   },
   fileInputContainer: {
     position: "relative",
@@ -223,6 +280,7 @@ const styles = {
   uploadIcon: {
     fontSize: "32px",
     marginBottom: "12px",
+    color: "#c9d1d9", 
   },
   selectedFilesContainer: {
     marginTop: "20px",
@@ -245,116 +303,133 @@ const styles = {
     gap: "8px",
     marginBottom: "20px",
   },
-  fileItem: {
+  fileItem: { 
     display: "flex",
     alignItems: "center",
     gap: "12px",
     padding: "12px 16px",
-    backgroundColor: "#f1f5f9",
-    borderRadius: "12px",
-    border: "1px solid #e2e8f0",
+    backgroundColor: "#21262d",
+    borderRadius: "6px",
+    border: "1px solid #30363d",
     transition: "all 0.2s ease",
+    overflow: "hidden",
   },
   fileIcon: {
     fontSize: "16px",
+    color: "#8b949e", 
+    flexShrink: 0,
   },
-  fileName: {
+  fileName: { 
     fontSize: "15px",
     fontWeight: "500",
-    color: "#475569",
+    color: "#c9d1d9",
+    flex: 1,
+    minWidth: 0,
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
   },
-  addButton: {
+  addButton: { 
     width: "100%",
     padding: "12px 20px",
-    backgroundColor: "#667eea",
+    backgroundColor: "#3a4251", // Navy button
     color: "white",
     border: "none",
-    borderRadius: "12px",
+    borderRadius: "6px",
     fontSize: "16px",
     fontWeight: "600",
     cursor: "pointer",
     transition: "all 0.3s ease",
     boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+    display: "flex", 
+    alignItems: "center", 
+    justifyContent: "center", 
   },
-  emptyState: {
+  emptyState: { 
     textAlign: "center",
     padding: "40px 20px",
-    color: "#64748b",
+    color: "#8b949e",
   },
-  emptyIcon: {
+  emptyIcon: { 
     fontSize: "48px",
     display: "block",
     marginBottom: "16px",
+    color: "#c9d1d9", 
   },
-  emptyText: {
+  emptyText: { 
     fontSize: "18px",
     fontWeight: "600",
     margin: "0 0 8px 0",
-    color: "#475569",
+    color: "#c9d1d9",
   },
-  emptySubtext: {
+  emptySubtext: { 
     fontSize: "14px",
     margin: 0,
-    color: "#94a3b8",
+    color: "#8b949e",
   },
   commitContainer: {
     display: "flex",
     flexDirection: "column",
     gap: "20px",
   },
-  commitFilesList: {
-    backgroundColor: "#f8fafc",
+  commitFilesList: { 
+    backgroundColor: "#0d1117",
     padding: "20px",
-    borderRadius: "12px",
-    border: "1px solid #e2e8f0",
+    borderRadius: "6px",
+    border: "1px solid #30363d",
   },
   messageContainer: {
     display: "flex",
     flexDirection: "column",
     gap: "8px",
   },
-  messageLabel: {
+  messageLabel: { 
     fontSize: "16px",
     fontWeight: "600",
-    color: "#374151",
+    color: "#c9d1d9",
   },
-  messageInput: {
+  messageInput: { 
     width: "100%",
     minHeight: "80px",
     padding: "16px",
-    border: "2px solid #e2e8f0",
-    borderRadius: "12px",
+    border: "1px solid #30363d",
+    borderRadius: "6px",
     fontSize: "15px",
     fontFamily: "inherit",
     resize: "vertical",
     transition: "all 0.3s ease",
-    backgroundColor: "#ffffff",
+    backgroundColor: "#0d1117",
+    color: "#c9d1d9",
   },
-  pushButton: {
+  pushButton: { 
     width: "100%",
     padding: "16px 24px",
-    backgroundColor: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-    color: "white",
-    border: "none",
-    borderRadius: "12px",
-    fontSize: "18px",
-    fontWeight: "700",
-    cursor: "pointer",
-    transition: "all 0.3s ease",
-    boxShadow: "0 10px 25px -5px rgba(102, 126, 234, 0.4)",
-  },
-  pushButtonDisabled: {
-    width: "100%",
-    padding: "16px 24px",
-    backgroundColor: "#8b949e",
+    background: "#3a4251", // Navy button
     color: "white",
     border: "none",
     borderRadius: "6px",
     fontSize: "18px",
     fontWeight: "700",
+    cursor: "pointer",
+    transition: "all 0.3s ease",
+    boxShadow: "0 2px 10px rgba(53, 62, 76, 0.7)",
+    display: "flex", 
+    alignItems: "center", 
+    justifyContent: "center", 
+  },
+  pushButtonDisabled: { 
+    width: "100%",
+    padding: "16px 24px",
+    backgroundColor: "#21262d",
+    color: "#8b949e",
+    border: "none",
+    borderRadius: "6px",
+    fontSize: "18px",
+    fontWeight: "700",
     cursor: "not-allowed",
-    opacity: 0.6,
+    display: "flex", 
+    alignItems: "center", 
+    justifyContent: "center", 
   },
 };
 

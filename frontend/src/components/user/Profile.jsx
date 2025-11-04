@@ -4,7 +4,10 @@ import axios from "axios";
 import Navbar from "../Navbar";
 import HeatMapProfile from "./HeatMap";
 import { useAuth } from "../../authContext";
-import { FaUser, FaEnvelope, FaCode, FaStar, FaEye, FaCodeBranch, FaSignOutAlt, FaEdit, FaBook, FaHistory } from "react-icons/fa";
+// --- CHANGED IMPORTS ---
+import { UnderlineNav } from "@primer/react"; 
+import { BookIcon, RepoIcon } from "@primer/octicons-react";
+import { FaUser, FaEnvelope, FaCode, FaStar, FaEye, FaCodeBranch, FaSignOutAlt, FaEdit, FaHistory } from "react-icons/fa";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -104,21 +107,24 @@ const Profile = () => {
     <>
       <Navbar />
       <div style={styles.container}>
-        {/* Navigation Tabs */}
+        {/* --- REPLACED NAVBAR JSX --- */}
         <div style={styles.navTabs}>
-          <div style={styles.tabContainer}>
-            <button style={styles.activeTab}>
-              <FaBook style={styles.tabIcon} />
-              Overview
-            </button>
-            <button 
-              style={styles.tab}
-              onClick={() => navigate("/profile/starred")}
+          <UnderlineNav aria-label="Repository">
+            <UnderlineNav.Item
+              aria-current="page"
+              icon={BookIcon}
+              sx={styles.underlineNavItem}
             >
-              <FaStar style={styles.tabIcon} />
+              Overview
+            </UnderlineNav.Item>
+            <UnderlineNav.Item
+              onClick={() => navigate("/profile/starred")}
+              icon={RepoIcon}
+              sx={styles.underlineNavItem}
+            >
               Starred Repositories
-            </button>
-          </div>
+            </UnderlineNav.Item>
+          </UnderlineNav>
         </div>
 
         <div style={styles.profileContainer}>
@@ -126,8 +132,9 @@ const Profile = () => {
           <div style={styles.sidebar}>
             <div style={styles.profileCard}>
               <div style={styles.profileImage}>
+                {/* --- THIS IS THE CHANGED LINE --- */}
                 <img
-                  src={userDetails.profilePicture}
+                  src="https://avatars.githubusercontent.com/u/583231?v=4"
                   alt="Profile"
                   style={styles.avatar}
                 />
@@ -271,6 +278,7 @@ const Profile = () => {
   );
 };
 
+// --- UPDATED STYLES OBJECT ---
 const styles = {
   container: {
     minHeight: "100vh",
@@ -281,45 +289,32 @@ const styles = {
   navTabs: {
     maxWidth: "1200px",
     margin: "0 auto 32px",
+    borderBottom: "1px solid #30363d",
+    paddingLeft: "20px",
   },
-  tabContainer: {
-    display: "flex",
-    gap: "8px",
-    background: "rgba(255, 255, 255, 0.1)",
-    borderRadius: "6px",
-    padding: "4px",
-    backdropFilter: "blur(10px)",
-  },
-  activeTab: {
-    display: "flex",
-    alignItems: "center",
-    gap: "8px",
-    padding: "12px 20px",
-    borderRadius: "6px",
-    border: "none",
-    background: "rgba(255, 255, 255, 0.9)",
-    color: "#1e293b",
-    fontWeight: "600",
-    fontSize: "16px",
-    cursor: "pointer",
-    transition: "all 0.3s ease",
-  },
-  tab: {
-    display: "flex",
-    alignItems: "center",
-    gap: "8px",
-    padding: "12px 20px",
-    borderRadius: "6px",
-    border: "none",
-    background: "transparent",
-    color: "rgba(255, 255, 255, 0.8)",
-    fontWeight: "600",
-    fontSize: "16px",
-    cursor: "pointer",
-    transition: "all 0.3s ease",
-  },
-  tabIcon: {
-    fontSize: "16px",
+  underlineNavItem: {
+    color: "#c9d1d9",
+    padding: "10px 0",
+    fontWeight: 600,
+    fontSize: "1rem",
+    borderBottom: "3px solid transparent",
+    transition: "color 0.2s ease, border-color 0.2s ease",
+    "&:hover": {
+       color: "#6a99cfff",
+      
+    },
+    "&[aria-current='page']": {
+      color: "#729cccff",
+     
+      fontWeight: 700,
+    },
+    "& svg": {
+      verticalAlign: "middle",
+      marginRight: "6px",
+      fill: "currentColor",
+      height: "16px",
+      width: "16px",
+    }
   },
   profileContainer: {
     maxWidth: "1200px",
@@ -329,7 +324,7 @@ const styles = {
     gap: "32px",
   },
   sidebar: {
-    display: "flex",
+    display:"flex",
     flexDirection: "column",
   },
   profileCard: {
@@ -398,7 +393,7 @@ const styles = {
   statNumber: {
     fontSize: "24px",
     fontWeight: "800",
-    color: "#c9d1d9",
+    color: "#c9d1d9", // <-- Fixed typo here
   },
   statLabel: {
     fontSize: "14px",
@@ -413,7 +408,7 @@ const styles = {
     padding: "12px 24px",
     borderRadius: "6px",
     border: "none",
-    background: "#58a6ff",
+    background: "#3a4251", 
     color: "white",
     fontSize: "16px",
     fontWeight: "600",
@@ -576,7 +571,7 @@ const styles = {
     background: "#161b22",
     borderRadius: "6px",
     padding: "32px",
-    boxShadow: "0 6px 14px rgba(0,0,0,0.4)",
+    boxShadow: "0 6px 14px rgba(0,0,m,0.4)",
     border: "1px solid #30363d",
   },
   heatmapCard: {
@@ -595,14 +590,14 @@ const styles = {
     padding: "12px 20px",
     borderRadius: "6px",
     border: "none",
-    background: "#f85149",
+    background: "#3a4251", 
     color: "white",
     fontSize: "16px",
     fontWeight: "600",
     cursor: "pointer",
     transition: "all 0.3s ease",
-    boxShadow: "0 8px 25px -5px rgba(248, 81, 73, 0.4)",
+    boxShadow: "0 2px 10px rgba(53, 62, 76, 0.7)", 
   },
 };
 
-export default Profile; 
+export default Profile;

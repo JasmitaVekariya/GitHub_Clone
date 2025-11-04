@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../Navbar";
-import { FaStar, FaBook, FaCode, FaEye, FaCodeBranch, FaSpinner } from "react-icons/fa";
+// --- Icons for content ---
+import { FaStar, FaCode, FaEye, FaCodeBranch, FaSpinner } from "react-icons/fa";
+// --- Imports for new navigation ---
+import { UnderlineNav } from "@primer/react"; 
+import { BookIcon, StarIcon } from "@primer/octicons-react"; // Using StarIcon instead of FaStar for nav
 
 const StarredRepos = () => {
   const [repos, setRepos] = useState([]);
@@ -31,21 +35,24 @@ const StarredRepos = () => {
     <>
       <Navbar />
       <div style={styles.container}>
-        {/* Navigation Tabs */}
+        {/* --- NAVIGATION TABS REPLACED --- */}
         <div style={styles.navTabs}>
-          <div style={styles.tabContainer}>
-            <button 
-              style={styles.tab}
+          <UnderlineNav aria-label="Profile Navigation">
+            <UnderlineNav.Item
               onClick={() => navigate("/profile")}
+              icon={BookIcon}
+              sx={styles.underlineNavItem}
             >
-              <FaBook style={styles.tabIcon} />
               Overview
-            </button>
-            <button style={styles.activeTab}>
-              <FaStar style={styles.tabIcon} />
+            </UnderlineNav.Item>
+            <UnderlineNav.Item
+              aria-current="page" // This is now the active tab
+              icon={StarIcon}
+              sx={styles.underlineNavItem}
+            >
               Starred Repositories
-            </button>
-          </div>
+            </UnderlineNav.Item>
+          </UnderlineNav>
         </div>
 
         <div style={styles.content}>
@@ -118,6 +125,7 @@ const StarredRepos = () => {
   );
 };
 
+// --- STYLES UPDATED ---
 const styles = {
   container: {
     minHeight: "100vh",
@@ -125,49 +133,39 @@ const styles = {
     padding: "120px 20px 40px",
     fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
   },
+  // --- Style updated to match Profile.js ---
   navTabs: {
     maxWidth: "1200px",
     margin: "0 auto 32px",
+    borderBottom: "1px solid #30363d",
+    paddingLeft: "20px",
   },
-  tabContainer: {
-    display: "flex",
-    gap: "8px",
-    background: "rgba(255, 255, 255, 0.1)",
-    borderRadius: "12px",
-    padding: "4px",
-    backdropFilter: "blur(10px)",
+  // --- Style added from Profile.js ---
+  underlineNavItem: {
+    color: "#c9d1d9",
+    padding: "10px 0",
+    fontWeight: 600,
+    fontSize: "1rem",
+    borderBottom: "3px solid transparent",
+    transition: "color 0.2s ease, border-color 0.2s ease",
+    "&:hover": {
+      color: "#6a99cfff",
+     
+    },
+    "&[aria-current='page']": {
+    color: "#729cccff",           // <-- This is the text color
+      borderBottomColor: "#729cccff",
+      fontWeight: 700,
+    },
+    "& svg": {
+      verticalAlign: "middle",
+      marginRight: "6px",
+      fill: "currentColor",
+      height: "16px",
+      width: "16px",
+    }
   },
-  activeTab: {
-    display: "flex",
-    alignItems: "center",
-    gap: "8px",
-    padding: "12px 20px",
-    borderRadius: "6px",
-    border: "none",
-    background: "rgba(255, 255, 255, 0.9)",
-    color: "#1e293b",
-    fontWeight: "600",
-    fontSize: "16px",
-    cursor: "pointer",
-    transition: "all 0.3s ease",
-  },
-  tab: {
-    display: "flex",
-    alignItems: "center",
-    gap: "8px",
-    padding: "12px 20px",
-    borderRadius: "6px",
-    border: "none",
-    background: "transparent",
-    color: "rgba(255, 255, 255, 0.8)",
-    fontWeight: "600",
-    fontSize: "16px",
-    cursor: "pointer",
-    transition: "all 0.3s ease",
-  },
-  tabIcon: {
-    fontSize: "16px",
-  },
+  // --- REMOVED tabContainer, activeTab, tab, tabIcon ---
   content: {
     maxWidth: "1200px",
     margin: "0 auto",
@@ -312,5 +310,15 @@ const styles = {
     fontWeight: "500",
   },
 };
+
+// Add CSS animation for spinner
+const spinnerStyle = document.createElement('style');
+spinnerStyle.textContent = `
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`;
+document.head.appendChild(spinnerStyle);
 
 export default StarredRepos;
