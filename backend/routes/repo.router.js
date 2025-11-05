@@ -4,7 +4,7 @@ const { addRepo } = require("../controllers/add.js");
 const { commitRepo } = require("../controllers/commit.js");
 const { pushRepo, getCommittedFiles } = require("../controllers/push.js");
 const { checkRepositoryOwnership } = require("../middleware/repoOwnershipMiddleware.js");
-const { downloadLatestCommitAsZip, downloadCommitAsZip } = require("../controllers/downloadController.js");
+const { downloadLatestCommitAsZip } = require("../controllers/downloadController.js");
 const multer = require("multer");
 const upload = multer({ dest: "uploads/" }); // temp storage
 
@@ -81,9 +81,6 @@ repoRouter.get("/repo/:user/:repo/commits", async (req, res) => {
 
 // Download latest commit as ZIP
 repoRouter.get("/repo/:user/:repo/download/latest", downloadLatestCommitAsZip);
-
-// Download specific commit as ZIP
-repoRouter.get("/repo/:user/:repo/download/:commitId", downloadCommitAsZip);
 
 
 module.exports = repoRouter;

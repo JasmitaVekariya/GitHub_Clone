@@ -33,7 +33,7 @@ const RepositoryDetails = () => {
   const [commits, setCommits] = useState([]);
   const [commitsLoading, setCommitsLoading] = useState(false);
   const [expandedCommits, setExpandedCommits] = useState(new Set());
-  const [downloadingCommit, setDownloadingCommit] = useState(null);
+  const [downloadingLatest, setDownloadingLatest] = useState(false);
 
   const userId = localStorage.getItem("userId");
   const token = localStorage.getItem("token");
@@ -73,13 +73,13 @@ const RepositoryDetails = () => {
     setExpandedCommits(newExpanded);
   };
 
-  const downloadCommit = async (commitId) => {
+  // Download latest commit as ZIP
+  const downloadLatestCommit = async () => {
     if (!repo || !repo.owner || !repo.name) return;
-    
-    setDownloadingCommit(commitId);
+    setDownloadingLatest(true);
     try {
       const response = await fetch(
-        `${API_BASE}/repo/${repo.owner.username}/${repo.name}/download/${commitId}`,
+        `${API_BASE}/repo/${repo.owner.username}/${repo.name}/download/latest`,
         {
           method: 'GET',
           headers: {
@@ -87,26 +87,23 @@ const RepositoryDetails = () => {
           }
         }
       );
-
       if (!response.ok) {
-        throw new Error('Failed to download files');
+        throw new Error('Failed to download latest commit');
       }
-
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `${repo.name}-commit-${commitId}.zip`;
+      link.download = `${repo.name}-latest.zip`;
       document.body.appendChild(link);
       link.click();
-      
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Error downloading files:', error);
-      alert('Failed to download files. Please try again.');
+      console.error('Error downloading latest commit:', error);
+      alert('Failed to download latest commit. Please try again.');
     } finally {
-      setDownloadingCommit(null);
+      setDownloadingLatest(false);
     }
   };
 
@@ -264,8 +261,27 @@ const RepositoryDetails = () => {
                 <FaHistory />
                 <h3 style={{ margin: 0 }}>Commit History</h3>
               </div>
+              <button
+                style={{
+                  ...styles.latestDownloadButton,
+                  opacity: downloadingLatest ? 0.7 : 1,
+                  cursor: downloadingLatest ? "not-allowed" : "pointer",
+                }}
+                onClick={downloadLatestCommit}
+                disabled={downloadingLatest}
+                title="Download latest commit as ZIP"
+              >
+                {downloadingLatest ? (
+                  <div style={styles.spinner} />
+                ) : (
+                  <>
+                    <FaDownload size={16} style={{ marginRight: 6 }} />
+                    Download Latest Commit
+                  </>
+                )}
+              </button>
             </div>
-            
+
             {commitsLoading ? (
               <div style={styles.loading}>Loading commits...</div>
             ) : commits.length === 0 ? (
@@ -275,7 +291,7 @@ const RepositoryDetails = () => {
                 {commits.map((commit, index) => (
                   <div key={commit.commitId} style={styles.commitItem}>
                     <div style={styles.commitHeader}>
-                      <div 
+                      <div
                         style={styles.commitHeaderLeft}
                         onClick={() => toggleCommitExpansion(commit.commitId)}
                       >
@@ -299,29 +315,8 @@ const RepositoryDetails = () => {
                           </div>
                         </div>
                       </div>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          downloadCommit(commit.commitId);
-                        }}
-                        disabled={downloadingCommit === commit.commitId}
-                        style={{
-                          ...styles.commitDownloadButton,
-                          opacity: downloadingCommit === commit.commitId ? 0.7 : 1,
-                          cursor: downloadingCommit === commit.commitId ? 'not-allowed' : 'pointer'
-                        }}
-                        title={`Download commit ${commit.commitId} as ZIP`}
-                      >
-                        {downloadingCommit === commit.commitId ? (
-                          <div style={styles.spinner} />
-                        ) : (
-                          <>
-                            <FaDownload size={14} />
-                          </>
-                        )}
-                      </button>
                     </div>
-                    
+
                     {expandedCommits.has(commit.commitId) && (
                       <div style={styles.commitFiles}>
                         <div style={styles.filesHeader}>Files in this commit:</div>
@@ -542,10 +537,26 @@ const styles = {
     cursor: "pointer",
     display: "flex",
     alignItems: "center",
-    justifyContent: "center", // Added
+    justifyContent: "center",
     gap: "5px",
-    minWidth: "36px", // Added
-    height: "30px", // Added
+    minWidth: "36px",
+    height: "30px",
+    // This button is now unused, but kept for reference.
+  },
+  latestDownloadButton: {
+    background: "#238636",
+    border: "none",
+    color: "#fff",
+    padding: "8px 18px",
+    borderRadius: "6px",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    fontWeight: 700,
+    fontSize: "15px",
+    boxShadow: "0 2px 8px rgba(63,185,80,0.10)",
+    transition: "background 0.2s",
+    gap: "5px",
   },
   spinner: {
     width: "14px",
