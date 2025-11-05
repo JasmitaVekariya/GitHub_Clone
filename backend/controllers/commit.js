@@ -71,4 +71,62 @@ async function commitRepo(user, repoName, msg) {
   }
 }
 
-module.exports = { commitRepo };
+async function copyCommitTree(src, dest) {
+  await fs.mkdir(dest, { recursive: true });
+  const entries = await fs.readdir(src, { withFileTypes: true });
+  for (const entry of entries) {
+    if (entry.name === "commit.json" || entry.name === "message.txt") continue;
+    const srcPath = path.join(src, entry.name);
+    const destPath = path.join(dest, entry.name);
+    if (entry.isDirectory()) {
+      await copyCommitTree(srcPath, destPath);
+    } else if (entry.isFile()) {
+      await fs.copyFile(srcPath, destPath);
+    }
+  }
+}
+
+async function revertCommitRepo(user, repoName, msg, targetCommitId) {
+  if (!user || !repoName || !targetCommitId) {
+    console.error("Revert commit failed: user, repoName, or targetCommitId is undefined");
+    return;
+  }
+
+  const repoPath = path.resolve(process.cwd(), ".github_clone");
+  const userFolder = path.join(repoPath, user);
+  const repoFolder = path.join(userFolder, repoName);
+  const commitsPath = path.join(repoFolder, "commits");
+
+  try {
+    const targetCommitPath = path.join(commitsPath, targetCommitId);
+    const exists = await fs.stat(targetCommitPath).catch(() => null);
+    if (!exists) {
+      console.error(`Revert commit failed: target commit ID ${targetCommitId} does not exist`);
+      return;
+    }
+
+    const newCommitId = uuidv4();
+    const newCommitDir = path.join(commitsPath, newCommitId);
+    await fs.mkdir(newCommitDir, { recursive: true });
+
+    await copyCommitTree(targetCommitPath, newCommitDir);
+
+    const revertMessage = `Revert commit ${targetCommitId}: ${msg}`;
+    const commitMeta = {
+      id: newCommitId,
+      message: revertMessage,
+      timestamp: new Date().toISOString(),
+    };
+
+    await fs.writeFile(path.join(newCommitDir, "commit.json"), JSON.stringify(commitMeta, null, 2));
+    await fs.writeFile(path.join(newCommitDir, "message.txt"), revertMessage);
+
+    console.log(`✅ Created new revert commit for ${user}/${repoName}`);
+    console.log(`→ New Commit ID: ${newCommitId}`);
+    console.log(`→ Message: "${revertMessage}"`);
+  } catch (error) {
+    console.error("❌ Error reverting commit:", error);
+  }
+}
+
+module.exports = { commitRepo, revertCommitRepo };

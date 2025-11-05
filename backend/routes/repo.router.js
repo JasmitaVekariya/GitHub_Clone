@@ -5,6 +5,7 @@ const { commitRepo } = require("../controllers/commit.js");
 const { pushRepo, getCommittedFiles } = require("../controllers/push.js");
 const { checkRepositoryOwnership } = require("../middleware/repoOwnershipMiddleware.js");
 const { downloadLatestCommitAsZip } = require("../controllers/downloadController.js");
+const { revertRepo } = require("../controllers/revert.js");
 const multer = require("multer");
 const upload = multer({ dest: "uploads/" }); // temp storage
 
@@ -78,6 +79,27 @@ repoRouter.get("/repo/:user/:repo/commits", async (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 });
+
+
+repoRouter.post(
+  "/repo/:user/:repo/revert/:commitId",
+  checkRepositoryOwnership,
+  async (req, res) => {
+    try {
+      const { user, repo, commitId } = req.params;
+      await revertRepo(user, repo, commitId);
+      res.json({
+        success: true,
+        message: `✅ Repository "${repo}" reverted to Commit ${commitId}`,
+      });
+    } catch (err) {
+      console.error("❌ Error reverting repository:", err.message);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+);
+
+
 
 // Download latest commit as ZIP
 repoRouter.get("/repo/:user/:repo/download/latest", downloadLatestCommitAsZip);

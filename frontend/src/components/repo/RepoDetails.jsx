@@ -34,6 +34,8 @@ const RepositoryDetails = () => {
   const [commitsLoading, setCommitsLoading] = useState(false);
   const [expandedCommits, setExpandedCommits] = useState(new Set());
   const [downloadingLatest, setDownloadingLatest] = useState(false);
+  // Handle revert commit with proper feedback and button disable state
+  const [reverting, setReverting] = useState(false);
 
   const userId = localStorage.getItem("userId");
   const token = localStorage.getItem("token");
@@ -106,6 +108,55 @@ const RepositoryDetails = () => {
       setDownloadingLatest(false);
     }
   };
+
+// Handle revert commit with proper feedback and button disable state
+const handleRevert = async (commitId) => {
+  if (!repo?.owner?.username || !repo?.name) {
+    alert("Repository not found!");
+    return;
+  }
+
+  const confirmRevert = window.confirm(
+    `⚠️ Are you sure you want to revert "${repo.name}" back to Commit ${commitId}?`
+  );
+  if (!confirmRevert) return;
+
+  setReverting(true);
+
+  try {
+    console.log(
+      "📡 Calling:",
+      `${API_BASE}/repo/${repo.owner.username}/${repo.name}/revert/${commitId}`
+    );
+
+    const response = await fetch(
+      `${API_BASE}/repo/${repo.owner.username}/${repo.name}/revert/${commitId}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "user-id": localStorage.getItem("userId"),
+          Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+        },
+      }
+    );
+
+    const data = await response.json();
+
+    if (response.ok && data.success) {
+      alert(`✅ ${data.message}`);
+      await fetchCommits(repo.owner.username, repo.name);
+    } else {
+      alert(`❌ ${data.error || "Failed to revert. Please try again."}`);
+    }
+  } catch (error) {
+    console.error("❌ Error reverting repository:", error);
+    alert("⚠️ Something went wrong while reverting the repository.");
+  } finally {
+    setReverting(false);
+  }
+};
+
 
   useEffect(() => {
     const fetchRepo = async () => {
@@ -315,6 +366,17 @@ const RepositoryDetails = () => {
                           </div>
                         </div>
                       </div>
+                      <button
+                        style={{
+                          ...styles.revertButton,
+                          opacity: reverting ? 0.6 : 1,
+                          cursor: reverting ? "not-allowed" : "pointer",
+                        }}
+                        onClick={() => handleRevert(commit.id || commit.commitId)}
+                        disabled={reverting}
+                      >
+                        {reverting ? "Reverting..." : "Revert"}
+                      </button>
                     </div>
 
                     {expandedCommits.has(commit.commitId) && (
@@ -600,6 +662,18 @@ const styles = {
     fontStyle: "italic",
     background: "#21262d",
     borderRadius: "6px",
+  },
+  revertButton: {
+    background: "#f85149",
+    border: "none",
+    color: "#fff",
+    padding: "6px 14px",
+    borderRadius: "6px",
+    cursor: "pointer",
+    fontWeight: 600,
+    fontSize: "14px",
+    marginLeft: "12px",
+    transition: "background 0.2s, opacity 0.2s",
   },
 };
 
